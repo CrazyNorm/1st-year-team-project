@@ -8,33 +8,36 @@ let x = 0;
 let y = 0;
 const moveCooldown = 200; // delay between moving (ms)
 let moveable = true;
+let moving = false;
 
 window.onload = function () {
-  canvas.width = window.innerWidth;
+  canvas.width = window.innerWidth * 0.75;
   canvas.height = window.innerHeight-100;
-  ctx.drawImage(gareth, x, y, 80, 80);
+  ctx.drawImage(gareth, x, y, 16, 16);
 }
 
 
 // checks moveable and moves in the appropriate direction for which arrow button was pressed
-function clickFunc(event) {
-  if (moveable) {
+function moveFunc(event) {
+  if (moveable && moving) {		
 		switch(event.target.id) {
 		  case "up":
-		    y -= 80;
+		    y -= 16;
 		    break;
 		  case "left":
-		    x -= 80;
+		    x -= 16;
 		    break;
 		  case "down":
-		    y += 80;
+		    y += 16;
 		    break;
 		  case "right":
-		    x += 80;
+		    x += 16;
 		    break;
 		}
 
 		drawFrame();
+
+		setTimeout(function() {moveFunc(event);}, moveCooldown);
   }
 }
 
@@ -44,16 +47,16 @@ function keyUpFunc(event) {
   if (moveable) {
 		switch(event.key) {
 		  case "w":
-		    y -= 80;
+		    y -= 16;
 		    break;
 		  case "a":
-		    x -= 80;
+		    x -= 16;
 		    break;
 		  case "s":
-		    y += 80;
+		    y += 16;
 		    break;
 		  case "d":
-		    x += 80;
+		    x += 16;
 		    break;
 		}
 
@@ -65,7 +68,7 @@ function keyUpFunc(event) {
 // refresh frame and set moveable to false for the duration of the cooldown
 function drawFrame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(gareth, x, y, 80, 80);
+  ctx.drawImage(gareth, x, y, 16, 16);
   moveable = false;
   setTimeout(function() {moveable = true;}, moveCooldown);
 }
@@ -74,7 +77,19 @@ function drawFrame() {
 // add event listeners to the arrow buttons + key presses
 let arrows = document.getElementsByClassName("arrow");
 for (element of arrows) {
-	element.addEventListener('touchstart', clickFunc);
-	element.addEventListener('click', clickFunc);
+	element.addEventListener('touchstart', function(event) {
+	  moving = true;
+	  moveFunc(event);
+	});
+	element.addEventListener('touchend', function(event) {
+	  moving = false;
+	});
+	element.addEventListener('mousedown', function(event) {
+	  moving = true;
+	  moveFunc(event);
+	});
+	element.addEventListener('mouseup', function(event) {
+	  moving = false;
+	});
 }
 document.addEventListener('keypress', keyUpFunc);
