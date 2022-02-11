@@ -131,6 +131,7 @@ window.onload = function() {
         break;
       }
     }
+    console.log(destination);
     return destination;
   }
 
