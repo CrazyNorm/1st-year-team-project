@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Test</title>
+
+	<style type="text/css">
+		#cnv {
+			background: yellow;
+			padding: 0;
+			margin: auto;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
+		#controls {
+			width: 25%;
+			height: 50%;
+			position: fixed;
+			bottom: 0;
+			right: 0;
+			border: 5px solid;
+			user-select: none;
+		}
+		.arrow {
+			text-align: center;
+			margin: 0;
+			font-size: 2em;
+		}
+	</style>
+
+</head>
+<body style="margin: 0;">
+	<canvas id="cnv">Canvas not supported</canvas>
+
+	<div style="display: none;">
+		<img src="gareth-16x16.png" id="player">
+		<img src="test-map.png" id="map">
+	</div>
+
+	<div id="controls">
+		<button id="up" class="arrow" style="position: absolute; top: 0; width: 100%; height: 33%">⬆️</button>
+		<button id="left" class="arrow" style="position: absolute; top: 33%; left: 0; width: 50%; height: 34%;">⬅️</button>
+		<button id="right" class="arrow" style="position: absolute; top: 33%; right: 0; width: 50%; height: 34%;">➡️</button>
+		<button id="down" class="arrow" style="position: absolute; bottom: 0; width: 100%; height: 33%;">⬇️</button>
+	</div>
+
+	<script src="testmapmove.js"></script>
+
+</body>
+</html>
