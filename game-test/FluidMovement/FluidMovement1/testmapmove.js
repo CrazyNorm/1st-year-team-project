@@ -11,6 +11,7 @@ const mapSize = [41,29];
 const desiredTiles = 20;
 let mapWidth = 0;
 let mapHeight = 0;
+let tilesize = 0;
 
 
 
@@ -35,7 +36,8 @@ let xKeys ={"a":0,
 			"d":0,
 			"touch":0};
 let ongoingTouches = [];
-var moveTouch = -1;
+let moveTouch = -1;
+let speed = 0;
 
 
 
@@ -48,31 +50,11 @@ let deltaTime = 0;
 let playing = true;
 
 
-
-
-
-let w = Math.floor(window.innerWidth/desiredTiles); //Tilewise map width
-let h = Math.floor(window.innerHeight/desiredTiles); //Tilewise map height
-
-let tilesize = Math.max(w,h) // Largest number of pixels per tile
-let speed = tilesize*2;
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-//RECALCULATE AFTER SCREEN CHANGES
-
-middleX = canvas.width/2;
-middleY = canvas.height/2;
+resizeHandler()
 
 
 //Event Listeners
-controlPad.addEventListener("touchmove",function(event) { handleMove(event)})
-controlPad.addEventListener("touchstart", function(event) {handleStart(event)})
-controlPad.addEventListener("touchend", function(event) {handleEnd(event)})
-controlPad.addEventListener("touchcanel",function(event) {handleCancel(event)})
-document.addEventListener("keydown", function(event){keyDownHandler(event)})
-document.addEventListener("keyup", function(event){keyUpHandler(event)})
+
 
 
 window.onload = function()
@@ -82,11 +64,40 @@ window.onload = function()
 	ctx.drawImage(map, 0,0,mapWidth,mapHeight);
 	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
 
+	controlPad.addEventListener("touchmove",function(event) {handleMove(event)})
+	controlPad.addEventListener("touchstart", function(event) {handleStart(event)})
+	controlPad.addEventListener("touchend", function(event) {handleEnd(event)})
+	controlPad.addEventListener("touchcanel",function(event) {handleCancel(event)})
+	document.addEventListener("keydown", function(event){keyDownHandler(event)})
+	document.addEventListener("keyup", function(event){keyUpHandler(event)})
+	window.addEventListener("resize",function(event){resizeHandler()})
+
 
 
 	setInterval(function () {mainLoop()},nextFrame)
 	
 };
+
+function resizeHandler()
+{
+	console.log("Reszied")
+	let w = Math.floor(window.innerWidth/desiredTiles); //Tilewise map width
+	let h = Math.floor(window.innerHeight/desiredTiles); //Tilewise map height
+
+	tilesize = Math.max(w,h) // Largest number of pixels per tile
+	speed = tilesize*2;
+
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	middleX = canvas.width/2;
+	middleY = canvas.height/2;
+	mapWidth = tilesize*mapSize[0]
+	mapHeight = tilesize*mapSize[1]
+	ctx.drawImage(map, 0,0,mapWidth,mapHeight);
+	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
+}
+
 
 
 //Has never happened, no clue how it happens. but supposedly it happens
