@@ -5,6 +5,7 @@ const map = document.getElementById("map");
 const player = document.getElementById("player");
 const controlPad = document.getElementById("controls");
 let controlCircle = document.getElementById("circle");
+let loop;
 
 //Map sizes
 const mapSize = [41,29];
@@ -43,7 +44,7 @@ let speed = 0;
 
 
 //Time variables
-const nextFrame = 20;//milliseconds until next frame
+const nextFrame = 10;//milliseconds until next frame
 const clock = new Date()
 let preTime = clock.getTime()
 let deltaTime = 0;
@@ -64,6 +65,34 @@ window.onload = function()
 	ctx.drawImage(map, 0,0,mapWidth,mapHeight);
 	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
 
+
+	//MOBILE DETECTION
+	var hasTouchScreen = false;
+	if ("maxTouchPoints" in navigator) {
+	    hasTouchScreen = navigator.maxTouchPoints > 0;
+	} else if ("msMaxTouchPoints" in navigator) {
+	    hasTouchScreen = navigator.msMaxTouchPoints > 0;
+	} else {
+	    var mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+	    if (mQ && mQ.media === "(pointer:coarse)") {
+	        hasTouchScreen = !!mQ.matches;
+	    } else if ('orientation' in window) {
+	        hasTouchScreen = true; // deprecated, but good fallback
+	    } else {
+	        // Only as a last resort, fall back to user agent sniffing
+	        var UA = navigator.userAgent;
+	        hasTouchScreen = (
+	            /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+	            /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+	        );
+	    }
+	}
+	if (!hasTouchScreen)
+	{
+		controlPad.style.display = "none";
+	}
+
+
 	controlPad.addEventListener("touchmove",function(event) {handleMove(event)})
 	controlPad.addEventListener("touchstart", function(event) {handleStart(event)})
 	controlPad.addEventListener("touchend", function(event) {handleEnd(event)})
@@ -71,11 +100,7 @@ window.onload = function()
 	document.addEventListener("keydown", function(event){keyDownHandler(event)})
 	document.addEventListener("keyup", function(event){keyUpHandler(event)})
 	window.addEventListener("resize",function(event){resizeHandler()})
-
-
-
-	setInterval(function () {mainLoop()},nextFrame)
-	
+	mainLoop();
 };
 
 function resizeHandler()
@@ -86,6 +111,8 @@ function resizeHandler()
 
 	tilesize = Math.max(w,h) // Largest number of pixels per tile
 	speed = tilesize*2;
+	console.log(window.innerWidth, window.innerHeight)
+	console.log(speed)
 
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -130,11 +157,17 @@ function handleEnd (event)
 			keysDown --;
 			xKeys["touch"] = 0
 			yKeys["touch"] = 0
+			ongoingTouches.splice(idx,1);
+			let circleRect = controlCircle.getBoundingClientRect();
+			controlCircle.style.margin = "auto";
+			controlCircle.style.left = "0";
+			controlCircle.style.top = "0";
+			controlCircle.style.backgroundColor = "gray"
 		}
 		idx = touchById(touches[i].identifier)
 		if (idx>=0)
 		{
-			ongoingTouches.splice(idx,1);
+
 		}
 	}
 }
@@ -156,6 +189,7 @@ function handleStart (event)
 			mouseX = touches[i].pageX-canvasRect.left;
 			mouseY = touches[i].pageY-canvasRect.top;
 			let circleRect = controlCircle.getBoundingClientRect();
+			controlCircle.style.margin = "0";
 			controlCircle.style.left = String(mouseX-circleRect.width/2)+"px";
 			controlCircle.style.top = String(mouseY-circleRect.height/2)+"px";
 			controlCircle.style.backgroundColor = "red"
@@ -222,12 +256,16 @@ function handleMove (event)
 	
 }
 
-function mainLoop()
+async function mainLoop()
 {	
+	let cdPromise = new Promise(function(resolve, reject) {
+      setTimeout(resolve, nextFrame);
+    });
 	let clock = new Date()
 	let curTime = clock.getTime();
 	deltaTime = (curTime - preTime)/1000;
 	preTime = curTime;
+
 
 
 	if (keysDown > 0)
@@ -241,17 +279,19 @@ function mainLoop()
 		{
 			let xdiff = (playerDX/m)*speed*deltaTime
 			let ydiff = (playerDY/m)*speed*deltaTime
-			playerX += Math.round(xdiff)
-			playerY += Math.round(ydiff)		
+			playerX += xdiff
+			playerY += ydiff		
 		}	
 		move()
 	}
+	await cdPromise;
+	mainLoop();
 }
 
 function move()
 {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
-	ctx.drawImage(map,playerX, playerY, mapWidth, mapHeight);
+	ctx.drawImage(map,Math.round(playerX), Math.round(playerY), mapWidth, mapHeight);
 	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
 
 }
