@@ -13,17 +13,15 @@ const desiredTiles = 20;
 let mapWidth = 0;
 let mapHeight = 0;
 let tilesize = 0;
-
-
-
+let collisionBoxes;
 
 //Player Constants
 const moveCooldown = 200;
 let moveCounter = 0;
 let fov = 20;
 let moving = false;
-let playerX = 0;
-let playerY = 0;
+let playerX = 100;
+let playerY = 100;
 let playerDX = 0;
 let playerDY = 0;
 let mouseX = 0;
@@ -57,7 +55,6 @@ resizeHandler()
 //Event Listeners
 
 
-
 window.onload = function()
 {
 	mapWidth = tilesize*mapSize[0]
@@ -87,10 +84,11 @@ window.onload = function()
 	        );
 	    }
 	}
-	if (!hasTouchScreen)
+	if (hasTouchScreen)
 	{
-		controlPad.style.display = "none";
+		controlPad.style.display = "block";
 	}
+	resizeHandler()
 
 
 	controlPad.addEventListener("touchmove",function(event) {handleMove(event)})
@@ -103,6 +101,71 @@ window.onload = function()
 	mainLoop();
 };
 
+function debug()
+{
+	console.log(playerX,playerY)
+}
+
+function collisionDetection ()
+{
+	ppoint1 = {"x" : playerX-tilesize/2, "y" : playerY-tilesize/2}
+	ppoint2 = {"x" : playerX+tilesize/2, "y" : playerY+tilesize/2}
+	for (box of collisionBoxes)
+	{
+		if (ppoint1.x < box[1].x && ppoint2.x > box[0].x)
+		{
+			
+			if (ppoint1.y < box[1].y && ppoint2.y > box[0].y)
+			{
+				let boxWidth = box[1].x-box[0].x
+				let boxHeight = box[1].y-box[0].y
+				let boxCentre = {"x" : (boxWidth)/2+box[0].x,
+								 "y" : (boxHeight)/2+box[0].y}
+				diffx = playerX - boxCentre.x;
+				diffy = playerY - boxCentre.y;
+				console.log(boxCentre)
+				console.log(Math.abs(boxWidth/boxHeight),Math.abs(diffx/diffy),diffx,diffy)
+				if (Math.abs(boxWidth/boxHeight)>Math.abs(diffx/diffy))
+				{
+					console.log(diffy)
+					if (diffy > 0)
+					{
+						console.log("bottom")
+						playerY = box[1].y+tilesize/2
+					} else
+					{
+						console.log("top")
+						playerY = box[0].y-tilesize/2
+					}
+				} else
+				{
+					if (diffx > 0)
+					{
+						console.log("right")
+						playerX = box[1].x+tilesize/2
+					} else
+					{
+						console.log("left")
+						playerX = box[0].x-tilesize/2
+					}
+				}
+
+			}
+		}
+	}
+}
+
+function calcBoundingBoxes ()
+{
+	collisionBoxes = []
+	for (box of boundingBoxes)
+	{
+		topleft = {"x" : box[0]*tilesize, "y" : box[1]*tilesize}
+		botright = {"x" : (box[2]+1)*tilesize, "y" : (box[3]+1)*tilesize}
+		collisionBoxes.push([topleft,botright])
+	}
+}
+
 function resizeHandler()
 {
 	console.log("Reszied")
@@ -111,8 +174,6 @@ function resizeHandler()
 
 	tilesize = Math.max(w,h) // Largest number of pixels per tile
 	speed = tilesize*2;
-	console.log(window.innerWidth, window.innerHeight)
-	console.log(speed)
 
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -121,7 +182,8 @@ function resizeHandler()
 	middleY = canvas.height/2;
 	mapWidth = tilesize*mapSize[0]
 	mapHeight = tilesize*mapSize[1]
-	ctx.drawImage(map, 0,0,mapWidth,mapHeight);
+	calcBoundingBoxes();
+	ctx.drawImage(map, Math.round(-playerX+middleX), Math.round(-playerY+middleY),mapWidth,mapHeight);
 	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
 }
 
@@ -277,10 +339,14 @@ async function mainLoop()
 		let m = Math.sqrt(playerDX*playerDX + playerDY*playerDY)
 		if (m != 0)
 		{
+			let canvasRect = controlPad.getBoundingClientRect();
 			let xdiff = (playerDX/m)*speed*deltaTime
 			let ydiff = (playerDY/m)*speed*deltaTime
+
+			
 			playerX += xdiff
-			playerY += ydiff		
+			playerY += ydiff 
+			collisionDetection()
 		}	
 		move()
 	}
@@ -291,7 +357,7 @@ async function mainLoop()
 function move()
 {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
-	ctx.drawImage(map,Math.round(playerX), Math.round(playerY), mapWidth, mapHeight);
+	ctx.drawImage(map,Math.round(middleX-playerX), Math.round(-playerY+middleY), mapWidth, mapHeight);
 	ctx.drawImage(player,middleX-tilesize/2,middleY-tilesize/2,tilesize,tilesize);
 
 }
@@ -307,26 +373,29 @@ function keyDownHandler(event)
 		case "ArrowUp":
 		case "KeyW":
 			moving = true
-			yKeys["w"] = 1
+			yKeys["w"] = -1
 			keysDown ++;
 			break;
 		case "ArrowDown":
 		case "KeyS":
 			moving = true
-			yKeys["s"] = -1
+			yKeys["s"] = +1
 			keysDown ++;
 			break;
 		case "ArrowLeft":
 		case "KeyA":
 			moving = true
-			xKeys["a"] = 1
+			xKeys["a"] = -1
 			keysDown ++;
 			break;
 		case "ArrowRight":
 		case "KeyD":
 			moving = true
-			xKeys["d"] = -1
+			xKeys["d"] = +1
 			keysDown ++;
+			break;
+		case "KeyP":
+			debug();
 			break;
 	}
 }
