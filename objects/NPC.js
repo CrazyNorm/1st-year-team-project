@@ -1,13 +1,13 @@
 class NPC {
 	// atrribute declaration
-	#elements;
+	#name;
 	#coords;
 	#elements;
 	#interactions;
 
 
-	constructor(elements, coords, elements, interactions) {
-		this.#elements = elements;
+	constructor(name, coords, elements, interactions) {
+		this.#name = name;
 		this.#coords = coords;
 		this.#elements = elements;
 		this.#interactions = interactions;
@@ -16,28 +16,28 @@ class NPC {
 
 	// getters and setters
 	getName() {
-		return #name;
+		return this.#name;
 	}
 	setName(name) {
 		this.#name = name;
 	}
 
 	getCoords() {
-		return #coords;
+		return this.#coords;
 	}
 	setCoords(coords) {
 		this.#coords = coords;
 	}
 
 	getElements() {
-		return #elements;
+		return this.#elements;
 	}
 	setElements(elements) {
 		this.#elements = elements;
 	}
 
 	getInteractions() {
-		return #interactions;
+		return this.#interactions;
 	}
 	setInteractions(interactions) {
 		this.#interactions = interactions;
@@ -47,7 +47,7 @@ class NPC {
 	// decides which interaction to run and runs it
 	checkInteractions() {
 		// loops through the npc's interactions in order of priority
-		for (id of #interactions) {
+		for (id of this.#interactions) {
 			let interaction = Game.getInteraction(id);
 			let player = Game.getPlayer();
 
