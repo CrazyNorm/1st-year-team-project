@@ -10,7 +10,7 @@ function startGame() {
   const controls = document.getElementById("controls");
   const sprint = document.getElementById("sprint");
 
-  const tileSize = 16;// px per tile
+  const tileSize = 80;// px per tile
 
   // scale the canvas to fit a whole no. of tiles
   let mapWidth = Math.floor(window.innerWidth / tileSize);
@@ -30,14 +30,14 @@ function startGame() {
   offsetCoords[1] = Math.floor(mapHeight/2) * tileSize;
 
   // sets player starting position
-  let playerCoords = [0,0];
+  let playerCoords = [50,25];
 
   // draws the map and player for starting position
   ctx.drawImage(map,
     offsetCoords[0] - playerCoords[0] * tileSize,
     offsetCoords[1] - playerCoords[1] * tileSize,
-    map.width * (tileSize / 16),
-    map.height * (tileSize / 16));
+    map.width * (tileSize / 16) /3,
+    map.height * (tileSize / 16) /3);
   ctx.drawImage(player, offsetCoords[0], offsetCoords[1], tileSize, tileSize);
 
 
@@ -249,8 +249,8 @@ function startGame() {
     ctx.drawImage(map,
       offsetCoords[0] - playerCoords[0] * tileSize,
       offsetCoords[1] - playerCoords[1] * tileSize,
-      map.width * (tileSize / 16),
-      map.height * (tileSize / 16));
+      map.width * (tileSize / 16) /3,
+      map.height * (tileSize / 16) /3);
     ctx.drawImage(player, offsetCoords[0], offsetCoords[1], tileSize, tileSize);
 
     // player becomes moveable again after the cooldown promise has finished
