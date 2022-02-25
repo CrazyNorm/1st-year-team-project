@@ -47,6 +47,7 @@ function startGame() {
   let moveCooldown = 200;
   // holds an interval for repeating the move function while a button is held down
   let moveRepeater;
+  let fullScreen = false;
 
 
   // event listeners
@@ -80,11 +81,34 @@ function startGame() {
   sprint.addEventListener('touchstart', function(event) {
     // decreases cooldown when sprint is pressed
     moveCooldown = 50;
+    if (!fullScreen) {
+      document.getElementById('gameDiv').requestFullscreen();
+      fullScreen = true;
+      console.log(window.innerHeight);
+    }
+    else {
+      document.exitFullscreen();
+      fullScreen = false;
+      console.log(window.innerHeight);
+    }
+  });
+  sprint.addEventListener('onclick', function(event) {
+    // decreases cooldown when sprint is pressed
+    moveCooldown = 50;
+    if (!fullScreen) {
+      document.getElementById('gameDiv').requestFullscreen();
+      fullScreen = true;
+    }
+    else {
+      document.exitFullscreen();
+      fullScreen = false;
+    }
   });
   sprint.addEventListener('touchend', function(event) {
     // increases cooldown back to default when sprint is released
     moveCooldown = 200;
   });
+  window.onscroll = function() {console.log("You cheeky bugger");};
 
 
 
