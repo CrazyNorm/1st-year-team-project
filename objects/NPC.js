@@ -3,6 +3,7 @@ class NPC {
   #name;
   #coords;
   #elements;
+  #currentElement;
   #interactions;
 
 
@@ -10,6 +11,7 @@ class NPC {
     this.#name = name;
     this.#coords = coords;
     this.#elements = elements;
+    this.#currentElement = "S_Standing";
     this.#interactions = interactions;
   }
 
@@ -25,8 +27,9 @@ class NPC {
   getCoords() {
     return this.#coords;
   }
-  setCoords(coords) {
-    this.#coords = coords;
+  setCoords(x, y) {
+    this.#coords.x = x;
+    this.#coords.y = y;
   }
 
   getElements() {
@@ -34,6 +37,13 @@ class NPC {
   }
   setElements(elements) {
     this.#elements = elements;
+  }
+
+  getCurrentElement() {
+    return this.#currentElement;
+  }
+  setCurrentElement(currentElement) {
+    this.#currentElement = currentElement;
   }
 
   getInteractions() {
