@@ -32,6 +32,12 @@ class Map {
 	getMapSize() {
 		return this.#mapSize;
 	}
+	getMapWidth() {
+		return this.#mapSize.width;
+	}
+	getMapHeight() {
+		return this.#mapSize.height;
+	}
 
 	getCollisionBounds() {
 		return this.#collisionBounds;
