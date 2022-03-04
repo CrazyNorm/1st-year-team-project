@@ -12,7 +12,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
 while ($row = $stmt->fetch()){
-	echo ($row['interaction_ id'] . "|" . $row['is_default'] . "|" . $row['dialog'] . "|" . $row['audio'] . "|" $row['stat_changes'] . "|" . $row['actions'] . "|" . $row["quest_requirements"]  . "|" . $row["interaction_requirements"] . "\n");
+	echo ($row['npc_id'] . "|" . $row['name'] . "|" . $row['coords'] . "|" . $row['character'] . "|" $row['interactions'] . "\n");
 }
 
 ?>

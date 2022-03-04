@@ -37,7 +37,7 @@ class Game {
     this.loadPlayer();
     this.loadQuests();
     this.loadInteractions();
-    // this.loadNPCs();
+    this.loadNPCs();
 
    	// loading images
     for (character of characters) {
@@ -180,7 +180,7 @@ class Game {
         string = string.split("|");
         let tempQuest = new Quest(string[0], // id
                       			  string[1], // title
-                     			  string[2], // description
+                     			    string[2], // description
                       			  parseInt(string[3]), // target_cunt
                       			  JSON.parse(string[4]), // reward_stat_changes
                       			  JSON.parse(string[5]), // reward_actions
@@ -195,7 +195,23 @@ class Game {
     xhr.send();
   }
 
-  // TODO - loadNPCs()
+  static loadNPCs() {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      let records = xhr.responseText.split("\n");
+      for (string of records) {
+        string = string.split("|");
+        let tempNPC = new NPC(string[0], // id
+                              string[1], // name
+                              JSON.parse(string[2]), // coords
+                              string[3], // character
+                              JSON.parse(string[4])); // interactions
+        this.#npcList.push(tempNPC);
+      }
+    };
+    xhr.open("GET","database-scripts/loadNPCs.php");
+    xhr.send();
+  }
 
   static loadPlayer() {
     const xhr = new XMLHttpRequest();
