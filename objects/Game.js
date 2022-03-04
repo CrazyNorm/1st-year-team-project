@@ -21,23 +21,90 @@ class Game {
   static #divId;
   static #tilesDesired;
 
-  static #scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
-  static #characters = ['playerMale','playerFemale','Gareth','Stewart'];
+  static #scripts;
+  static #characters;
 
 
-  static startGame() {
+  static async startGame() {
+    // create canvas
+    this.#divId = 'gameDiv';
+    document.getElementById(this.#divId).style.margin = 0;
+    document.getElementById(this.#divId).style.overflow = 'hidden';
+    let tempCanvas = document.createElement("canvas");
+    // set id
+    tempCanvas.setAttribute('id', 'canvas');
+    // set styling
+    tempCanvas.setAttribute('style', "background: yellow; padding: 0; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; ")
+    document.getElementById(this.#divId).appendChild(tempCanvas);
+    this.#canvas = document.getElementById("canvas");
+    this.#canvasContext = this.#canvas.getContext("2d");
+
+
+    // mobile detection
+    this.#isMobile = false;
+    if ("maxTouchPoints" in navigator) {
+      this.#isMobile = navigator.maxTouchPoints > 0;
+    } else if ("msMaxTouchPoints" in navigator) {
+      this.#isMobile = navigator.msMaxTouchPoints > 0;
+    } else {
+      let mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+      if (mQ && mQ.media === "(pointer:coarse)") {
+        this.#isMobile = !!mQ.matches;
+      } else if ('orientation' in window) {
+        this.#isMobile = true; // deprecated, but good fallback
+      } else {
+        // Only as a last resort, fall back to user agent sniffing
+        let UA = navigator.userAgent;
+        this.#isMobile = (
+          /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+          /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+        );
+      }
+    }
+
+
+    // default values
+    this.#allQuests = [];
+    this.#allInteractions =[];
+    this.#npcList = [];
+    this.#heldKeys = [];
+    this.#importantKeys = [];
+    this.#touches = [];
+    this.#volume = 100;
+    this.#deltaTime = 0;
+    this.#isPaused = false;
+    this.#isQuestLogOpen = false;
+    this.#isDialog = false;
+    if (this.#isMobile) {
+      this.#tilesDesired = 15;
+    } else {
+      this.#tilesDesired = 20;
+    }
+    this.#scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
+    this.#characters = ['playerMale','playerFemale','Gareth','Stewart'];
+
+    let toLoad = 0;
+    let loaded = 0;
+    function load() {
+      loaded ++;
+    }
+
   	// create scripts
   	for (script of this.#scripts) {
   	  let tempScript = document.createElement("script");
+      toLoad ++;
+      tempScript.onload = load;
   	  tempScript.setAttribute("type", "text/javascript");
   	  tempScript.setAttribute("src", script);
+      document.getElementById(this.#divId).appendChild(tempScript);
    	}
 
     // load from database
-    this.loadPlayer();
-    this.loadQuests();
-    this.loadInteractions();
-    this.loadNPCs();
+    toLoad += 4;
+    this.loadPlayer().then(value => {load();});
+    this.loadQuests().then(value => {load();});
+    this.loadInteractions().then(value => {load();});
+    this.loadNPCs().then(value => {load();});
 
    	// loading images
     for (character of characters) {
@@ -50,6 +117,8 @@ class Game {
                            'N_Standing','N_Walk_Left','N_Walk_Right'];
         for (type of spriteTypes) {
           tempDict[type] = new Image();
+          toLoad ++;
+          tempDict[type].onload = load;
           tempDict[type].src = "resources/imgs/characters/" + character + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
@@ -63,13 +132,63 @@ class Game {
           let spriteTypes = ['S_Standing','E_Standing','W_Standing','N_Standing'];
           for (type of spriteTypes) {
             tempDict[type] = new Image();
+            toLoad ++;
+            tempDict[type].onload = load;
             tempDict[type].src = "resources/imgs/characters/" + character + "/" + type + ".png";
           }
           npc.setElements(tempDict);
         }
       }
     }
+
+    // map
+    let tempBackground = new Image();
+    toLoad ++;
+    tempBackground.onload = load;
+    tempBackground.src = "resources/imgs/maps/background.png";
+    let tempForeground = new Image();
+    toLoad ++;
+    tempForeground.onload = load;
+    tempForeground.src = "resources/imgs/maps/foreground.png";
+    this.#map = new Map(tempBackground, tempForeground, 96, 64);  
+
+
+    // controls
+    if (this.#isMobile) {
+      let outerCircle = document.createElement("div");
+      // set id
+      outerCircle.setAttribute('id', 'controls');
+      // set styling
+      outerCircle.setAttribute('style',"width: 25%; padding-bottom: 25%; position: fixed; bottom: 0; right: 0; border: 5px solid; border-radius: 50%; user-select: none; ")
+      document.getElementById(this.#divId).appendChild(outerCircle);
+
+      let innerCircle = document.createElement("span");
+      // set id
+      innerCircle.setAttribute('id', 'joystick');
+      // set styling
+      innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block; ")
+      document.getElementById("controls").appendChild(innerCircle);
+    }
+
+    this.startInputListeners();
+
+    // wait for everything to load
+    while (loaded < toLoad) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
+
+    // resize the canvas
+    this.resizeHandler();
+
+    // starts the main loop
+    this.mainloop();
   }
+
+
+  static mainloop() {}
 
 
   static draw() {
@@ -151,7 +270,7 @@ class Game {
 
 
   // database
-  static loadInteractions() {
+  static async loadInteractions() {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -172,7 +291,7 @@ class Game {
     xhr.send();
   }
 
-  static loadQuests() {
+  static async loadQuests() {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -195,7 +314,7 @@ class Game {
     xhr.send();
   }
 
-  static loadNPCs() {
+  static async loadNPCs() {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -213,7 +332,7 @@ class Game {
     xhr.send();
   }
 
-  static loadPlayer() {
+  static async loadPlayer() {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -255,11 +374,14 @@ class Game {
 
   // listeners
   static startInputListeners() {
-
-  }
-
-  static closeInputListeners() {
-
+    let div = document.getElementById(this.#divId);
+    div.addEventListener('keydown', keyDownHandler);
+    div.addEventListener('keyup', keyUpHandler);
+    div.addEventListener('touchstart', touchHandler);
+    div.addEventListener('touchmove', touchHandler);
+    div.addEventListener('touchend', touchHandler);
+    div.addEventListener('touchcancel', touchHandler);
+    window.addEventListener('resize', resizeHandler);
   }
 
   static keyDownHandler(event) {

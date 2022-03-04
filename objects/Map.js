@@ -1,22 +1,21 @@
 class Map {
 	//attributes
-	#mapSize = {"width" : 96, "height" : 64};
+	#mapSize;
 	#backgroundElement;
 	#foregroundElement;
 	#pxPerTile;
-	#tempData;
 	#collisionBounds;
 	#warpPoints;
 	#overlapBounds;
 
-	constructor(backgroundElement, foregroundElement, pxPerTile) {
+	constructor(backgroundElement, foregroundElement, width, height) {
 		this.#backgroundElement = backgroundElement;
 		this.#foregroundElement = foregroundElement;
-		this.#pxPerTile = pxPerTile;
-		this.#tempData = JSON.parse(data); // data.json input in html
-		this.#collisionBounds = data["collisionBounds"];
-		this.#warpPoints = data["warpPoints"];
-		this.#overlapBounds = data["overlapBounds"];
+		this.#mapSize = {"width" : width, "height" : height};
+		let tempData = JSON.parse(data); // data.json input in html
+		this.#collisionBounds = tempData["collisionBounds"];
+		this.#warpPoints = tempData["warpPoints"];
+		this.#overlapBounds = tempData["overlapBounds"];
 	}
 
 
