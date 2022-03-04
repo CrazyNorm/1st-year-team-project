@@ -1,22 +1,32 @@
 class NPC {
   // atrribute declaration
+  #id;
   #name;
   #coords;
+  #character;
   #elements;
   #currentElement;
   #interactions;
 
 
-  constructor(name, coords, elements, interactions) {
+  constructor(id, name, coords, character, interactions) {
+    this.#id = id;
     this.#name = name;
     this.#coords = coords;
-    this.#elements = elements;
+    this.#character = character;
     this.#currentElement = "S_Standing";
     this.#interactions = interactions;
   }
 
 
   // getters and setters
+  getId() {
+    return this.#id;
+  }
+  setid(id) {
+    this.#id = id;
+  }
+
   getName() {
     return this.#name;
   }
@@ -30,6 +40,13 @@ class NPC {
   setCoords(x, y) {
     this.#coords.x = x;
     this.#coords.y = y;
+  }
+
+  getCharacter() {
+    return this.#character;
+  }
+  setCharacter(character) {
+    this.#character = character;
   }
 
   getElements() {
