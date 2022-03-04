@@ -1,4 +1,27 @@
-<?php include('server.php') ?>
+<?php
+session_start();
+include("connection.php");
+include("functions.php");
+
+if($_SERVER['REQUEST_METHOD'] == "POST")
+{
+    $email = $_POST['email'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    if(!empty($username) && !empty($password)){
+        //save data to database
+        $query = "insert into user (email, username, password) values ('$email', '$username', '$password')";
+
+        mysqli_query($con, $query);
+        header("Location:login.php");
+
+    }
+    else{
+        echo "Username and password are required";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
