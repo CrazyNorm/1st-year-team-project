@@ -15,7 +15,7 @@ class Player { //TEST THIS
 
 	constructor (	id,
 					coords,
-					character,
+					characterType,
 					stats,
 					currentQuests,
 					selectedQuest,
@@ -25,7 +25,7 @@ class Player { //TEST THIS
 					timeOfDay) {
 		this.#id = id;
 		this.#coords = coords;
-		this.#character = character;  // Change this
+		this.#characterType = characterType;  // Change this
 		//this.#elements = elements; // elements["(N|E|S|W)_(Walk|Standing)_(Left|Right)"]
 		this.#currentElement = "S_Standing";
 		this.#stats = stats; // stats["stat name"]
@@ -50,11 +50,11 @@ class Player { //TEST THIS
 		this.#coords = {"x":x,"y":y};
 	}
 
-	getCharacter() {
-		return this.#character;
+	getCharacterType() {
+		return this.#characterType;
 	}
-	setCharacter(character) {
-		this.#character = character
+	setCharacterType(characterType) {
+		this.#characterType = characterType
 	}
 
 	getElements() {

@@ -12,7 +12,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
 while ($row = $stmt->fetch()){
-	echo ($row['npc_id'] . "|" . $row['name'] . "|" . $row['coords'] . "|" . $row['character'] . "|" $row['interactions'] . "\n");
+	echo ($row['npc_id'] . "|" . $row['name'] . "|" . $row['coords'] . "|" . $row['character_type'] . "|" $row['interactions'] . "\n");
 }
 
 ?>

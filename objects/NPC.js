@@ -3,17 +3,17 @@ class NPC {
   #id;
   #name;
   #coords;
-  #character;
+  #characterType;
   #elements;
   #currentElement;
   #interactions;
 
 
-  constructor(id, name, coords, character, interactions) {
+  constructor(id, name, coords, characterType, interactions) {
     this.#id = id;
     this.#name = name;
     this.#coords = coords;
-    this.#character = character;
+    this.#characterType = characterType;
     this.#currentElement = "S_Standing";
     this.#interactions = interactions;
   }
@@ -42,11 +42,11 @@ class NPC {
     this.#coords.y = y;
   }
 
-  getCharacter() {
-    return this.#character;
+  getCharacterType() {
+    return this.#characterType;
   }
-  setCharacter(character) {
-    this.#character = character;
+  setCharacterType(characterType) {
+    this.#characterType = characterType;
   }
 
   getElements() {

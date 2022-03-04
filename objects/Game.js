@@ -22,7 +22,7 @@ class Game {
   static #tilesDesired;
 
   static #scripts;
-  static #characters;
+  static #characterTypes;
 
 
   static async startGame() {
@@ -81,7 +81,7 @@ class Game {
       this.#tilesDesired = 20;
     }
     this.#scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
-    this.#characters = ['playerMale','playerFemale','Gareth','Stewart'];
+    this.#characterTypes = ['playerMale','playerFemale','Gareth','Stewart'];
 
     let toLoad = 0;
     let loaded = 0;
@@ -107,9 +107,9 @@ class Game {
     this.loadNPCs().then(value => {load();});
 
    	// loading images
-    for (character of characters) {
+    for (characterType of characterTypes) {
       // player
-      if (this.#player.getCharacter() == character) {
+      if (this.#player.getCharacterType() == character_type) {
         let tempDict = {};
         let spriteTypes = ['S_Standing','S_Walk_Left','S_Walk_Right',
                            'E_Standing','E_Walk_Left','E_Walk_Right',
@@ -119,7 +119,7 @@ class Game {
           tempDict[type] = new Image();
           toLoad ++;
           tempDict[type].onload = load;
-          tempDict[type].src = "resources/imgs/characters/" + character + "/" + type + ".png";
+          tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
         continue;
@@ -127,14 +127,14 @@ class Game {
 
       // npcs
       for (npc of npcList) {
-        if (npc.getCharacter() == character) {
+        if (npc.getCharacterTypes() == characterTypes) {
           let tempDict = {};
           let spriteTypes = ['S_Standing','E_Standing','W_Standing','N_Standing'];
           for (type of spriteTypes) {
             tempDict[type] = new Image();
             toLoad ++;
             tempDict[type].onload = load;
-            tempDict[type].src = "resources/imgs/characters/" + character + "/" + type + ".png";
+            tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
           }
           npc.setElements(tempDict);
         }
@@ -323,7 +323,7 @@ class Game {
         let tempNPC = new NPC(string[0], // id
                               string[1], // name
                               JSON.parse(string[2]), // coords
-                              string[3], // character
+                              string[3], // character_type
                               JSON.parse(string[4])); // interactions
         this.#npcList.push(tempNPC);
       }
@@ -340,7 +340,7 @@ class Game {
         string = string.split("|");
         let tempPlayer = new Player(this.#player_id,
         							JSON.parse(string[0]), // coords
-                      			    string[1], // character
+                      			    string[1], // character_type
                      			    JSON.parse(string[2]), // stats
                       			    JSON.parse(string[3]), // current_quests
                       			    string[4], // selected_quest
@@ -360,7 +360,7 @@ class Game {
     xhr.open("GET","database-scripts/savePlayer.php?" +
     		 "player_id=" + this.#player_id +
     		 "coords=" + JSON.stringify(this.#player.getCoords()) + 
-    		 "character=" + this.#player.getCharacter() + 
+    		 "character_type=" + this.#player.getCharacterType() + 
     		 "stats=" + JSON.stringify(this.#player.getStats()) + 
     		 "current_quest=" + JSON.stringify(this.#player.getCurrentQuests()) +
     		 "selected_quest=" + this.#player.getSelectedQuest().toString() +

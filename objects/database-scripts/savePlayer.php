@@ -2,7 +2,7 @@
 
 $player_id = $_GET["player_id"];
 $coords = $_GET["coords"];
-$character = $_GET["character"];
+$character_type = $_GET["character_type"];
 $stats = $_GET["stats"];
 $current_quest = $_GET["current_quest"];
 $selected_quest = $_GET["selected_quest"];
@@ -13,7 +13,7 @@ $time_of_day = $_GET["time_of_day"];
 
 $sql = "UPDATE player 
 		SET coords = :coords,
-			character = :character,
+			character_type = :character_type,
 			stats = :stats,
 			current_quest = :current_quest,
 			selected_quest = :selected_quest,
@@ -31,7 +31,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE,
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
 			'coords' => $coords,
-			'character' => $character,
+			'character_type' => $character_type,
 			'stats' => $stats,
 			'current_quest' => $current_quest,
 			'selected_quest' => $selected_quest,
