@@ -1,4 +1,5 @@
 class Game {
+  // game-related attributes
   static #player_id;
   static #player;
   static #npcList;
@@ -16,15 +17,24 @@ class Game {
   static #isQuestLogOpen;
   static #isDialog;
 
+  // DOM-related attributes
   static #canvas;
   static #canvasContext;
   static #divId;
   static #tilesDesired;
 
-  static #scripts;
-  static #characterTypes;
+
+  // getters and setters for the few attributes that need to be accessed from other classes
+  static getPlayer() {
+    return this.#player;
+  }
+
+  static getInteraction(id) {
+    return this.#allInteractions.find(i => i.getId() == id);
+  }
 
 
+  // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
     // create canvas
     this.#divId = 'gameDiv';
@@ -80,9 +90,11 @@ class Game {
     } else {
       this.#tilesDesired = 20;
     }
-    this.#scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
-    this.#characterTypes = ['playerMale','playerFemale','Gareth','Stewart'];
+    // function scope lists used for loading
+    let scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
+    let characterTypes = ['playerMale','playerFemale','Gareth','Stewart'];
 
+    // keeps count of when everything has finished loading
     let toLoad = 0;
     let loaded = 0;
     function load() {
@@ -90,7 +102,7 @@ class Game {
     }
 
   	// create scripts
-  	for (script of this.#scripts) {
+  	for (script of scripts) {
   	  let tempScript = document.createElement("script");
       toLoad ++;
       tempScript.onload = load;
@@ -109,7 +121,7 @@ class Game {
    	// loading images
     for (characterType of characterTypes) {
       // player
-      if (this.#player.getCharacterType() == character_type) {
+      if (this.#player.getCharacterType() == characterType) {
         let tempDict = {};
         let spriteTypes = ['S_Standing','S_Walk_Left','S_Walk_Right',
                            'E_Standing','E_Walk_Left','E_Walk_Right',
@@ -170,6 +182,7 @@ class Game {
       document.getElementById("controls").appendChild(innerCircle);
     }
 
+    // sets up input listeners on the relevant elements
     this.startInputListeners();
 
     // wait for everything to load
@@ -191,7 +204,11 @@ class Game {
   static mainloop() {}
 
 
+  // clears the canvas and redraws the new frame
   static draw() {
+    // clears the canvas
+    this.#canvasContext.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+
     let tileSize = this.#map.getPxPerTile();
 
     // map background
@@ -232,6 +249,7 @@ class Game {
 
   // collision checking
   static playerCollision(bounds) {
+    // utility function - returns true if the player overlaps the bounds in the parameter
     let xBool = bounds.tlX <= this.#player.getCoords().x && this.player.getCoords().x <= bounds.brX;
     let yBool = bounds.tlY <= this.#player.getCoords().y && this.player.getCoords().y <= bounds.brY;
 
@@ -239,6 +257,7 @@ class Game {
   }
 
   static warpCollision() {
+    // checks the player's position against all the warp points and moves the player to destination
     for (point of this.#map.getWarpPoints()) {
       let tempBounds = {'tlX':point.sX, 'tlY':point.sY, 'brX':point.sX, 'brY':point.sY};
       if (playerCollision(tempBounds)) {
@@ -249,6 +268,7 @@ class Game {
   }
 
   static buildingCollision() {
+    // checks the player's position against all the bounds for buildings
     for (bound of this.#map.getCollisionBounds()) {
       if (playerCollision(bound)) {
         return true;
@@ -258,6 +278,7 @@ class Game {
   }
 
   static npcCollision() {
+    // checks the player's position against all the NPCs
     for (npc of this.#npcList) {
       let tempBounds = {'tlX':npc.getCoords().x, 'tlY':npc.getCoords().y,
                 		'brX':npc.getCoords().x, 'brY':npc.getCoords().y}
@@ -271,13 +292,14 @@ class Game {
 
   // database
   static async loadInteractions() {
+    // uses ajax to get all the interaction records from the database and creates an Interaction object from each one
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
       for (string of records) {
         string = string.split("|");
         let tempInteraction = new Interaction(string[0], // id
-                          					  string[1] === "true", // is_default
+                          					string[1] === "true", // is_default
                        						  string[2], // dialog
                         					  string[3], // audio
                         					  JSON.parse(string[4]), // stat_changes
@@ -292,6 +314,7 @@ class Game {
   }
 
   static async loadQuests() {
+    // uses ajax to get all the quest records from the database and creates a Quest object from each one
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -315,6 +338,7 @@ class Game {
   }
 
   static async loadNPCs() {
+    // uses ajax to get all the npc records from the database and creates an NPC object from each one
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -333,6 +357,8 @@ class Game {
   }
 
   static async loadPlayer() {
+    // uses ajax to get the correct player record from the database
+    // then uses the record to construct the player object
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
@@ -341,7 +367,7 @@ class Game {
         let tempPlayer = new Player(this.#player_id,
         							JSON.parse(string[0]), // coords
                       			    string[1], // character_type
-                     			    JSON.parse(string[2]), // stats
+                     			      JSON.parse(string[2]), // stats
                       			    JSON.parse(string[3]), // current_quests
                       			    string[4], // selected_quest
                       			    JSON.parse(string[5]), // completed_interactions
@@ -356,6 +382,7 @@ class Game {
   }
 
   static savePlayer() {
+    // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
     xhr.open("GET","database-scripts/savePlayer.php?" +
     		 "player_id=" + this.#player_id +
@@ -374,6 +401,7 @@ class Game {
 
   // listeners
   static startInputListeners() {
+    // applies all the necessary input listeners to the relevant elements
     let div = document.getElementById(this.#divId);
     div.addEventListener('keydown', keyDownHandler);
     div.addEventListener('keyup', keyUpHandler);
@@ -385,12 +413,14 @@ class Game {
   }
 
   static keyDownHandler(event) {
+    // adds the key to heldKeys if it is "important" and not already in heldKeys
     if (this.#importantKeys.contains(event.code) && !this.#heldKeys.contains(event.code)) {
       this.#heldKeys.push(event.code);
     }
   }
 
   static keyUpHandler(event) {
+    // removes the key from heldKeys (if it was already there)
     if (this.#heldKeys.contains(event.code)) {
       let index = this.#heldKeys.indexOf(event.code);
       this.#heldKeys.splice(index, 1);
@@ -398,10 +428,12 @@ class Game {
   }
 
   static touchHandler(event) {
+    // refreshes the list of current touches
     this.#touches = event.targetTouches;
   }
 
   static resizeHandler(event=undefined) {
+    // resizes the game to fit the specified no. of tiles across the longest edge of the screen
   	let div = document.getElementById(this.#divId);
   	let width = Math.floor(div.clientWidth / this.#tilesDesired);
   	let heigth = Math.floor(div.clientHeight / this.#tilesDesired);
@@ -410,5 +442,11 @@ class Game {
 
   	this.#canvas.width(div.clientWidth);
   	this.#canvas.height(div.clientHeight);
+  }
+
+
+  // dialog & menus
+  static displayDialog() {
+    // !this is a reminder!
   }
 }
