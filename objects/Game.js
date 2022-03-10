@@ -50,6 +50,10 @@ class Game {
     this.#npcList.push(npc);
   }
 
+  static getFPS() {
+    return this.#fps;
+  }
+
 
   // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
@@ -95,10 +99,11 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = [];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight'];
     this.#touches = [];
     this.#volume = 100;
     this.#deltaTime = 0;
+    this.#fps = 30;
     this.#isPaused = false;
     this.#isQuestLogOpen = false;
     this.#isDialog = false;
@@ -128,12 +133,26 @@ class Game {
       document.getElementById(this.#divId).appendChild(tempScript);
    	}
 
+    while (loaded < toLoad) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
+
     // load from database
     toLoad += 4;
-    this.loadPlayer().then(value => {load();});
-    this.loadQuests().then(value => {load();});
-    this.loadInteractions().then(value => {load();});
-    this.loadNPCs().then(value => {load();});
+    this.loadPlayer().then(value => {load()});
+    this.loadQuests().then(value => {load()});
+    this.loadInteractions().then(value => {load()})
+    this.loadNPCs().then(value => {load()});
+
+    while (loaded < toLoad) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
 
    	// loading images
     for (let characterType of characterTypes) {
@@ -151,12 +170,12 @@ class Game {
           tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
-        continue;
+        // continue;
       }
 
       // npcs
-      for (let npc of npcList) {
-        if (npc.getCharacterTypes() == characterTypes) {
+      for (let npc of this.#npcList) {
+        if (npc.getCharacterType() == characterType) {
           let tempDict = {};
           let spriteTypes = ['S_Standing','E_Standing','W_Standing','N_Standing'];
           for (let type of spriteTypes) {
@@ -223,15 +242,18 @@ class Game {
     let direction;
     let totalMoved;
 
+    this.draw();
+
     while (true) {
       let loopPromise = new Promise(function(resolve, reject) {
-        setTimeout(resolve, 1/this.#fps);
+        setTimeout(resolve, 1000/Game.getFPS());
       });
       let preTime = new Date().getTime();
 
       if (!moving) {
         // player movement
         direction = {"x":0, "y":0};
+        console.log(this.#heldKeys);
         for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
@@ -271,10 +293,10 @@ class Game {
           moving = true;
           totalMoved = 0;
           if (direction.x == -1) {
-            this.#player.startAnimationWalk("E");
+            this.#player.startAnimationWalk("W");
           }
           else if (direction.x == 1) {
-            this.#player.startAnimationWalk("W");
+            this.#player.startAnimationWalk("E");
           }
           else if (direction.y == -1) {
             this.#player.startAnimationWalk("N");
@@ -290,6 +312,7 @@ class Game {
         let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
         this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
         totalMoved += pxPerFrame;
+        console.log(totalMoved);
         if (totalMoved > ppt) {
           let coords = this.#player.getCoords();
           this.#player.setCoordsPx(coords.x * ppt, coords.y * ppt);
@@ -297,10 +320,11 @@ class Game {
         }
       }
 
+      this.draw();
+
       await loopPromise;
       let postTime = new Date().getTime();
       this.#deltaTime = (postTime - preTime) / 1000;
-
     }
   }
 
@@ -315,44 +339,45 @@ class Game {
     // map background
     let mapX = Math.floor(this.#player.getCoordsPx().x + this.#canvas.width / 2);
     let mapY = Math.floor(this.#player.getCoordsPx().y + this.#canvas.height / 2);
+
     this.#canvasContext.drawImage(this.#map.getBackgroundElement(),
-                    			  mapX,
-                    			  mapY,
-                    			  this.#map.getWidth() * tileSize,
-                  				  this.#map.getHeight() * tileSize);
+                          			  0,
+                          			  0,
+                          			  this.#map.getMapWidth() * tileSize,
+                        				  this.#map.getMapHeight() * tileSize);
 
     // player
-    this.#canvasContext.drawImage(this.#player.getCurrentElement(),
-                    			  Math.floor((this.#canvas.width - tileSize) / 2),
-                    			  Math.floor((this.#canvas.height - tileSize) / 2),
-                    			  tileSize,
-                    			  tileSize);
+    this.#canvasContext.drawImage(this.#player.getElement(this.#player.getCurrentElement()),
+                          			  Math.floor((this.#canvas.width - tileSize) / 2),
+                          			  Math.floor((this.#canvas.height - tileSize) / 2),
+                          			  tileSize,
+                          			  tileSize);
 
     // NPCs
-    for (let npc of npcList) {
+    for (let npc of this.#npcList) {
       let tempX = Math.floor((npc.getCoords().x) * tileSize - this.#player.getCoordsPx().x + this.#canvas.width / 2);
       let tempY = Math.floor((npc.getCoords().y) * tileSize - this.#player.getCoordsPx().y + this.#canvas.height / 2);
-      this.#canvasContext.drawImage(npc.getCurrentElement(),
-                      			    tempX,
-                      				tempY,
-                      				tileSize,
-                     				tileSize);
+      this.#canvasContext.drawImage(npc.getElement(npc.getCurrentElement()),
+                          			    tempX,
+                            				tempY,
+                            				tileSize,
+                           				  tileSize);
     }
 
     // map foreground
     this.#canvasContext.drawImage(this.#map.getForegroundElement(),
-                    			  mapX,
-                    			  mapY,
-                    			  this.#map.getWidth() * tileSize,
-                    			  this.#map.getHeight() * tileSize);
+                          			  mapX,
+                          			  mapY,
+                          			  this.#map.getMapWidth() * tileSize,
+                          			  this.#map.getMapHeight() * tileSize);
   }
 
 
   // collision checking
   static #playerCollision(bounds) {
     // utility function - returns true if the player overlaps the bounds in the parameter
-    let xBool = bounds.tlX <= this.#player.getCoords().x && this.player.getCoords().x <= bounds.brX;
-    let yBool = bounds.tlY <= this.#player.getCoords().y && this.player.getCoords().y <= bounds.brY;
+    let xBool = bounds.tlX <= this.#player.getCoords().x && this.#player.getCoords().x <= bounds.brX;
+    let yBool = bounds.tlY <= this.#player.getCoords().y && this.#player.getCoords().y <= bounds.brY;
 
     return xBool && yBool;
   }
@@ -395,9 +420,13 @@ class Game {
   static async loadInteractions() {
     // uses ajax to get all the interaction records from the database and creates an Interaction object from each one
     const xhr = new XMLHttpRequest();
+    let loaded = false;
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
       for (let string of records) {
+        if (string == ""){
+          break;
+        }
         string = string.split("|");
         let tempInteraction = new Interaction(string[0], // id
                           					string[1] === "true", // is_default
@@ -408,18 +437,30 @@ class Game {
                         					  JSON.parse(string[6]).requirements, // quest_requirements
                         					  JSON.parse(string[7]).requirements); // interaction_requirements
         Game.addInteraction(tempInteraction);
+        loaded = true;
       }
     };
     xhr.open("GET","objects/database-scripts/loadInteractions.php");
     xhr.send();
+    // function doesn't return until the xhr has finished
+    while (!loaded) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
   }
 
   static async loadQuests() {
     // uses ajax to get all the quest records from the database and creates a Quest object from each one
     const xhr = new XMLHttpRequest();
+    let loaded = false;
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
       for (let string of records) {
+        if (string == ""){
+          break;
+        }
         string = string.split("|");
         let tempQuest = new Quest(string[0], // id
                       			  string[1], // title
@@ -432,18 +473,30 @@ class Game {
                       			  JSON.parse(string[8]).quests, // updated_by_quests
                       			  JSON.parse(string[9]).interractions); // updated_by_interactions
         Game.addQuest(tempQuest);
+        loaded = true
       }
     };
     xhr.open("GET","objects/database-scripts/loadQuests.php");
     xhr.send();
+    // function doesn't return until the xhr has finished
+    while (!loaded) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
   }
 
   static async loadNPCs() {
     // uses ajax to get all the npc records from the database and creates an NPC object from each one
     const xhr = new XMLHttpRequest();
+    let loaded = false;
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
       for (let string of records) {
+        if (string == ""){
+          break;
+        }
         string = string.split("|");
         let tempNPC = new NPC(string[0], // id
                               string[1], // name
@@ -451,35 +504,50 @@ class Game {
                               string[3], // character_type
                               JSON.parse(string[4]).interactions); // interactions
         Game.addNPC(tempNPC);
+        loaded = true;
       }
     };
     xhr.open("GET","objects/database-scripts/loadNPCs.php");
     xhr.send();
+    // function doesn't return until the xhr has finished
+    while (!loaded) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
   }
 
   static async loadPlayer() {
     // uses ajax to get the correct player record from the database
     // then uses the record to construct the player object
     const xhr = new XMLHttpRequest();
+    let loaded = false;
     xhr.onload = function() {
-      let records = xhr.responseText.split("\n");
-      for (let string of records) {
-        string = string.split("|");
-        let tempPlayer = new Player("0",
-            							          JSON.parse(string[0]), // coords
-                          			    string[1], // character_type
-                         			      JSON.parse(string[2]), // stats
-                          			    JSON.parse(string[3]).quests, // current_quests
-                          			    string[4], // selected_quest
-                          			    JSON.parse(string[5]).interactions, // completed_interactions
-                          			    JSON.parse(string[6]).quests, // completed_quests
-                          			    JSON.parse(string[7]), // quest_counts
-                          			    parseInt(string[8])); // time_of_day
-        Game.setPlayer(tempPlayer);
-      }
+      let records = xhr.responseText;
+      let string = records.split("|");
+      let tempPlayer = new Player("0",
+          							          JSON.parse(string[0]), // coords
+                        			    string[1], // character_type
+                       			      JSON.parse(string[2]), // stats
+                        			    JSON.parse(string[3]).quests, // current_quests
+                        			    string[4], // selected_quest
+                        			    JSON.parse(string[5]).interactions, // completed_interactions
+                        			    JSON.parse(string[6]).quests, // completed_quests
+                        			    JSON.parse(string[7]), // quest_counts
+                        			    parseInt(string[8])); // time_of_day
+      Game.setPlayer(tempPlayer);
+      loaded = true;
     };
     xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id=0");// need to replace this with actual id
     xhr.send();
+    // function doesn't return until the xhr has finished
+    while (!loaded) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
   }
 
   static savePlayer() {
@@ -504,25 +572,26 @@ class Game {
   static startInputListeners() {
     // applies all the necessary input listeners to the relevant elements
     let div = document.getElementById(this.#divId);
-    div.addEventListener('keydown', keyDownHandler);
-    div.addEventListener('keyup', keyUpHandler);
-    div.addEventListener('touchstart', touchHandler);
-    div.addEventListener('touchmove', touchHandler);
-    div.addEventListener('touchend', touchHandler);
-    div.addEventListener('touchcancel', touchHandler);
-    window.addEventListener('resize', resizeHandler);
+    document.addEventListener('keydown', function() {Game.keyDownHandler(event)});
+    document.addEventListener('keyup', function() {Game.keyUpHandler(event)});
+    document.addEventListener('touchstart', function() {Game.touchHandler(event)});
+    document.addEventListener('touchmove', function() {Game.touchHandler(event)});
+    document.addEventListener('touchend', function() {Game.touchHandler(event)});
+    document.addEventListener('touchcancel', function() {Game.touchHandler(event)});
+    window.addEventListener('resize', function() {Game.resizeHandler()});
   }
 
   static keyDownHandler(event) {
     // adds the key to heldKeys if it is "important" and not already in heldKeys
-    if (this.#importantKeys.contains(event.code) && !this.#heldKeys.contains(event.code)) {
+    console.log(event.code);
+    if (this.#importantKeys.includes(event.code) && !this.#heldKeys.includes(event.code)) {
       this.#heldKeys.push(event.code);
     }
   }
 
   static keyUpHandler(event) {
     // removes the key from heldKeys (if it was already there)
-    if (this.#heldKeys.contains(event.code)) {
+    if (this.#heldKeys.includes(event.code)) {
       let index = this.#heldKeys.indexOf(event.code);
       this.#heldKeys.splice(index, 1);
     }
@@ -533,19 +602,19 @@ class Game {
     this.#touches = event.targetTouches;
   }
 
-  static resizeHandler(event=undefined) {
+  static resizeHandler() {
     // resizes the game to fit the specified no. of tiles across the longest edge of the screen
   	let div = document.getElementById(this.#divId);
   	let width = Math.floor(div.clientWidth / this.#tilesDesired);
-  	let heigth = Math.floor(div.clientHeight / this.#tilesDesired);
+  	let height = Math.floor(div.clientHeight / this.#tilesDesired);
 
     let ppx = Math.max(width,height)
   	this.#map.setPxPerTile(ppx);
     let coords = this.#player.getCoords();
     this.#player.setCoordsPx(coords.x * ppx, coords.y * ppx)
 
-  	this.#canvas.width(div.clientWidth);
-  	this.#canvas.height(div.clientHeight);
+  	this.#canvas.width = div.clientWidth;
+  	this.#canvas.height = div.clientHeight;
   }
 
 

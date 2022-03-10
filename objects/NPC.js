@@ -55,6 +55,9 @@ class NPC {
   setElements(elements) {
     this.#elements = elements;
   }
+  getElement(name) {
+    return this.#elements[name];
+  }
 
   getCurrentElement() {
     return this.#currentElement;

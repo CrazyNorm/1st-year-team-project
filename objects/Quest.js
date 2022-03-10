@@ -123,7 +123,7 @@ class Quest {
     let player = Game.getPlayer();
 
     // only checks requirements if the quest is not already active
-    if (!player.getCurrentQuests().contains(this.#id)) {
+    if (!player.getCurrentQuests().includes(this.#id)) {
 	  // quest requirements
 	  let qCompleted = player.getCompletedQuests();
 	  // checks if every element of the requirements list is in the completed list
@@ -146,7 +146,7 @@ class Quest {
 
   	// only updates the quest count if this quest is active and not complete
   	let active = player.getCurrentQuests().contain(this.#id);
-  	let complete = player.getCompletedQuests.contains(this.#id);
+  	let complete = player.getCompletedQuests.includes(this.#id);
   	if (active && !complete) {
   	  // increment quest count by 1
   	  player.incrementCurrentQuest(this.#id, 1);

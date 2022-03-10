@@ -185,15 +185,15 @@ class Player { //TEST THIS
 
 	startAnimationWalk(direction) {
 		let delay = 1 / (this.#speed * 4);
-		this.#currentElement = direction + "_Walk_Right";
+		Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
 		setTimeout(function() {
-			this.#currentElement = direction + "_Walk_Left";
+			Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
 			setTimeout(function() {
-				this.#currentElement = direction + "_Walk_Right";
+				Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
 				setTimeout(function() {
-					this.#currentElement = direction + "_Walk_Left";
+					Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
 					setTimeout(function() {
-						this.#currentElement = direction + "_Standing";
+						Game.getPlayer().setCurrentElement(direction + "_Standing");
 					}, delay);
 				}, delay);
 			}, delay);

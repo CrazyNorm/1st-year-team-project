@@ -12,7 +12,7 @@ class Map {
 		this.#backgroundElement = backgroundElement;
 		this.#foregroundElement = foregroundElement;
 		this.#mapSize = {"width" : width, "height" : height};
-		let tempData = JSON.parse(data); // data.json input in html
+		let tempData = JSON.parse(data)[0]; // data.json input in html
 		this.#collisionBounds = tempData["collisionBounds"];
 		this.#warpPoints = tempData["warpPoints"];
 		this.#overlapBounds = tempData["overlapBounds"];
@@ -53,8 +53,8 @@ class Map {
 	getPxPerTile() {
 		return this.#pxPerTile;
 	}
-	setPxPerTile() {
-		return this.#pxPerTile;
+	setPxPerTile(pxPerTile) {
+		this.#pxPerTile = pxPerTile;
 	}
 
 
