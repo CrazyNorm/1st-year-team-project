@@ -1,6 +1,7 @@
 class Player { //TEST THIS
 	#id;
 	#coords;
+	#coordsPx;
 	#elements;
 	#currentElement;
 	#stats;
@@ -11,7 +12,6 @@ class Player { //TEST THIS
 	#completedQuests;
 	#questCounts;
 	#timeOfDay;
-	#moving;
 
 	constructor (	id,
 					coords,
@@ -36,7 +36,6 @@ class Player { //TEST THIS
 		this.#completedQuests = completedQuests;
 		this.#questCounts = questCounts;
 		this.#timeOfDay = timeOfDay;
-		this.#moving = false;
 	}
 
 	getId () {
@@ -48,6 +47,21 @@ class Player { //TEST THIS
 	}
 	setCoords(x,y) {
 		this.#coords = {"x":x,"y":y};
+	}
+	move(x,y) {
+		this.#coords.x += x;
+		this.#coords.y += y;
+	}
+
+	getCoordsPx() {
+		return this.#coordsPx;
+	}
+	setCoordsPx(x,y) {
+		this.#coordsPx = {"x":x,"y":y};
+	}
+	movePx(x,y) {
+		this.#coordsPx.x += x;
+		this.#coordsPx.y += y;
 	}
 
 	getCharacterType() {
@@ -146,13 +160,6 @@ class Player { //TEST THIS
 		this.#timeOfDay = timeOfDay;
 	}
 
-	getMoving() {
-		return this.#moving;
-	}
-	setMoving(moving) {
-		this.#moving = moving;
-	}
-
 	incrementCurrentQuest(id, value){
 		this.#questCounts[id] += value;
 	}
@@ -172,6 +179,24 @@ class Player { //TEST THIS
 		if (this.#time > 4) {
 			this.#time = 0;
 		}
+	}
+
+
+	startAnimationWalk(direction) {
+		let delay = 1 / (this.#speed * 4);
+		this.#currentElement = direction + "_Walk_Right";
+		setTimeout(function() {
+			this.#currentElement = direction + "_Walk_Left";
+			setTimeout(function() {
+				this.#currentElement = direction + "_Walk_Right";
+				setTimeout(function() {
+					this.#currentElement = direction + "_Walk_Left";
+					setTimeout(function() {
+						this.#currentElement = direction + "_Standing";
+					}, delay);
+				}, delay);
+			}, delay);
+		}, delay);
 	}
 
 

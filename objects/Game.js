@@ -12,6 +12,7 @@ class Game {
   static #touches;
   static #volume;
   static #deltaTime;
+  static #fps;
   static #isMobile;
   static #isPaused;
   static #isQuestLogOpen;
@@ -38,7 +39,7 @@ class Game {
   static async startGame() {
     // create canvas
     this.#divId = 'gameDiv';
-    document.getElementById(this.#divId).style.margin = 0;
+    document.getElementById(this.#divId).style.margin = "0";
     document.getElementById(this.#divId).style.overflow = 'hidden';
     let tempCanvas = document.createElement("canvas");
     // set id
@@ -201,7 +202,91 @@ class Game {
   }
 
 
-  static mainloop() {}
+  static async mainloop() {
+    let moving = false;
+    let direction;
+    let totalMoved;
+
+    while (true) {
+      let loopPromise = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 1/this.#fps);
+      });
+      let preTime = new Date().getTime();
+
+      if (!moving) {
+        // player movement
+        direction = {"x":0, "y":0};
+        for (code of this.#heldKeys) {
+          switch(code) {
+            case "KeyW":
+            case "ArrowUp":
+              direction.y -= 1;
+              break;
+            case "KeyA":
+            case "ArrowLeft":
+              direction.x -= 1;
+              break;
+            case "KeyS":
+            case "ArrowDown":
+              direction.y += 1;
+              break;
+            case "KeyD":
+            case "ArrowRight":
+              direction.x += 1;
+              break;
+            case "KeyQ":
+              // open quest log
+              break;
+            case "KeyE":
+              // interact
+              break;
+            case "ShiftLeft":
+            case "ShiftRight":
+              // shift
+              break;
+          }
+        }
+        this.#player.move(direction.x, direction.y);
+        this.warpCollision();
+        if (this.buildingCollision() || this.npcCollision()) {
+          this.#player.move(-direction.x, -direction.y);
+        }
+        else if (direction.x != 0 || direction.y != 0){
+          moving = true;
+          totalMoved = 0;
+          if (direction.x == -1) {
+            this.#player.startAnimationWalk("E");
+          }
+          else if (direction.x == 1) {
+            this.#player.startAnimationWalk("W");
+          }
+          else if (direction.y == -1) {
+            this.#player.startAnimationWalk("N");
+          }
+          else if (direction.y == 1) {
+            this.#player.startAnimationWalk("S");
+          }
+        }
+      }
+
+      else {
+        let ppt = this.#map.getPxPerTile()
+        let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
+        this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
+        totalMoved += pxPerFrame;
+        if (totalMoved > ppt) {
+          let coords = this.#player.getCoords();
+          this.#player.setCoordsPx(coords.x * ppt, coords.y * ppt);
+          moving = false;
+        }
+      }
+
+      await loopPromise;
+      let postTime = new Date().getTime();
+      this.#deltaTime = (postTime - preTime) / 1000;
+
+    }
+  }
 
 
   // clears the canvas and redraws the new frame
@@ -212,8 +297,8 @@ class Game {
     let tileSize = this.#map.getPxPerTile();
 
     // map background
-    let mapX = Math.floor(this.#player.getCoords().x * tileSize + this.#canvas.width / 2);
-    let mapY = Math.floor(this.#player.getCoords().y * tileSize + this.#canvas.height / 2);
+    let mapX = Math.floor(this.#player.getCoordsPx().x + this.#canvas.width / 2);
+    let mapY = Math.floor(this.#player.getCoordsPx().y + this.#canvas.height / 2);
     this.#canvasContext.drawImage(this.#map.getBackgroundElement(),
                     			  mapX,
                     			  mapY,
@@ -229,8 +314,8 @@ class Game {
 
     // NPCs
     for (npc of npcList) {
-      let tempX = Math.floor((npc.getCoords().x - this.#player.getCoords().x) * tileSize + this.#canvas.width / 2);
-      let tempY = Math.floor((npc.getCoords().y - this.#player.getCoords().y) * tileSize + this.#canvas.height / 2);
+      let tempX = Math.floor((npc.getCoords().x) * tileSize - this.#player.getCoordsPx().x + this.#canvas.width / 2);
+      let tempY = Math.floor((npc.getCoords().y) * tileSize - this.#player.getCoordsPx().y + this.#canvas.height / 2);
       this.#canvasContext.drawImage(npc.getCurrentElement(),
                       			    tempX,
                       				tempY,
@@ -248,7 +333,7 @@ class Game {
 
 
   // collision checking
-  static playerCollision(bounds) {
+  static #playerCollision(bounds) {
     // utility function - returns true if the player overlaps the bounds in the parameter
     let xBool = bounds.tlX <= this.#player.getCoords().x && this.player.getCoords().x <= bounds.brX;
     let yBool = bounds.tlY <= this.#player.getCoords().y && this.player.getCoords().y <= bounds.brY;
@@ -260,7 +345,7 @@ class Game {
     // checks the player's position against all the warp points and moves the player to destination
     for (point of this.#map.getWarpPoints()) {
       let tempBounds = {'tlX':point.sX, 'tlY':point.sY, 'brX':point.sX, 'brY':point.sY};
-      if (playerCollision(tempBounds)) {
+      if (this.#playerCollision(tempBounds)) {
         this.#player.setCoords(point.dX, point.dY);
         break;
       }
@@ -270,7 +355,7 @@ class Game {
   static buildingCollision() {
     // checks the player's position against all the bounds for buildings
     for (bound of this.#map.getCollisionBounds()) {
-      if (playerCollision(bound)) {
+      if (this.#playerCollision(bound)) {
         return true;
       }
     }
@@ -282,7 +367,7 @@ class Game {
     for (npc of this.#npcList) {
       let tempBounds = {'tlX':npc.getCoords().x, 'tlY':npc.getCoords().y,
                 		'brX':npc.getCoords().x, 'brY':npc.getCoords().y}
-      if (playerCollision(tempBounds)) {
+      if (this.#playerCollision(tempBounds)) {
         return true;
       }
     }
@@ -365,15 +450,15 @@ class Game {
       for (string of records) {
         string = string.split("|");
         let tempPlayer = new Player(this.#player_id,
-        							JSON.parse(string[0]), // coords
-                      			    string[1], // character_type
-                     			      JSON.parse(string[2]), // stats
-                      			    JSON.parse(string[3]), // current_quests
-                      			    string[4], // selected_quest
-                      			    JSON.parse(string[5]), // completed_interactions
-                      			    JSON.parse(string[6]), // completed_quests
-                      			    JSON.parse(string[7]), // quest_counts
-                      			    parseInt(string[8])); // time_of_day
+            							          JSON.parse(string[0]), // coords
+                          			    string[1], // character_type
+                         			      JSON.parse(string[2]), // stats
+                          			    JSON.parse(string[3]), // current_quests
+                          			    string[4], // selected_quest
+                          			    JSON.parse(string[5]), // completed_interactions
+                          			    JSON.parse(string[6]), // completed_quests
+                          			    JSON.parse(string[7]), // quest_counts
+                          			    parseInt(string[8])); // time_of_day
         this.#player = tempPlayer;
       }
     };
@@ -438,7 +523,10 @@ class Game {
   	let width = Math.floor(div.clientWidth / this.#tilesDesired);
   	let heigth = Math.floor(div.clientHeight / this.#tilesDesired);
 
-  	this.#map.setPxPerTile(Math.max(width,height));
+    let ppx = Math.max(width,height)
+  	this.#map.setPxPerTile(ppx);
+    let coords = this.#player.getCoords();
+    this.#player.setCoordsPx(coords.x * ppx, coords.y * ppx)
 
   	this.#canvas.width(div.clientWidth);
   	this.#canvas.height(div.clientHeight);
