@@ -30,7 +30,7 @@ class Player { //TEST THIS
 		//this.#elements = elements; // elements["(N|E|S|W)_(Walk|Standing)_(Left|Right)"]
 		this.#currentElement = "S_Standing";
 		this.#stats = stats; // stats["stat name"]
-		this.#speed = 2;
+		this.#speed = 4;
 		this.#currentQuests = currentQuests;
 		this.#selectedQuest = selectedQuest; //index of currentQuests
 		this.#completedInteractions = completedInteractions;
@@ -184,19 +184,10 @@ class Player { //TEST THIS
 
 
 	startAnimationWalk(direction) {
-		let delay = 1 / (this.#speed * 4);
+		let delay = 1000 / (this.#speed * 3);
 		Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
 		setTimeout(function() {
 			Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
-			setTimeout(function() {
-				Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
-				setTimeout(function() {
-					Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
-					setTimeout(function() {
-						Game.getPlayer().setCurrentElement(direction + "_Standing");
-					}, delay);
-				}, delay);
-			}, delay);
 		}, delay);
 	}
 

@@ -198,7 +198,7 @@ class Game {
     toLoad ++;
     tempForeground.onload = load;
     tempForeground.src = "resources/imgs/maps/foreground.png";
-    this.#map = new Map(tempBackground, tempForeground, 96, 64);  
+    this.#map = new Map(tempBackground, tempForeground, 116, 89);  
 
 
     // controls
@@ -241,6 +241,7 @@ class Game {
     let moving = false;
     let direction;
     let totalMoved;
+    let spriteDir = "S";
 
     this.draw();
 
@@ -253,7 +254,6 @@ class Game {
       if (!moving) {
         // player movement
         direction = {"x":0, "y":0};
-        console.log(this.#heldKeys);
         for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
@@ -284,6 +284,22 @@ class Game {
               break;
           }
         }
+
+        // set standing sprite (may be overridden by animation)
+        if (direction.x == -1) {
+          spriteDir = "W";
+        }
+        else if (direction.x == 1) {
+           spriteDir = "E";
+        }
+        else if (direction.y == -1) {
+          spriteDir = "N";
+        }
+        else if (direction.y == 1) {
+          spriteDir = "S";
+        }
+        this.#player.setCurrentElement(spriteDir + "_Standing");
+
         this.#player.move(direction.x, direction.y);
         this.warpCollision();
         if (this.buildingCollision() || this.npcCollision()) {
@@ -292,18 +308,7 @@ class Game {
         else if (direction.x != 0 || direction.y != 0){
           moving = true;
           totalMoved = 0;
-          if (direction.x == -1) {
-            this.#player.startAnimationWalk("W");
-          }
-          else if (direction.x == 1) {
-            this.#player.startAnimationWalk("E");
-          }
-          else if (direction.y == -1) {
-            this.#player.startAnimationWalk("N");
-          }
-          else if (direction.y == 1) {
-            this.#player.startAnimationWalk("S");
-          }
+          this.#player.startAnimationWalk(spriteDir);
         }
       }
 
@@ -312,8 +317,7 @@ class Game {
         let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
         this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
         totalMoved += pxPerFrame;
-        console.log(totalMoved);
-        if (totalMoved > ppt) {
+        if (totalMoved >= ppt - pxPerFrame / 2) {
           let coords = this.#player.getCoords();
           this.#player.setCoordsPx(coords.x * ppt, coords.y * ppt);
           moving = false;
@@ -321,6 +325,7 @@ class Game {
       }
 
       this.draw();
+      console.log(this.#player.getCoords());
 
       await loopPromise;
       let postTime = new Date().getTime();
@@ -337,18 +342,18 @@ class Game {
     let tileSize = this.#map.getPxPerTile();
 
     // map background
-    let mapX = Math.floor(this.#player.getCoordsPx().x + this.#canvas.width / 2);
-    let mapY = Math.floor(this.#player.getCoordsPx().y + this.#canvas.height / 2);
+    let mapX = Math.floor(this.#canvas.width / 2 - this.#player.getCoordsPx().x);
+    let mapY = Math.floor(this.#canvas.height / 2 - this.#player.getCoordsPx().y);
 
     this.#canvasContext.drawImage(this.#map.getBackgroundElement(),
-                          			  0,
-                          			  0,
+                          			  mapX - tileSize / 2,
+                          			  mapY - tileSize / 2,
                           			  this.#map.getMapWidth() * tileSize,
                         				  this.#map.getMapHeight() * tileSize);
 
     // player
     this.#canvasContext.drawImage(this.#player.getElement(this.#player.getCurrentElement()),
-                          			  Math.floor((this.#canvas.width - tileSize) / 2),
+                                  Math.floor((this.#canvas.width - tileSize) / 2),
                           			  Math.floor((this.#canvas.height - tileSize) / 2),
                           			  tileSize,
                           			  tileSize);
@@ -358,16 +363,16 @@ class Game {
       let tempX = Math.floor((npc.getCoords().x) * tileSize - this.#player.getCoordsPx().x + this.#canvas.width / 2);
       let tempY = Math.floor((npc.getCoords().y) * tileSize - this.#player.getCoordsPx().y + this.#canvas.height / 2);
       this.#canvasContext.drawImage(npc.getElement(npc.getCurrentElement()),
-                          			    tempX,
-                            				tempY,
+                          			    tempX - tileSize / 2,
+                            				tempY - tileSize / 2,
                             				tileSize,
                            				  tileSize);
     }
 
     // map foreground
     this.#canvasContext.drawImage(this.#map.getForegroundElement(),
-                          			  mapX,
-                          			  mapY,
+                          			  mapX - tileSize / 2,
+                          			  mapY - tileSize / 2,
                           			  this.#map.getMapWidth() * tileSize,
                           			  this.#map.getMapHeight() * tileSize);
   }
@@ -562,7 +567,7 @@ class Game {
     		 "selected_quest=" + this.#player.getSelectedQuest().toString() +
     		 "completed_interactions=" + JSON.stringify(this.#player.getCompletedInteractions()) +
     		 "completed_quests=" + JSON.stringify(this.#player.getCompletedQuests()) +
-    		 "quest_counts=" + JSON.strigify(this.#player.getQuestCounts()) +
+    		 "quest_counts=" + JSON.stringify(this.#player.getQuestCounts()) +
     		 "time_of_day=" + this.#player.getTimeOfDay().toString());
     xhr.send();
   }
@@ -583,7 +588,6 @@ class Game {
 
   static keyDownHandler(event) {
     // adds the key to heldKeys if it is "important" and not already in heldKeys
-    console.log(event.code);
     if (this.#importantKeys.includes(event.code) && !this.#heldKeys.includes(event.code)) {
       this.#heldKeys.push(event.code);
     }
@@ -610,6 +614,7 @@ class Game {
 
     let ppx = Math.max(width,height)
   	this.#map.setPxPerTile(ppx);
+    console.log(div.clientWidth, div.clientHeight, ppx, this.#tilesDesired);
     let coords = this.#player.getCoords();
     this.#player.setCoordsPx(coords.x * ppx, coords.y * ppx)
 
