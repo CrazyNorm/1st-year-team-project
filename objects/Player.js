@@ -4,6 +4,7 @@ class Player { //TEST THIS
 	#coordsPx;
 	#elements;
 	#currentElement;
+	#characterType;
 	#stats;
 	#speed;
 	#currentQuests;
@@ -175,9 +176,9 @@ class Player { //TEST THIS
 	}
 
 	incrementTime() { // Morning, Afternoon, Evening, Night, Early Morning
-		this.#time += 1;
-		if (this.#time > 4) {
-			this.#time = 0;
+		this.#timeOfDay += 1;
+		if (this.#timeOfDay > 4) {
+			this.#timeOfDay = 0;
 		}
 	}
 

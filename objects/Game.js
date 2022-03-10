@@ -30,8 +30,24 @@ class Game {
     return this.#player;
   }
 
+  static setPlayer(player) {
+    this.#player = player;
+  }
+
   static getInteraction(id) {
     return this.#allInteractions.find(i => i.getId() == id);
+  }
+
+  static addInteraction(interaction) {
+    this.#allInteractions.push(interaction);
+  }
+
+  static addQuest(quest) {
+    this.#allQuests.push(quest);
+  }
+
+  static addNPC(npc) {
+    this.#npcList.push(npc);
   }
 
 
@@ -103,12 +119,12 @@ class Game {
     }
 
   	// create scripts
-  	for (script of scripts) {
+  	for (let script of scripts) {
   	  let tempScript = document.createElement("script");
       toLoad ++;
       tempScript.onload = load;
   	  tempScript.setAttribute("type", "text/javascript");
-  	  tempScript.setAttribute("src", script);
+  	  tempScript.setAttribute("src", "objects/" + script);
       document.getElementById(this.#divId).appendChild(tempScript);
    	}
 
@@ -120,7 +136,7 @@ class Game {
     this.loadNPCs().then(value => {load();});
 
    	// loading images
-    for (characterType of characterTypes) {
+    for (let characterType of characterTypes) {
       // player
       if (this.#player.getCharacterType() == characterType) {
         let tempDict = {};
@@ -128,7 +144,7 @@ class Game {
                            'E_Standing','E_Walk_Left','E_Walk_Right',
                            'W_Standing','W_Walk_Left','W_Walk_Right',
                            'N_Standing','N_Walk_Left','N_Walk_Right'];
-        for (type of spriteTypes) {
+        for (let type of spriteTypes) {
           tempDict[type] = new Image();
           toLoad ++;
           tempDict[type].onload = load;
@@ -139,11 +155,11 @@ class Game {
       }
 
       // npcs
-      for (npc of npcList) {
+      for (let npc of npcList) {
         if (npc.getCharacterTypes() == characterTypes) {
           let tempDict = {};
           let spriteTypes = ['S_Standing','E_Standing','W_Standing','N_Standing'];
-          for (type of spriteTypes) {
+          for (let type of spriteTypes) {
             tempDict[type] = new Image();
             toLoad ++;
             tempDict[type].onload = load;
@@ -216,7 +232,7 @@ class Game {
       if (!moving) {
         // player movement
         direction = {"x":0, "y":0};
-        for (code of this.#heldKeys) {
+        for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
             case "ArrowUp":
@@ -313,7 +329,7 @@ class Game {
                     			  tileSize);
 
     // NPCs
-    for (npc of npcList) {
+    for (let npc of npcList) {
       let tempX = Math.floor((npc.getCoords().x) * tileSize - this.#player.getCoordsPx().x + this.#canvas.width / 2);
       let tempY = Math.floor((npc.getCoords().y) * tileSize - this.#player.getCoordsPx().y + this.#canvas.height / 2);
       this.#canvasContext.drawImage(npc.getCurrentElement(),
@@ -343,7 +359,7 @@ class Game {
 
   static warpCollision() {
     // checks the player's position against all the warp points and moves the player to destination
-    for (point of this.#map.getWarpPoints()) {
+    for (let point of this.#map.getWarpPoints()) {
       let tempBounds = {'tlX':point.sX, 'tlY':point.sY, 'brX':point.sX, 'brY':point.sY};
       if (this.#playerCollision(tempBounds)) {
         this.#player.setCoords(point.dX, point.dY);
@@ -354,7 +370,7 @@ class Game {
 
   static buildingCollision() {
     // checks the player's position against all the bounds for buildings
-    for (bound of this.#map.getCollisionBounds()) {
+    for (let bound of this.#map.getCollisionBounds()) {
       if (this.#playerCollision(bound)) {
         return true;
       }
@@ -364,7 +380,7 @@ class Game {
 
   static npcCollision() {
     // checks the player's position against all the NPCs
-    for (npc of this.#npcList) {
+    for (let npc of this.#npcList) {
       let tempBounds = {'tlX':npc.getCoords().x, 'tlY':npc.getCoords().y,
                 		'brX':npc.getCoords().x, 'brY':npc.getCoords().y}
       if (this.#playerCollision(tempBounds)) {
@@ -381,20 +397,20 @@ class Game {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
-      for (string of records) {
+      for (let string of records) {
         string = string.split("|");
         let tempInteraction = new Interaction(string[0], // id
                           					string[1] === "true", // is_default
                        						  string[2], // dialog
                         					  string[3], // audio
                         					  JSON.parse(string[4]), // stat_changes
-                        					  JSON.parse(string[5]), // actions
-                        					  JSON.parse(string[6]), // quest_requirements
-                        					  JSON.parse(string[7])); // interaction_requirements
-        this.#allInteractions.push(tempInteraction);
+                        					  JSON.parse(string[5]).actions, // actions
+                        					  JSON.parse(string[6]).requirements, // quest_requirements
+                        					  JSON.parse(string[7]).requirements); // interaction_requirements
+        Game.addInteraction(tempInteraction);
       }
     };
-    xhr.open("GET","database-scripts/loadInteractions.php");
+    xhr.open("GET","objects/database-scripts/loadInteractions.php");
     xhr.send();
   }
 
@@ -403,22 +419,22 @@ class Game {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
-      for (string of records) {
+      for (let string of records) {
         string = string.split("|");
         let tempQuest = new Quest(string[0], // id
                       			  string[1], // title
                      			    string[2], // description
                       			  parseInt(string[3]), // target_cunt
                       			  JSON.parse(string[4]), // reward_stat_changes
-                      			  JSON.parse(string[5]), // reward_actions
-                      			  JSON.parse(string[6]), // quest_requirements
-                      			  JSON.parse(string[7]), // interaction_requirements
-                      			  JSON.parse(string[8]), // updated_by_quests
-                      			  JSON.parse(string[9])); // updated_by_interactions
-        this.#allQuests.push(tempQuest);
+                      			  JSON.parse(string[5]).actions, // reward_actions
+                      			  JSON.parse(string[6]).requirements, // quest_requirements
+                      			  JSON.parse(string[7]).requirements, // interaction_requirements
+                      			  JSON.parse(string[8]).quests, // updated_by_quests
+                      			  JSON.parse(string[9]).interractions); // updated_by_interactions
+        Game.addQuest(tempQuest);
       }
     };
-    xhr.open("GET","database-scripts/loadQuests.php");
+    xhr.open("GET","objects/database-scripts/loadQuests.php");
     xhr.send();
   }
 
@@ -427,17 +443,17 @@ class Game {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
-      for (string of records) {
+      for (let string of records) {
         string = string.split("|");
         let tempNPC = new NPC(string[0], // id
                               string[1], // name
                               JSON.parse(string[2]), // coords
                               string[3], // character_type
-                              JSON.parse(string[4])); // interactions
-        this.#npcList.push(tempNPC);
+                              JSON.parse(string[4]).interactions); // interactions
+        Game.addNPC(tempNPC);
       }
     };
-    xhr.open("GET","database-scripts/loadNPCs.php");
+    xhr.open("GET","objects/database-scripts/loadNPCs.php");
     xhr.send();
   }
 
@@ -447,29 +463,29 @@ class Game {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
       let records = xhr.responseText.split("\n");
-      for (string of records) {
+      for (let string of records) {
         string = string.split("|");
-        let tempPlayer = new Player(this.#player_id,
+        let tempPlayer = new Player("0",
             							          JSON.parse(string[0]), // coords
                           			    string[1], // character_type
                          			      JSON.parse(string[2]), // stats
-                          			    JSON.parse(string[3]), // current_quests
+                          			    JSON.parse(string[3]).quests, // current_quests
                           			    string[4], // selected_quest
-                          			    JSON.parse(string[5]), // completed_interactions
-                          			    JSON.parse(string[6]), // completed_quests
+                          			    JSON.parse(string[5]).interactions, // completed_interactions
+                          			    JSON.parse(string[6]).quests, // completed_quests
                           			    JSON.parse(string[7]), // quest_counts
                           			    parseInt(string[8])); // time_of_day
-        this.#player = tempPlayer;
+        Game.setPlayer(tempPlayer);
       }
     };
-    xhr.open("GET","database-scripts/loadPlayer.php?player_id=" + this.#player_id);
+    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id=0");// need to replace this with actual id
     xhr.send();
   }
 
   static savePlayer() {
     // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
-    xhr.open("GET","database-scripts/savePlayer.php?" +
+    xhr.open("GET","objects/database-scripts/savePlayer.php?" +
     		 "player_id=" + this.#player_id +
     		 "coords=" + JSON.stringify(this.#player.getCoords()) + 
     		 "character_type=" + this.#player.getCharacterType() + 

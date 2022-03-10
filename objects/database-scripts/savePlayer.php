@@ -23,7 +23,7 @@ $sql = "UPDATE player
 			time_of_day = :time_of_day
 		WHERE user_id = :player_id";
 
-$pdo = new pdo("mysql:host=something;dbname=unilife","tempUsername","tempPass");
+$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=u49728rt","u49728rt","Y4A6pE28gEJqnBw");
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE,
 				   PDO::ERRMODE_WARNING);
