@@ -9,7 +9,8 @@ class Game {
   static #carList;
   static #heldKeys;
   static #importantKeys;
-  static #touches;
+  static #touchStarts;
+  static #joystickTouch;
   static #volume;
   static #deltaTime;
   static #fps;
@@ -99,8 +100,8 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight'];
-    this.#touches = [];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight'];
+    this.#touchStarts = [];
     this.#volume = 100;
     this.#deltaTime = 0;
     this.#fps = 30;
@@ -242,6 +243,8 @@ class Game {
     let direction;
     let totalMoved;
     let spriteDir = "S";
+    let joystick = document.getElementById("joystick");
+    let controls = document.getElementById("controls");
 
     this.draw();
 
@@ -251,9 +254,31 @@ class Game {
       });
       let preTime = new Date().getTime();
 
+      // update joystick position
+      // if (this.#isMobile) {
+      //   if (this.#joystickTouch != undefined) {
+      //     let controlsCoords = controls.getBoundingClientRect();
+      //     let joystickCoords = joystick.getBoundingClientRect();
+      //     let touchX = this.#joystickTouch.clientX - controlsCoords.left;
+      //     let touchY = this.#joystickTouch.clientY - controlsCoords.top;
+      //     joystick.style.margin = "0";
+      //     joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
+      //     joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
+      //     joystick.style.backgroundColor = "red";
+      //   }
+      //   else {
+      //     joystick.style.margin = "auto";
+      //     joystick.style.top = "0";
+      //     joystick.style.left = "0";
+      //     joystick.style.backgroundColor = "green";
+      //   }
+      // }
+
+
       if (!moving) {
         // player movement
         direction = {"x":0, "y":0};
+        this.#player.setSpeed(4);
         for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
@@ -280,23 +305,28 @@ class Game {
               break;
             case "ShiftLeft":
             case "ShiftRight":
-              // shift
+              this.#player.setSpeed(10);
               break;
           }
         }
 
         // set standing sprite (may be overridden by animation)
-        if (direction.x == -1) {
-          spriteDir = "W";
-        }
-        else if (direction.x == 1) {
-           spriteDir = "E";
-        }
-        else if (direction.y == -1) {
+        
+        if (direction.y <= -1) {
+          direction.y = -1;
           spriteDir = "N";
         }
-        else if (direction.y == 1) {
+        else if (direction.y >= 1) {
+          direction.y = 1;
           spriteDir = "S";
+        }
+        if (direction.x <= -1) {
+          direction.x = -1;
+          spriteDir = "W";
+        }
+        else if (direction.x >= 1) {
+          direction.x = 1;
+           spriteDir = "E";
         }
         this.#player.setCurrentElement(spriteDir + "_Standing");
 
@@ -325,11 +355,11 @@ class Game {
       }
 
       this.draw();
-      console.log(this.#player.getCoords());
 
       await loopPromise;
       let postTime = new Date().getTime();
       this.#deltaTime = (postTime - preTime) / 1000;
+      console.log(1/this.#deltaTime);
     }
   }
 
@@ -579,10 +609,10 @@ class Game {
     let div = document.getElementById(this.#divId);
     document.addEventListener('keydown', function() {Game.keyDownHandler(event)});
     document.addEventListener('keyup', function() {Game.keyUpHandler(event)});
-    document.addEventListener('touchstart', function() {Game.touchHandler(event)});
-    document.addEventListener('touchmove', function() {Game.touchHandler(event)});
-    document.addEventListener('touchend', function() {Game.touchHandler(event)});
-    document.addEventListener('touchcancel', function() {Game.touchHandler(event)});
+    div.addEventListener('touchstart', function() {Game.touchStartHandler(event)});
+    div.addEventListener('touchmove', function() {Game.touchMoveHandler(event)});
+    div.addEventListener('touchend', function() {Game.touchEndHandler(event)});
+    div.addEventListener('touchcancel', function() {Game.touchEndHandler(event)});
     window.addEventListener('resize', function() {Game.resizeHandler()});
   }
 
@@ -601,9 +631,42 @@ class Game {
     }
   }
 
-  static touchHandler(event) {
+  static touchStartHandler(event) {
+    event.preventDefault();
     // refreshes the list of current touches
-    this.#touches = event.targetTouches;
+    this.#touchStarts.push(event.target);
+
+    // if there is no joystick touch and there is a new touch on the joystick, sets joystickTouch
+    for (let touch of event.changedTouches) {
+      let element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element.id == "controls" && this.#joystickTouch == undefined) {
+        this.#joystickTouch = touch;
+      }
+    }
+  }
+
+  static touchMoveHandler(event) {
+    event.preventDefault();
+    // if the joystick touch has moved, update it
+    if (this.#joystickTouch != undefined) {
+      for (let touch of event.changedTouches) {
+        if (touch.identifier == this.#joystickTouch.identifier) {
+          this.#joystickTouch = touch;
+        }
+      }
+    }
+  }
+
+  static touchEndHandler(event) {
+    event.preventDefault();
+    // if the joystick touch has ended, remove it
+    if (this.#joystickTouch != undefined) {
+      for (let touch of event.changedTouches) {
+        if (touch.identifier == this.#joystickTouch.identifier) {
+          this.#joystickTouch = undefined;
+        }
+      }
+    }
   }
 
   static resizeHandler() {

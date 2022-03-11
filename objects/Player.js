@@ -184,7 +184,7 @@ class Player { //TEST THIS
 
 
 	startAnimationWalk(direction) {
-		let delay = 1000 / (this.#speed * 3);
+		let delay = 1000 / (this.#speed * (this.#speed + 1));
 		Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
 		setTimeout(function() {
 			Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
