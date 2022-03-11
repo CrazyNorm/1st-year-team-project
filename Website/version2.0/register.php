@@ -8,10 +8,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $email = $_POST['email'];
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $is_admin = 0;
 
     if(!empty($username) && !empty($password)){
         //save data to database
-        $query = "insert into user (email, username, password) values ('$email', '$username', '$password')";
+        $query = "insert into user (email, username, password, isadmin) values ('$email', '$username', '$password', '$is_admin')";
 
         mysqli_query($con, $query);
         header("Location:login.php");
