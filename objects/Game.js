@@ -58,16 +58,39 @@ class Game {
 
   // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
-    // create canvas
     this.#divId = 'gameDiv';
-    document.getElementById(this.#divId).style.margin = "0";
-    document.getElementById(this.#divId).style.overflow = 'hidden';
+    let gameDiv = document.getElementById(this.#divId);
+
+    // sets up loading screen
+    let loadingDiv = document.createElement("div");
+    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1;');
+    gameDiv.appendChild(loadingDiv);
+
+    let logo = document.createElement("img");
+    logo.setAttribute('src', 'resources/imgs/logo.png');
+    logo.setAttribute('style', 'position:absolute; top:25%; left:25%; width:50%');
+    loadingDiv.appendChild(logo);
+    let loadingLabel = document.createElement('p');
+    loadingLabel.appendChild(document.createTextNode("Loading..."));
+    loadingLabel.setAttribute('style', 'position:absolute; top:40%; width:100%; text-align:center; font-size:5em; color:#660099; font-family:Helvetica;');
+    loadingDiv.appendChild(loadingLabel);
+    let emptyBar = document.createElement('div');
+    emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
+    loadingDiv.appendChild(emptyBar);
+    let fillBar = document.createElement('span');
+    fillBar.setAttribute('style', 'position:absolute; height:100%; background:#660099;')
+    emptyBar.appendChild(fillBar);
+
+
+    // create canvas
+    gameDiv.style.margin = "0";
+    gameDiv.style.overflow = 'hidden';
     let tempCanvas = document.createElement("canvas");
     // set id
     tempCanvas.setAttribute('id', 'canvas');
     // set styling
     tempCanvas.setAttribute('style', "background: yellow; padding: 0; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; ")
-    document.getElementById(this.#divId).appendChild(tempCanvas);
+    gameDiv.appendChild(tempCanvas);
     this.#canvas = document.getElementById("canvas");
     this.#canvasContext = this.#canvas.getContext("2d");
 
@@ -118,10 +141,12 @@ class Game {
     let characterTypes = ['playerMale','playerFemale','Gareth','Stewart'];
 
     // keeps count of when everything has finished loading
+    let maxLoad = 32; // doesn't need to be too accurate, just used for loading bar
     let toLoad = 0;
     let loaded = 0;
     function load() {
       loaded ++;
+      fillBar.style.width = String(loaded / maxLoad * 100) + "%";
     }
 
   	// create scripts
@@ -131,7 +156,7 @@ class Game {
       tempScript.onload = load;
   	  tempScript.setAttribute("type", "text/javascript");
   	  tempScript.setAttribute("src", "objects/" + script);
-      document.getElementById(this.#divId).appendChild(tempScript);
+      gameDiv.appendChild(tempScript);
    	}
 
     while (loaded < toLoad) {
@@ -199,7 +224,7 @@ class Game {
     toLoad ++;
     tempForeground.onload = load;
     tempForeground.src = "resources/imgs/maps/foreground.png";
-    this.#map = new Map(tempBackground, tempForeground, 116, 89);  
+    this.#map = new Map(tempBackground, tempForeground, 130, 120);  
 
 
     // controls
@@ -209,14 +234,14 @@ class Game {
       outerCircle.setAttribute('id', 'controls');
       // set styling
       outerCircle.setAttribute('style',"width: 25%; padding-bottom: 25%; position: fixed; bottom: 0; right: 0; border: 5px solid; border-radius: 50%; user-select: none; ")
-      document.getElementById(this.#divId).appendChild(outerCircle);
+      gameDiv.appendChild(outerCircle);
 
       let innerCircle = document.createElement("span");
       // set id
       innerCircle.setAttribute('id', 'joystick');
       // set styling
       innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block; ")
-      document.getElementById("controls").appendChild(innerCircle);
+      outerCircle.appendChild(innerCircle);
     }
 
     // sets up input listeners on the relevant elements
@@ -232,6 +257,9 @@ class Game {
 
     // resize the canvas
     this.resizeHandler();
+
+    // removes the loading screen
+    loadingDiv.style.display = "none";
 
     // starts the main loop
     this.mainloop();
@@ -255,24 +283,24 @@ class Game {
       let preTime = new Date().getTime();
 
       // update joystick position
-      // if (this.#isMobile) {
-      //   if (this.#joystickTouch != undefined) {
-      //     let controlsCoords = controls.getBoundingClientRect();
-      //     let joystickCoords = joystick.getBoundingClientRect();
-      //     let touchX = this.#joystickTouch.clientX - controlsCoords.left;
-      //     let touchY = this.#joystickTouch.clientY - controlsCoords.top;
-      //     joystick.style.margin = "0";
-      //     joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
-      //     joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
-      //     joystick.style.backgroundColor = "red";
-      //   }
-      //   else {
-      //     joystick.style.margin = "auto";
-      //     joystick.style.top = "0";
-      //     joystick.style.left = "0";
-      //     joystick.style.backgroundColor = "green";
-      //   }
-      // }
+      if (this.#isMobile) {
+        if (this.#joystickTouch != undefined) {
+          let controlsCoords = controls.getBoundingClientRect();
+          let joystickCoords = joystick.getBoundingClientRect();
+          let touchX = this.#joystickTouch.clientX - controlsCoords.left;
+          let touchY = this.#joystickTouch.clientY - controlsCoords.top;
+          joystick.style.margin = "0";
+          joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
+          joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
+          joystick.style.backgroundColor = "red";
+        }
+        else {
+          joystick.style.margin = "auto";
+          joystick.style.top = "0";
+          joystick.style.left = "0";
+          joystick.style.backgroundColor = "green";
+        }
+      }
 
 
       if (!moving) {
@@ -400,11 +428,13 @@ class Game {
     }
 
     // map foreground
-    this.#canvasContext.drawImage(this.#map.getForegroundElement(),
-                          			  mapX - tileSize / 2,
-                          			  mapY - tileSize / 2,
-                          			  this.#map.getMapWidth() * tileSize,
-                          			  this.#map.getMapHeight() * tileSize);
+    if (!this.#isMobile) {
+      this.#canvasContext.drawImage(this.#map.getForegroundElement(),
+                            			  mapX - tileSize / 2,
+                            			  mapY - tileSize / 2,
+                            			  this.#map.getMapWidth() * tileSize,
+                            			  this.#map.getMapHeight() * tileSize);
+    }
   }
 
 
@@ -677,7 +707,6 @@ class Game {
 
     let ppx = Math.max(width,height)
   	this.#map.setPxPerTile(ppx);
-    console.log(div.clientWidth, div.clientHeight, ppx, this.#tilesDesired);
     let coords = this.#player.getCoords();
     this.#player.setCoordsPx(coords.x * ppx, coords.y * ppx)
 
