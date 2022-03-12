@@ -63,16 +63,16 @@ class Game {
 
     // sets up loading screen
     let loadingDiv = document.createElement("div");
-    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1;');
+    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1; display:flex; justify-content:center;');
     gameDiv.appendChild(loadingDiv);
 
     let logo = document.createElement("img");
     logo.setAttribute('src', 'resources/imgs/logo.png');
-    logo.setAttribute('style', 'position:absolute; top:25%; left:25%; width:50%');
+    logo.setAttribute('style', 'position:absolute; top:25%; width:90vmin;');
     loadingDiv.appendChild(logo);
     let loadingLabel = document.createElement('p');
     loadingLabel.appendChild(document.createTextNode("Loading..."));
-    loadingLabel.setAttribute('style', 'position:absolute; top:40%; width:100%; text-align:center; font-size:5em; color:#660099; font-family:Helvetica;');
+    loadingLabel.setAttribute('style', 'position:absolute; top:45%; width:100%; text-align:center; font-size:7vmin; color:#660099; font-family:Helvetica;');
     loadingDiv.appendChild(loadingLabel);
     let emptyBar = document.createElement('div');
     emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
@@ -669,7 +669,7 @@ class Game {
     // if there is no joystick touch and there is a new touch on the joystick, sets joystickTouch
     for (let touch of event.changedTouches) {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (element.id == "controls" && this.#joystickTouch == undefined) {
+      if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
       }
     }
