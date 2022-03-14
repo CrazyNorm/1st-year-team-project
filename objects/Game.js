@@ -72,7 +72,7 @@ class Game {
     loadingDiv.appendChild(logo);
     let loadingLabel = document.createElement('p');
     loadingLabel.appendChild(document.createTextNode("Loading..."));
-    loadingLabel.setAttribute('style', 'position:absolute; top:45%; width:100%; text-align:center; font-size:7vmin; color:#660099; font-family:Helvetica;');
+    loadingLabel.setAttribute('style', 'position:absolute; top:45%; text-align:center; font-size:7vmin; color:#660099; font-family:Helvetica;');
     loadingDiv.appendChild(loadingLabel);
     let emptyBar = document.createElement('div');
     emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
@@ -93,6 +93,21 @@ class Game {
     gameDiv.appendChild(tempCanvas);
     this.#canvas = document.getElementById("canvas");
     this.#canvasContext = this.#canvas.getContext("2d");
+
+    // fullscreen button
+    let fullscrButton = document.createElement("button");
+    fullscrButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
+    function fullscreen(id) {
+      let div = document.getElementById(id);
+      // finds the relevant enter fullscreen method for the browser and runs it
+      if (div.requestFullscreen) {div.requestFullscreen();}
+      else if (div.webkitRequestFullscreen) {div.webkitRequestFullscreen();}
+      else if (div.msRequestFullscreen) {div.msRequestFullscreen();}
+      else if (div.mozRequestFullScreen) {div.mozRequestFullScreen();}
+    }
+    fullscrButton.onmousedown = () => fullscreen(this.#divId);
+    fullscrButton.ontouchstart = () => fullscreen(this.#divId);
+    gameDiv.parentNode.appendChild(fullscrButton);
 
 
     // mobile detection
