@@ -288,6 +288,9 @@ class Game {
     let spriteDir = "S";
     let joystick = document.getElementById("joystick");
     let controls = document.getElementById("controls");
+    // joystick coords relative to control circle
+    let touchX;
+    let touchY;
 
     this.draw();
 
@@ -302,8 +305,8 @@ class Game {
         if (this.#joystickTouch != undefined) {
           let controlsCoords = controls.getBoundingClientRect();
           let joystickCoords = joystick.getBoundingClientRect();
-          let touchX = this.#joystickTouch.clientX - controlsCoords.left;
-          let touchY = this.#joystickTouch.clientY - controlsCoords.top;
+          touchX = this.#joystickTouch.clientX - controlsCoords.left;
+          touchY = this.#joystickTouch.clientY - controlsCoords.top;
           joystick.style.margin = "0";
           joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
           joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
@@ -320,24 +323,65 @@ class Game {
 
       if (!moving) {
         // player movement
+        // touch controls
+
+        let touchKeys = ['touchUp','touchDown','touchLeft','touchRight','touchSprint'];
+        // removes all touch keys from currently held keys
+        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
+
+        if (this.#joystickTouch != undefined) {
+          // rather than applying the direction changes twice (keyboard and touch),
+          // touch controls just simulate keyboard controls
+          let controlsCoords = controls.getBoundingClientRect();
+          let xDiff = touchX - (controlsCoords.width / 2);
+          let yDiff = touchY - (controlsCoords.height / 2);
+          // x direction
+          if (Math.abs(xDiff) > controlsCoords.width / 6) {
+            if (xDiff < 0) {
+              this.#heldKeys.push('touchLeft');
+            }
+            else {
+              this.#heldKeys.push('touchRight');
+            }
+          }
+          // y direction
+          if (Math.abs(yDiff) > controlsCoords.height / 6) {
+            if (yDiff < 0) {
+              this.#heldKeys.push('touchUp');
+            }
+            else {
+              this.#heldKeys.push('touchDown');
+            }
+          }
+          // sprint
+          if (Math.sqrt(xDiff**2 + yDiff**2) > controlsCoords.width / 3) {
+            this.#heldKeys.push('touchSprint');
+          }
+        }
+
+        // keyboard controls
         direction = {"x":0, "y":0};
         this.#player.setSpeed(4);
         for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
             case "ArrowUp":
+            case "touchUp":
               direction.y -= 1;
               break;
             case "KeyA":
             case "ArrowLeft":
+            case "touchLeft":
               direction.x -= 1;
               break;
             case "KeyS":
             case "ArrowDown":
+            case "touchDown":
               direction.y += 1;
               break;
             case "KeyD":
             case "ArrowRight":
+            case "touchRight":
               direction.x += 1;
               break;
             case "KeyQ":
@@ -348,13 +392,13 @@ class Game {
               break;
             case "ShiftLeft":
             case "ShiftRight":
+            case "touchSprint":
               this.#player.setSpeed(10);
               break;
           }
         }
 
         // set standing sprite (may be overridden by animation)
-        
         if (direction.y <= -1) {
           direction.y = -1;
           spriteDir = "N";
@@ -402,7 +446,7 @@ class Game {
       await loopPromise;
       let postTime = new Date().getTime();
       this.#deltaTime = (postTime - preTime) / 1000;
-      console.log(1/this.#deltaTime);
+      // console.log(1/this.#deltaTime);
     }
   }
 
