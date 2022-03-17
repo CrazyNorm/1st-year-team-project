@@ -14,3 +14,5 @@ function check_login($con){
     header("GamePage.html"); //change here
     die;
 }
+
+
