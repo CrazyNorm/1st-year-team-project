@@ -7,7 +7,7 @@
 
 $dbhost = "dbhost.cs.man.ac.uk";
 $dbusername = "v80015aa";
-$dbpassword = "123456781";
+$dbpassword = "12345678";
 #$dbname = "v80015aa";
 $dbname = array("2021_comp10120_y12",);
 
