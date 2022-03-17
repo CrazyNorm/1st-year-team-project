@@ -10,9 +10,16 @@ if($_SERVER['REQUEST_METHOD' == "POST"]){
     $quest_requirements = $_POST['quest_requirements'];
     $interaction_requirements = $_POST['interaction_requirements'];
     $audio = $_POST['audio'];
-    $is_default = 0;
-    $query = "insert into interactions (dialog, statChanges, actions, quest_requirements, interaction_requirements, audio, is_default) values ('$dialog', '$statChanges', '$actions', '$quest_requirements', '$interaction_requirements', '$audio', '$is_default')";
-    mysqli_query($con, $query);
+    $is_default = $_POST['is_default'];
+
+    if(!empty($dialog) ){
+        //save data to database
+        $query = "insert into interactions (dialog, statChanges, actions, quest_requirements, interaction_requirements, audio, is_default) values ('$dialog', '$statChanges', '$actions', '$quest_requirements', '$interaction_requirements', '$audio', '$is_default')";
+        mysqli_query($con, $query);
+
+        header("Location:adminPage.php");
+
+    }
 }
 
 
@@ -40,6 +47,7 @@ if($_SERVER['REQUEST_METHOD' == "POST"]){
         <button type="submit">Submit</button>
 
     </form>
+    <p id="inner_box_text">Admin Page 2<br><a id="link" href="adminPage2.php">GO</a></p>
 
 </label>
 </body>

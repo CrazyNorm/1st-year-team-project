@@ -8,6 +8,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+
     if(!empty($email) && !empty($password)){
         //read data from database
         $query = "select * from user where email = '$email' limit 1";
@@ -20,6 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 
                 if($user_data['password'] == $password){
                     $_SESSION['email'] = $user_data['email'];
+
+                    if ($user_data['is_admin'] = '1'){
+                        header("Location: adminPage.php");
+                        die;
+                    }
                     header("Location: GamePage.html");
                     die;
                 }
