@@ -124,18 +124,18 @@ class Quest {
 
     // only checks requirements if the quest is not already active
     if (!player.getCurrentQuests().includes(this.#id)) {
-	  // quest requirements
-	  let qCompleted = player.getCompletedQuests();
-	  // checks if every element of the requirements list is in the completed list
-	  let qBool = this.#questRequirements.every(e => qCompleted.includes(e));
-	  // interaction requirements
-	  let iCompleted = player.getCompletedInteractions();
-	  // checks if every element of the requirements list is in the completed list
-	  let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
+  	  // quest requirements
+  	  let qCompleted = player.getCompletedQuests();
+  	  // checks if every element of the requirements list is in the completed list
+  	  let qBool = this.#questRequirements.every(e => qCompleted.includes(e));
+  	  // interaction requirements
+  	  let iCompleted = player.getCompletedInteractions();
+  	  // checks if every element of the requirements list is in the completed list
+  	  let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
 
-	  // if all requirements are met, adds to the list of active quests
-	  if (qBool && iBool) {
-	    player.addCurrentQuest(this.#id);
+  	  // if all requirements are met, adds to the list of active quests
+  	  if (qBool && iBool) {
+  	    player.addCurrentQuest(this.#id);
 	  }
 	}
   }

@@ -109,17 +109,20 @@ class Interaction {
   checkRequirements() {
     let player = Game.getPlayer();
 
-    // quest requirements
-    let qCompleted = player.getCompletedQuests();
-    // checks if every element of the requirements list is in the completed list
-    let qBool = this.#questRequirements.every(e => qCompleted.includes(e));
 
-    // interaction requirements
-    let iCompleted = player.getCompletedInteractions();
-    // checks if every element of the requirements list is in the completed list
-    let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
+    if (!player.getCompletedInteractions().includes(this.#id)) {
+      // quest requirements
+      let qCompleted = player.getCompletedQuests();
+      // checks if every element of the requirements list is in the completed list
+      let qBool = this.#questRequirements.every(e => qCompleted.includes(e));
 
-    return qBool && iBool;
+      // interaction requirements
+      let iCompleted = player.getCompletedInteractions();
+      // checks if every element of the requirements list is in the completed list
+      let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
+
+      return qBool && iBool;
+    }
   }
 
 
@@ -127,31 +130,32 @@ class Interaction {
     let player = Game.getPlayer();
 
     // displays dialog in game
-    Game.displayDialog(dialog);
+    Game.displayDialog(this.#dialog);
 
     // updates stats
-    for (stat in this.#statChanges) {
+    for (let stat in this.#statChanges) {
       player.updateStat(stat, this.#statChanges[stat]);
     }
 
     // runs actions in Game
-    for (method of this.#actions) {
+    for (let method of this.#actions) {
       eval(method);
     }
 
     // run the check requirements method for all quests which require this interation
-    for (quest of this.#questsToStart) {
+    for (let quest of this.#questsToStart) {
       quest.checkRequirements();
     }
 
     // runs the update method for all quests which are updated by this interaction
-    for (quest of this.#questsToUpdate) {
+    for (let quest of this.#questsToUpdate) {
       quest.update();
     }
 
     // mark this interaction as complete (default interactions aren't "completeable")
+    console.log(this.#isDefault);
     if (!this.#isDefault) {
-      Player.finishInteraction(this.#id);
+      player.finishInteraction(this.#id);
     }
   }
 }

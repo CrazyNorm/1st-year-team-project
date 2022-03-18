@@ -171,7 +171,7 @@ class Player { //TEST THIS
 		this.#completedQuests.push(id)
 	}
 
-	finishInteractionQuest(id) {
+	finishInteraction(id) {
 		this.#completedInteractions.push(id);
 	}
 

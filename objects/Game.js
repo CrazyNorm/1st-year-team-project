@@ -140,7 +140,7 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight'];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE'];
     this.#touchStarts = [];
     this.#volume = 100;
     this.#deltaTime = 0;
@@ -367,6 +367,9 @@ class Game {
         // keyboard controls
         direction = {"x":0, "y":0};
         this.#player.setSpeed(4);
+
+
+
         for (let code of this.#heldKeys) {
           switch(code) {
             case "KeyW":
@@ -394,7 +397,7 @@ class Game {
               break;
             case "KeyE":
               // interact
-
+              this.npcInteractionCollision();
               break;
             case "ShiftLeft":
             case "ShiftRight":
@@ -452,7 +455,7 @@ class Game {
       await loopPromise;
       let postTime = new Date().getTime();
       this.#deltaTime = (postTime - preTime) / 1000;
-      console.log(1/this.#deltaTime);
+      //console.log(1/this.#deltaTime);
     }
   }
 
@@ -528,6 +531,26 @@ class Game {
 
 
   static npcInteractionCollision() {
+    let direction = this.#player.getCurrentElement().substring(0,1);
+    let dir;
+    if (direction == "N") {
+      dir = {"x":0,"y":-1};
+    } else if (direction == "E") {
+      dir = {"x":1,"y":0};
+    } else if (direction == "S") {
+      dir = {"x":0,"y":1};
+    } else if (direction == "W") {
+      dir = {"x":-1,"y":0};
+    } 
+    for (let npc of this.#npcList) {
+      if (npc.getCoords().x == this.#player.getCoords().x+dir.x && npc.getCoords().y == this.#player.getCoords().y+dir.y) {
+        npc.checkInteractions();
+        console.log(this.#player.getStats());
+        return true
+      }
+    }
+
+    
     // for (let npc of this.#npcList) {
     //   let checkDirections = [ {"x":0,"y":1},
     //                           {"x":1,"y":0},
@@ -601,7 +624,7 @@ class Game {
         }
         string = string.split("|");
         let tempInteraction = new Interaction(string[0], // id
-                          					string[1] === "true", // is_default
+                          					string[1] === "1", // is_default
                        						  string[2], // dialog
                         					  string[3], // audio
                         					  JSON.parse(string[4]), // stat_changes
@@ -823,7 +846,8 @@ class Game {
 
 
   // dialog & menus
-  static displayDialog() {
+  static displayDialog (words) {
+    console.log(words);
     // !this is a reminder!
   }
 }

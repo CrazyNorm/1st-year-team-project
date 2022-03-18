@@ -77,7 +77,7 @@ class NPC {
   // decides which interaction to run and runs it
   checkInteractions() {
     // loops through the npc's interactions in order of priority
-    for (id of this.#interactions) {
+    for (let id of this.#interactions) {
       let interaction = Game.getInteraction(id);
       if (interaction.checkRequirements()) {
         // if all quest and interaction requirements are met for the current interaction,
