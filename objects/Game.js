@@ -89,7 +89,7 @@ class Game {
     // set id
     tempCanvas.setAttribute('id', 'canvas');
     // set styling
-    tempCanvas.setAttribute('style', "background: yellow; padding: 0; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; ")
+    tempCanvas.setAttribute('style', "background: yellow; padding: 0; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; image-rendering: optimizeSpeed; image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: -o-crisp-edges; image-rendering: optimize-contrast; -ms-interpolation-mode: nearest-neighbor;")
     gameDiv.appendChild(tempCanvas);
     this.#canvas = document.getElementById("canvas");
     this.#canvasContext = this.#canvas.getContext("2d");
@@ -234,11 +234,11 @@ class Game {
     let tempBackground = new Image();
     toLoad ++;
     tempBackground.onload = load;
-    tempBackground.src = "resources/imgs/maps/background.png";
+    tempBackground.src = "resources/imgs/maps/fullbg.png";
     let tempForeground = new Image();
     toLoad ++;
     tempForeground.onload = load;
-    tempForeground.src = "resources/imgs/maps/foreground.png";
+    tempForeground.src = "resources/imgs/maps/fullfg.png";
     this.#map = new Map(tempBackground, tempForeground, 130, 120);  
 
 
@@ -255,7 +255,7 @@ class Game {
       // set id
       innerCircle.setAttribute('id', 'joystick');
       // set styling
-      innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block; ")
+      innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block;")
       outerCircle.appendChild(innerCircle);
     }
 
@@ -275,6 +275,7 @@ class Game {
 
     // removes the loading screen
     loadingDiv.style.display = "none";
+    this.draw();
 
     // starts the main loop
     this.mainloop();
@@ -446,7 +447,7 @@ class Game {
       await loopPromise;
       let postTime = new Date().getTime();
       this.#deltaTime = (postTime - preTime) / 1000;
-      // console.log(1/this.#deltaTime);
+      console.log(1/this.#deltaTime);
     }
   }
 
@@ -462,14 +463,30 @@ class Game {
     let mapX = Math.floor(this.#canvas.width / 2 - this.#player.getCoordsPx().x);
     let mapY = Math.floor(this.#canvas.height / 2 - this.#player.getCoordsPx().y);
 
-    this.#canvasContext.drawImage(this.#map.getBackgroundElement(),
+    this.#canvasContext.mozImageSmoothingEnabled = false;
+    this.#canvasContext.webkitImageSmoothingEnabled = false;
+    this.#canvasContext.msImageSmoothingEnabled = false;
+    this.#canvasContext.imageSmoothingEnabled = false;
+
+    let tempImg = this.#map.getBackgroundElement();
+
+    this.#canvasContext.drawImage(tempImg,
+                                  0,
+                                  0,
+                                  tempImg.naturalWidth,
+                                  tempImg.naturalHeight,
                           			  mapX - tileSize / 2,
                           			  mapY - tileSize / 2,
                           			  this.#map.getMapWidth() * tileSize,
                         				  this.#map.getMapHeight() * tileSize);
 
     // player
-    this.#canvasContext.drawImage(this.#player.getElement(this.#player.getCurrentElement()),
+    tempImg = this.#player.getElement(this.#player.getCurrentElement());
+    this.#canvasContext.drawImage(tempImg,
+                                  0,
+                                  0,
+                                  tempImg.naturalWidth,
+                                  tempImg.naturalHeight,
                                   Math.floor((this.#canvas.width - tileSize) / 2),
                           			  Math.floor((this.#canvas.height - tileSize) / 2),
                           			  tileSize,
@@ -479,7 +496,12 @@ class Game {
     for (let npc of this.#npcList) {
       let tempX = Math.floor((npc.getCoords().x) * tileSize - this.#player.getCoordsPx().x + this.#canvas.width / 2);
       let tempY = Math.floor((npc.getCoords().y) * tileSize - this.#player.getCoordsPx().y + this.#canvas.height / 2);
-      this.#canvasContext.drawImage(npc.getElement(npc.getCurrentElement()),
+      tempImg = npc.getElement(npc.getCurrentElement())
+      this.#canvasContext.drawImage(tempImg,
+                                    0,
+                                    0,
+                                    tempImg.naturalWidth,
+                                    tempImg.naturalHeight,
                           			    tempX - tileSize / 2,
                             				tempY - tileSize / 2,
                             				tileSize,
@@ -488,7 +510,12 @@ class Game {
 
     // map foreground
     if (!this.#isMobile) {
-      this.#canvasContext.drawImage(this.#map.getForegroundElement(),
+      tempImg = this.#map.getForegroundElement();
+      this.#canvasContext.drawImage(tempImg,
+                                    0,
+                                    0,
+                                    tempImg.naturalWidth,
+                                    tempImg.naturalHeight,
                             			  mapX - tileSize / 2,
                             			  mapY - tileSize / 2,
                             			  this.#map.getMapWidth() * tileSize,
