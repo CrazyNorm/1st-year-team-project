@@ -99,11 +99,13 @@ class Game {
     fullscrButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
     function fullscreen(id) {
       let div = document.getElementById(id);
-      // finds the relevant enter fullscreen method for the browser and runs it
-      if (div.requestFullscreen) {div.requestFullscreen();}
-      else if (div.webkitRequestFullscreen) {div.webkitRequestFullscreen();}
-      else if (div.msRequestFullscreen) {div.msRequestFullscreen();}
-      else if (div.mozRequestFullScreen) {div.mozRequestFullScreen();}
+      try {
+        // finds the relevant enter fullscreen method for the browser and runs it
+        if (div.requestFullscreen) {div.requestFullscreen();}
+        else if (div.webkitRequestFullscreen) {div.webkitRequestFullscreen();}
+        else if (div.msRequestFullscreen) {div.msRequestFullscreen();}
+        else if (div.mozRequestFullScreen) {div.mozRequestFullScreen();}
+      } catch (e) {/* do nothing */}
     }
     fullscrButton.onmousedown = () => fullscreen(this.#divId);
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
@@ -211,7 +213,7 @@ class Game {
           tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
-        // continue;
+        // continue; - UNCOMMENT THIS WHEN THERE'S UNIQUE PLAYER SPRITES
       }
 
       // npcs
@@ -311,13 +313,13 @@ class Game {
           joystick.style.margin = "0";
           joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
           joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
-          joystick.style.backgroundColor = "red";
+          joystick.style.backgroundColor = "yellow";
         }
         else {
           joystick.style.margin = "auto";
           joystick.style.top = "0";
           joystick.style.left = "0";
-          joystick.style.backgroundColor = "green";
+          joystick.style.backgroundColor = "#660099";
         }
       }
 
@@ -509,6 +511,7 @@ class Game {
     }
 
     // map foreground
+<<<<<<< Updated upstream
     if (!this.#isMobile) {
       tempImg = this.#map.getForegroundElement();
       this.#canvasContext.drawImage(tempImg,
@@ -516,11 +519,15 @@ class Game {
                                     0,
                                     tempImg.naturalWidth,
                                     tempImg.naturalHeight,
+=======
+    // if (!this.#isMobile) {
+      this.#canvasContext.drawImage(this.#map.getForegroundElement(),
+>>>>>>> Stashed changes
                             			  mapX - tileSize / 2,
                             			  mapY - tileSize / 2,
                             			  this.#map.getMapWidth() * tileSize,
                             			  this.#map.getMapHeight() * tileSize);
-    }
+    // }
   }
 
 
