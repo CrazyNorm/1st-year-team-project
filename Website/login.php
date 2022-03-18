@@ -5,8 +5,10 @@ include("functions.php");
 
 if($_SERVER['REQUEST_METHOD'] == "POST")
 {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $unsafe_email = $_POST['email']; 
+    $email = mysqli_real_escape_string($unsafe_email);  //prevent injection
+    $unsafe_password = $_POST['password'];
+    $password = mysqli_real_escape_string($unsafe_password);  //prevent injection
 
 
     if(!empty($email) && !empty($password)){
