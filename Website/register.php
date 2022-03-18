@@ -8,18 +8,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $email = $_POST['email'];
     $username = $_POST['username'];
     $password = $_POST['password'];
-#<<<<<<< HEAD:Website/register.php
     $is_admin = 0;
 
     if(!empty($username) && !empty($password)){
         //save data to database
         $query = "insert into user (email, username, password, isadmin) values ('$email', '$username', '$password', '$is_admin')";
-#=======
     }
-    if(!empty($username) && !empty($password)){
-        //save data to database
-        $query = "insert into user (email, username, password) values ('$email', '$username', '$password')";
-#>>>>>>> bf3512e3a9105221dcec39a57fd5241e68233a70:Website/register.php
 
         mysqli_query($con, $query);
         header("Location:login.php");
