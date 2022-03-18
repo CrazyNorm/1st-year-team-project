@@ -272,6 +272,8 @@ class Game {
       await wait;
     }
 
+    this.#map = new Map(tempBackground, tempForeground, Math.round(tempBackground.naturalWidth/16), Math.round(tempBackground.naturalHeight/16))
+
     // resize the canvas
     this.resizeHandler();
 
@@ -392,6 +394,7 @@ class Game {
               break;
             case "KeyE":
               // interact
+
               break;
             case "ShiftLeft":
             case "ShiftRight":
@@ -523,6 +526,24 @@ class Game {
                           			  this.#map.getMapHeight() * tileSize);
   }
 
+
+  static npcInteractionCollision() {
+    // for (let npc of this.#npcList) {
+    //   let checkDirections = [ {"x":0,"y":1},
+    //                           {"x":1,"y":0},
+    //                           {"x":0,"y":-1},
+    //                           {"x":-1,"y":0}]
+      
+    //   for (let dir of checkDirections) {
+    //     let tempBounds = {'tlX':npc.getCoords().x+dir.x, 'tlY':npc.getCoords().y+dir.y,
+    //                 'brX':npc.getCoords().x+dir.x, 'brY':npc.getCoords().y+dir.y};
+    //     if (this.#playerCollision(tempBounds)) {
+    //       return npc;
+    //     }
+    //   }
+    // }
+    // return false;
+  }
 
   // collision checking
   static #playerCollision(bounds) {
