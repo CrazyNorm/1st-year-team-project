@@ -236,11 +236,11 @@ class Game {
     let tempBackground = new Image();
     toLoad ++;
     tempBackground.onload = load;
-    tempBackground.src = "resources/imgs/maps/fullbg.png";
+    tempBackground.src = "resources/imgs/maps/background.png";
     let tempForeground = new Image();
     toLoad ++;
     tempForeground.onload = load;
-    tempForeground.src = "resources/imgs/maps/fullfg.png";
+    tempForeground.src = "resources/imgs/maps/foreground.png";
     this.#map = new Map(tempBackground, tempForeground, 130, 120);  
 
 
@@ -511,23 +511,16 @@ class Game {
     }
 
     // map foreground
-<<<<<<< Updated upstream
-    if (!this.#isMobile) {
-      tempImg = this.#map.getForegroundElement();
-      this.#canvasContext.drawImage(tempImg,
-                                    0,
-                                    0,
-                                    tempImg.naturalWidth,
-                                    tempImg.naturalHeight,
-=======
-    // if (!this.#isMobile) {
-      this.#canvasContext.drawImage(this.#map.getForegroundElement(),
->>>>>>> Stashed changes
-                            			  mapX - tileSize / 2,
-                            			  mapY - tileSize / 2,
-                            			  this.#map.getMapWidth() * tileSize,
-                            			  this.#map.getMapHeight() * tileSize);
-    // }
+    tempImg = this.#map.getForegroundElement();
+    this.#canvasContext.drawImage(tempImg,
+                                  0,
+                                  0,
+                                  tempImg.naturalWidth,
+                                  tempImg.naturalHeight,
+                          			  mapX - tileSize / 2,
+                          			  mapY - tileSize / 2,
+                          			  this.#map.getMapWidth() * tileSize,
+                          			  this.#map.getMapHeight() * tileSize);
   }
 
 
