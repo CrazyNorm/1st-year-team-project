@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 
     if(!empty($username) && !empty($password)){
         //save data to database
-        $query = "insert into user (email, username, password, isadmin) values ('$email', '$username', '$password', '$is_admin')";
+        $query = "insert into user (email, username, password, is_admin) values ('$email', '$username', '$password', '$is_admin')";
     }
 
         mysqli_query($con, $query);
