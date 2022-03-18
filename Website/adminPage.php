@@ -1,7 +1,6 @@
 <?php
 session_start();
 include("connection.php");
-include("functions.php");
 
 if($_SERVER['REQUEST_METHOD' == "POST"]){
     $dialog = $_POST['dialog'];
@@ -12,7 +11,7 @@ if($_SERVER['REQUEST_METHOD' == "POST"]){
     $audio = $_POST['audio'];
     $is_default = $_POST['is_default'];
 
-    if(!empty($dialog) ){
+    if(isset($dialog) ){
         //save data to database
         $query = "insert into interactions (dialog, statChanges, actions, quest_requirements, interaction_requirements, audio, is_default) values ('$dialog', '$statChanges', '$actions', '$quest_requirements', '$interaction_requirements', '$audio', '$is_default')";
         mysqli_query($con, $query);
