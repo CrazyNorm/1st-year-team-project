@@ -11,6 +11,7 @@ class Game {
   static #importantKeys;
   static #touchStarts;
   static #joystickTouch;
+  static #interactTouch;
   static #volume;
   static #deltaTime;
   static #fps;
@@ -111,6 +112,10 @@ class Game {
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
     gameDiv.parentNode.appendChild(fullscrButton);
 
+    
+
+    
+
 
     // mobile detection
     this.#isMobile = false;
@@ -133,6 +138,15 @@ class Game {
         );
       }
     }
+
+    let dialogBox = document.createElement("div");
+    dialogBox.setAttribute("id","dialogBox");
+    if (this.#isMobile) {
+      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch;");
+    } else {
+      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto;");
+    }
+    gameDiv.appendChild(dialogBox);
 
 
     // default values
@@ -250,7 +264,7 @@ class Game {
       // set id
       outerCircle.setAttribute('id', 'controls');
       // set styling
-      outerCircle.setAttribute('style',"width: 25%; padding-bottom: 25%; position: fixed; bottom: 0; right: 0; border: 5px solid; border-radius: 50%; user-select: none; ")
+      outerCircle.setAttribute('style',"width: 25%; padding-bottom: 25%; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
       gameDiv.appendChild(outerCircle);
 
       let innerCircle = document.createElement("span");
@@ -259,6 +273,12 @@ class Game {
       // set styling
       innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block;")
       outerCircle.appendChild(innerCircle);
+
+      // interaction button
+      let interactButton = document.createElement("div");
+      interactButton.setAttribute("id","interactButton");
+      interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
+      gameDiv.appendChild(interactButton);
     }
 
     // sets up input listeners on the relevant elements
@@ -305,152 +325,159 @@ class Game {
       });
       let preTime = new Date().getTime();
 
-      // update joystick position
-      if (this.#isMobile) {
-        if (this.#joystickTouch != undefined) {
-          let controlsCoords = controls.getBoundingClientRect();
-          let joystickCoords = joystick.getBoundingClientRect();
-          touchX = this.#joystickTouch.clientX - controlsCoords.left;
-          touchY = this.#joystickTouch.clientY - controlsCoords.top;
-          joystick.style.margin = "0";
-          joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
-          joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
-          joystick.style.backgroundColor = "yellow";
+      if (!this.#isPaused) {
+
+        // update joystick position
+        if (this.#isMobile) {
+          if (this.#joystickTouch != undefined) {
+            let controlsCoords = controls.getBoundingClientRect();
+            let joystickCoords = joystick.getBoundingClientRect();
+            touchX = this.#joystickTouch.clientX - controlsCoords.left;
+            touchY = this.#joystickTouch.clientY - controlsCoords.top;
+            joystick.style.margin = "0";
+            joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
+            joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
+            joystick.style.backgroundColor = "yellow";
+          }
+          else {
+            joystick.style.margin = "auto";
+            joystick.style.top = "0";
+            joystick.style.left = "0";
+            joystick.style.backgroundColor = "#660099";
+          }
         }
+
+
+        if (!moving) {
+          // player movement
+          // touch controls
+
+          let touchKeys = ['touchUp','touchDown','touchLeft','touchRight','touchSprint'];
+          // removes all touch keys from currently held keys
+          this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
+
+          if (this.#joystickTouch != undefined) {
+            // rather than applying the direction changes twice (keyboard and touch),
+            // touch controls just simulate keyboard controls
+            let controlsCoords = controls.getBoundingClientRect();
+            let xDiff = touchX - (controlsCoords.width / 2);
+            let yDiff = touchY - (controlsCoords.height / 2);
+            // x direction
+            if (Math.abs(xDiff) > controlsCoords.width / 6) {
+              if (xDiff < 0) {
+                this.#heldKeys.push('touchLeft');
+              }
+              else {
+                this.#heldKeys.push('touchRight');
+              }
+            }
+            // y direction
+            if (Math.abs(yDiff) > controlsCoords.height / 6) {
+              if (yDiff < 0) {
+                this.#heldKeys.push('touchUp');
+              }
+              else {
+                this.#heldKeys.push('touchDown');
+              }
+            }
+            // sprint
+            if (Math.sqrt(xDiff**2 + yDiff**2) > controlsCoords.width / 3) {
+              this.#heldKeys.push('touchSprint');
+            }
+          }
+
+          if (this.#interactTouch != undefined) {
+            this.npcInteractionCollision();
+          }
+
+          // keyboard controls
+          direction = {"x":0, "y":0};
+          this.#player.setSpeed(4);
+
+
+
+          for (let code of this.#heldKeys) {
+            switch(code) {
+              case "KeyW":
+              case "ArrowUp":
+              case "touchUp":
+                direction.y -= 1;
+                break;
+              case "KeyA":
+              case "ArrowLeft":
+              case "touchLeft":
+                direction.x -= 1;
+                break;
+              case "KeyS":
+              case "ArrowDown":
+              case "touchDown":
+                direction.y += 1;
+                break;
+              case "KeyD":
+              case "ArrowRight":
+              case "touchRight":
+                direction.x += 1;
+                break;
+              case "KeyQ":
+                // open quest log
+                break;
+              case "KeyE":
+                // interact
+                this.npcInteractionCollision();
+                break;
+              case "ShiftLeft":
+              case "ShiftRight":
+              case "touchSprint":
+                this.#player.setSpeed(10);
+                break;
+            }
+          }
+
+          // set standing sprite (may be overridden by animation)
+          if (direction.y <= -1) {
+            direction.y = -1;
+            spriteDir = "N";
+          }
+          else if (direction.y >= 1) {
+            direction.y = 1;
+            spriteDir = "S";
+          }
+          if (direction.x <= -1) {
+            direction.x = -1;
+            spriteDir = "W";
+          }
+          else if (direction.x >= 1) {
+            direction.x = 1;
+             spriteDir = "E";
+          }
+          this.#player.setCurrentElement(spriteDir + "_Standing");
+
+          this.#player.move(direction.x, direction.y);
+          this.warpCollision();
+          if (this.buildingCollision() || this.npcCollision()) {
+            this.#player.move(-direction.x, -direction.y);
+          }
+          else if (direction.x != 0 || direction.y != 0){
+            moving = true;
+            totalMoved = 0;
+            this.#player.startAnimationWalk(spriteDir);
+          }
+        }
+
         else {
-          joystick.style.margin = "auto";
-          joystick.style.top = "0";
-          joystick.style.left = "0";
-          joystick.style.backgroundColor = "#660099";
-        }
-      }
-
-
-      if (!moving) {
-        // player movement
-        // touch controls
-
-        let touchKeys = ['touchUp','touchDown','touchLeft','touchRight','touchSprint'];
-        // removes all touch keys from currently held keys
-        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
-
-        if (this.#joystickTouch != undefined) {
-          // rather than applying the direction changes twice (keyboard and touch),
-          // touch controls just simulate keyboard controls
-          let controlsCoords = controls.getBoundingClientRect();
-          let xDiff = touchX - (controlsCoords.width / 2);
-          let yDiff = touchY - (controlsCoords.height / 2);
-          // x direction
-          if (Math.abs(xDiff) > controlsCoords.width / 6) {
-            if (xDiff < 0) {
-              this.#heldKeys.push('touchLeft');
-            }
-            else {
-              this.#heldKeys.push('touchRight');
-            }
-          }
-          // y direction
-          if (Math.abs(yDiff) > controlsCoords.height / 6) {
-            if (yDiff < 0) {
-              this.#heldKeys.push('touchUp');
-            }
-            else {
-              this.#heldKeys.push('touchDown');
-            }
-          }
-          // sprint
-          if (Math.sqrt(xDiff**2 + yDiff**2) > controlsCoords.width / 3) {
-            this.#heldKeys.push('touchSprint');
+          let ppt = this.#map.getPxPerTile()
+          let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
+          this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
+          totalMoved += pxPerFrame;
+          if (totalMoved >= ppt - pxPerFrame / 2) {
+            let coords = this.#player.getCoords();
+            this.#player.setCoordsPx(coords.x * ppt, coords.y * ppt);
+            moving = false;
           }
         }
 
-        // keyboard controls
-        direction = {"x":0, "y":0};
-        this.#player.setSpeed(4);
-
-
-
-        for (let code of this.#heldKeys) {
-          switch(code) {
-            case "KeyW":
-            case "ArrowUp":
-            case "touchUp":
-              direction.y -= 1;
-              break;
-            case "KeyA":
-            case "ArrowLeft":
-            case "touchLeft":
-              direction.x -= 1;
-              break;
-            case "KeyS":
-            case "ArrowDown":
-            case "touchDown":
-              direction.y += 1;
-              break;
-            case "KeyD":
-            case "ArrowRight":
-            case "touchRight":
-              direction.x += 1;
-              break;
-            case "KeyQ":
-              // open quest log
-              break;
-            case "KeyE":
-              // interact
-              this.npcInteractionCollision();
-              break;
-            case "ShiftLeft":
-            case "ShiftRight":
-            case "touchSprint":
-              this.#player.setSpeed(10);
-              break;
-          }
-        }
-
-        // set standing sprite (may be overridden by animation)
-        if (direction.y <= -1) {
-          direction.y = -1;
-          spriteDir = "N";
-        }
-        else if (direction.y >= 1) {
-          direction.y = 1;
-          spriteDir = "S";
-        }
-        if (direction.x <= -1) {
-          direction.x = -1;
-          spriteDir = "W";
-        }
-        else if (direction.x >= 1) {
-          direction.x = 1;
-           spriteDir = "E";
-        }
-        this.#player.setCurrentElement(spriteDir + "_Standing");
-
-        this.#player.move(direction.x, direction.y);
-        this.warpCollision();
-        if (this.buildingCollision() || this.npcCollision()) {
-          this.#player.move(-direction.x, -direction.y);
-        }
-        else if (direction.x != 0 || direction.y != 0){
-          moving = true;
-          totalMoved = 0;
-          this.#player.startAnimationWalk(spriteDir);
-        }
-      }
-
-      else {
-        let ppt = this.#map.getPxPerTile()
-        let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
-        this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
-        totalMoved += pxPerFrame;
-        if (totalMoved >= ppt - pxPerFrame / 2) {
-          let coords = this.#player.getCoords();
-          this.#player.setCoordsPx(coords.x * ppt, coords.y * ppt);
-          moving = false;
-        }
-      }
-
-      this.draw();
+        this.draw();
+    }
 
       await loopPromise;
       let postTime = new Date().getTime();
@@ -545,7 +572,6 @@ class Game {
     for (let npc of this.#npcList) {
       if (npc.getCoords().x == this.#player.getCoords().x+dir.x && npc.getCoords().y == this.#player.getCoords().y+dir.y) {
         npc.checkInteractions();
-        console.log(this.#player.getStats());
         return true
       }
     }
@@ -792,7 +818,9 @@ class Game {
   }
 
   static touchStartHandler(event) {
-    event.preventDefault();
+    if (!this.#isDialog) {
+      event.preventDefault();
+    }
     // refreshes the list of current touches
     this.#touchStarts.push(event.target);
 
@@ -801,12 +829,16 @@ class Game {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
+      } else if (element.id == "interactButton") {
+        this.#interactTouch = touch;
       }
     }
   }
 
   static touchMoveHandler(event) {
-    event.preventDefault();
+    if (!this.#isDialog) {
+      event.preventDefault();
+    }
     // if the joystick touch has moved, update it
     if (this.#joystickTouch != undefined) {
       for (let touch of event.changedTouches) {
@@ -818,13 +850,22 @@ class Game {
   }
 
   static touchEndHandler(event) {
-    event.preventDefault();
+    if (!this.#isDialog) {
+      event.preventDefault();
+    }
     // if the joystick touch has ended, remove it
     if (this.#joystickTouch != undefined) {
       for (let touch of event.changedTouches) {
         if (touch.identifier == this.#joystickTouch.identifier) {
           this.#joystickTouch = undefined;
         }
+      }
+    }
+    if (this.#interactTouch != undefined) {
+      for (let touch of event.changedTouches) {
+        if (touch.identifier == this.#interactTouch.identifier) {
+          this.#interactTouch = undefined;
+        } 
       }
     }
   }
@@ -846,8 +887,29 @@ class Game {
 
 
   // dialog & menus
-  static displayDialog (words) {
-    console.log(words);
-    // !this is a reminder!
+  static displayDialog (text) {
+    let dialogBox = document.getElementById("dialogBox");
+
+    //adds text to dialog
+    dialogBox.innerHTML = "<p>"+text+"</p><button id='dialogSubmit' onclick='Game.closeDialog()'>Press to Continue!</button>";
+    let dialogSubmit = document.getElementById("dialogSubmit");
+    // button to continue dialog
+    dialogSubmit.style = "font-size: 1.5em; font-family: 'Press Start 2P', cursive; padding: 1vh; background-color: #660099; color: yellow; border: solid; border-radius: 1vh;"
+    dialogSubmit.onmouseover = function () {
+      dialogSubmit.style.backgroundColor = "yellow";
+      dialogSubmit.style.color = "#660099";
+    }
+    dialogSubmit.onmouseout = function () {
+      dialogSubmit.style.backgroundColor = "#660099";
+      dialogSubmit.style.color = "yellow";
+    }
+    dialogBox.style.display = "block";
+    this.#isDialog = true;
+    this.#isPaused = true;
   }
+
+  static closeDialog () {
+      document.getElementById('dialogBox').style.display = 'none'; 
+      this.#isPaused = false; 
+      this.#isDialog = false;}
 }
