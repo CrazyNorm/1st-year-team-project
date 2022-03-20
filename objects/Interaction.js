@@ -153,7 +153,6 @@ class Interaction {
     }
 
     // mark this interaction as complete (default interactions aren't "completeable")
-    console.log(this.#isDefault);
     if (!this.#isDefault) {
       player.finishInteraction(this.#id);
     }

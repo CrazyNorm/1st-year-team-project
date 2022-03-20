@@ -19,6 +19,7 @@ class Game {
   static #isPaused;
   static #isQuestLogOpen;
   static #isDialog;
+  static #isPauseMenu;
 
   // DOM-related attributes
   static #canvas;
@@ -100,17 +101,53 @@ class Game {
     fullscrButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
     function fullscreen(id) {
       let div = document.getElementById(id);
-      try {
-        // finds the relevant enter fullscreen method for the browser and runs it
-        if (div.requestFullscreen) {div.requestFullscreen();}
-        else if (div.webkitRequestFullscreen) {div.webkitRequestFullscreen();}
-        else if (div.msRequestFullscreen) {div.msRequestFullscreen();}
-        else if (div.mozRequestFullScreen) {div.mozRequestFullScreen();}
-      } catch (e) {/* do nothing */}
+      if (document.fullscreen) {
+        console.log("fullscreen");
+        document.exitFullscreen();
+      } else {
+        try {
+          // finds the relevant enter fullscreen method for the browser and runs it
+          if (div.requestFullscreen) {div.requestFullscreen();}
+          else if (div.webkitRequestFullscreen) {div.webkitRequestFullscreen();}
+          else if (div.msRequestFullscreen) {div.msRequestFullscreen();}
+          else if (div.mozRequestFullScreen) {div.mozRequestFullScreen();}
+        } catch (e) {/* do nothing */}
+      }
     }
     fullscrButton.onmousedown = () => fullscreen(this.#divId);
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
-    gameDiv.parentNode.appendChild(fullscrButton);
+    gameDiv.appendChild(fullscrButton);
+
+    //pause menu
+    let pauseMenu = document.createElement("div");
+    pauseMenu.setAttribute("id","pauseMenu");
+    pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow: auto;");
+    gameDiv.appendChild(pauseMenu);
+    let buttonStyling = document.createElement("style");
+    buttonStyling.innerHTML = "#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 70%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; margin-left: 50%; transform: translateX(-50%); font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;}";
+    pauseMenu.appendChild(buttonStyling);
+    let pauseCentre = document.createElement("div");
+    pauseCentre.setAttribute("style","position: absolute; width: 100%; top: 50%; left: 50%; -ms-transform: translate(-50%,-50%); transform: translate(-50%,-50%); display: inline-block;");
+    pauseCentre.setAttribute("id","pauseCentre");
+    pauseMenu.appendChild(pauseCentre);
+
+    function makeButton(text, func) {
+      let tempButton = document.createElement("button");
+      tempButton.setAttribute("id", "menubutton");
+      tempButton.innerHTML = text;
+      tempButton.onmouseover = function () {tempButton.style.backgroundColor = "#34994f";}
+      tempButton.onmouseout = function () {tempButton.style.backgroundColor = "#660099";}
+      tempButton.onclick = func;
+      pauseCentre.appendChild(tempButton);
+    }
+    makeButton("Continue",Game.closePauseMenu);
+    makeButton("Settings",function(){});
+    makeButton("Quest Log",function(){this.closePauseMenu(); this.openQuestLog();});
+    makeButton("Leaderboard",function(){});
+    makeButton("Save",this.savePlayer);
+    makeButton("Quit",function(){});
+
+    
 
     
 
@@ -142,9 +179,16 @@ class Game {
     let dialogBox = document.createElement("div");
     dialogBox.setAttribute("id","dialogBox");
     if (this.#isMobile) {
-      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch;");
+      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
+
+      // button for pause meun
+      let pauseButton = document.createElement("div");
+      pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
+      pauseButton.setAttribute('id',"pauseButton");
+      gameDiv.appendChild(pauseButton)
     } else {
-      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto;");
+      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
+
     }
     gameDiv.appendChild(dialogBox);
 
@@ -154,7 +198,7 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE'];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape'];
     this.#touchStarts = [];
     this.#volume = 100;
     this.#deltaTime = 0;
@@ -162,6 +206,7 @@ class Game {
     this.#isPaused = false;
     this.#isQuestLogOpen = false;
     this.#isDialog = false;
+    this.#isPauseMenu = false;
     if (this.#isMobile) {
       this.#tilesDesired = 15;
     } else {
@@ -435,6 +480,9 @@ class Game {
               case "KeyE":
                 // interact
                 this.npcInteractionCollision();
+                break;
+              case "Escape":
+                this.openPauseMenu();
                 break;
               case "ShiftLeft":
               case "ShiftRight":
@@ -818,6 +866,26 @@ class Game {
     if (this.#importantKeys.includes(event.code) && !this.#heldKeys.includes(event.code)) {
       this.#heldKeys.push(event.code);
     }
+    //closes dialog on button press
+    if (this.#isDialog) {
+      switch (event.code) {
+        case "Space":
+        case "Enter":
+        case "Escape":
+          this.closeDialog();
+          break;
+      }
+    }
+    if (this.#isPauseMenu) {
+      switch (event.code) {
+        case "Escape":
+          let index = this.#heldKeys.indexOf(event.code);
+          this.#heldKeys.splice(index, 1);
+          this.closePauseMenu();
+          break;
+      }
+    }
+
   }
 
   static keyUpHandler(event) {
@@ -826,10 +894,12 @@ class Game {
       let index = this.#heldKeys.indexOf(event.code);
       this.#heldKeys.splice(index, 1);
     }
+
   }
 
   static touchStartHandler(event) {
-    if (!this.#isDialog) {
+    let menuClosed = false
+    if (!(this.#isDialog || this.#isPauseMenu)) {
       event.preventDefault();
     }
     // refreshes the list of current touches
@@ -838,16 +908,37 @@ class Game {
     // if there is no joystick touch and there is a new touch on the joystick, sets joystickTouch
     for (let touch of event.changedTouches) {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (this.#isDialog) {
+        // Closes the dialog if tapped outside of the dialog box
+        if (element.id != "dialogBox") {
+          this.closeDialog();
+          menuClosed = true;
+        }
+      } else if (this.#isPauseMenu) {
+        console.log(element.id);
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.id != "menubutton") {
+          this.closePauseMenu();
+          menuClosed = true;
+
+        }
+      }
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
-      } else if (element.id == "interactButton") {
-        this.#interactTouch = touch;
+      }  
+      if (!menuClosed) {
+        if (element.id == "interactButton") {
+          this.#interactTouch = touch;
+        } else if (element.id == "pauseButton") {
+          this.openPauseMenu();
+        }
       }
+      
+      
     }
   }
 
   static touchMoveHandler(event) {
-    if (!this.#isDialog) {
+    if (!(this.#isDialog || this.#isPauseMenu)) {
       event.preventDefault();
     }
     // if the joystick touch has moved, update it
@@ -861,7 +952,7 @@ class Game {
   }
 
   static touchEndHandler(event) {
-    if (!this.#isDialog) {
+    if (!(this.#isDialog || this.#isPauseMenu)) {
       event.preventDefault();
     }
     // if the joystick touch has ended, remove it
@@ -901,11 +992,12 @@ class Game {
   static displayDialog (text) {
     let dialogBox = document.getElementById("dialogBox");
 
+
     //adds text to dialog
-    dialogBox.innerHTML = "<p>"+text+"</p><button id='dialogSubmit' onclick='Game.closeDialog()'>Press to Continue!</button>";
+    dialogBox.innerHTML = text+"<br><button id='dialogSubmit' onclick='Game.closeDialog()'>Press to Continue!</button>";
     let dialogSubmit = document.getElementById("dialogSubmit");
     // button to continue dialog
-    dialogSubmit.style = "font-size: 1.5em; font-family: 'Press Start 2P', cursive; padding: 1vh; background-color: #660099; color: yellow; border: solid; border-radius: 1vh;"
+    dialogSubmit.style = "font-size: 1.5em; font-family: 'Press Start 2P', cursive; padding: 1vh; background-color: #660099; color: yellow; border: solid; border-radius: 1vh; margin: 0.5em;"
     dialogSubmit.onmouseover = function () {
       dialogSubmit.style.backgroundColor = "yellow";
       dialogSubmit.style.color = "#660099";
@@ -915,12 +1007,33 @@ class Game {
       dialogSubmit.style.color = "yellow";
     }
     dialogBox.style.display = "block";
+    dialogBox.scrollTop = 0;
     this.#isDialog = true;
     this.#isPaused = true;
   }
-
   static closeDialog () {
-      document.getElementById('dialogBox').style.display = 'none'; 
-      this.#isPaused = false; 
-      this.#isDialog = false;}
+    document.getElementById('dialogBox').style.display = 'none'; 
+    this.#isPaused = false; 
+    this.#isDialog = false;
+  }
+
+  static openPauseMenu () {
+    let pauseMenu = document.getElementById("pauseMenu");
+    if (this.#canvas.width < this.#canvas.height) {
+      pauseMenu.style.width = "80%";
+    } else {
+      pauseMenu.style.width = "40%";
+    }
+    pauseMenu.style.display = "block";
+    pauseMenu.scrollTop = 0;
+    this.#isPaused = true;
+    this.#isPauseMenu = true;
+  }
+  static closePauseMenu() {
+    let pauseMenu = document.getElementById("pauseMenu");
+    pauseMenu.style.display = "none";
+    Game.#isPaused = false; //called from button cannot access this
+    Game.#isPauseMenu = false;
+  }
+
 }
