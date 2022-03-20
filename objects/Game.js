@@ -335,8 +335,19 @@ class Game {
             touchX = this.#joystickTouch.clientX - controlsCoords.left;
             touchY = this.#joystickTouch.clientY - controlsCoords.top;
             joystick.style.margin = "0";
-            joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
-            joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
+            let halfWidth = controlsCoords.width/2;
+            let diffX = halfWidth-touchX;
+            let diffY = halfWidth-touchY;
+            let magnitude = Math.sqrt((diffX)**2+(diffY)**2);
+            // move joystick to stay within circle
+            if (magnitude>halfWidth) {
+              joystick.style.margin = "0";
+              joystick.style.left = String(Math.floor(halfWidth*(1-diffX/magnitude) - joystickCoords.width / 2))+"px";
+              joystick.style.top = String(Math.floor(halfWidth*(1-diffY/magnitude) - joystickCoords.height / 2))+"px"; 
+            } else {
+              joystick.style.left = String(Math.floor(touchX - joystickCoords.width / 2)) + "px";
+              joystick.style.top = String(Math.floor(touchY - joystickCoords.height / 2)) + "px";
+            }
             joystick.style.backgroundColor = "yellow";
           }
           else {
