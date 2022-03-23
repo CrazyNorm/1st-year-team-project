@@ -54,12 +54,14 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
         <p><label for="Email"></label><input type="email" id="Email" placeholder="Email" class="text_block" name = "email" required></p>
         <p><label for="Username"></label><input type="text" id="Username" placeholder="Username" class="text_block" name = "username" required></p>
         <p><label for="Password"></label><input type="password" id="user_password" placeholder="Password" class="text_block" name = "password" required></p>
-        <p><label>
-                <input type="checkbox" onclick="showPassword()">
-            </label>Show Password</p>
-        <div id="login_and_link">
+        <h2 class="login-title">
+            <p><label>
+                    <input type="checkbox" onclick="showPassword()">
+                </label>Show Password</p>
+            <span>Already have an account?</span><a href="login.php">Sign in</a>
+        </h2>
+        <div id="login">
             <button type="submit" id="login_btn" name="register_btn">Sign up</button>
-            <p id="inner_box_text">Already got an account?<br><a id="link" href="login.php">Sign in</a></p>
         </div>
     </form>
 </div>

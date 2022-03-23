@@ -62,17 +62,21 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             a.type = "password";
         }
     }
+
 </script>
 <div id="login_block">
     <form action="login.php" method="POST">
         <p><label for="Username"></label><input type="email" id="Email" placeholder="Email" class="text_block" name="email" required></p>
         <p><label for="Password"></label><input type="password" id="user_password" placeholder="Password" class="text_block" name="password" required></p>
-        <p><label>
-                <input type="checkbox" onclick="showPassword()">
-            </label>Show Password</p>
+        <h2 class="login-title">
+            <p><label>
+                    <input type="checkbox" onclick="showPassword()">
+                </label>Show Password</p>
+            <span>New user?</span><a href="register.php">Create an account</a>
+        </h2>
+
         <div id="login_and_link">
-            <button id="login_btn" name="login_btn">Sign up</button>
-            <p id="inner_box_text">Not got an account?<br><a id="link" href="register.php">Sign up</a></p>
+            <button id="login_btn" name="login_btn">Sign in</button>
         </div>
     </form>
 </div>
