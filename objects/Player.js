@@ -95,6 +95,9 @@ class Player { //TEST THIS
 	setStats(stats) {
 		this.#stats = stats;
 	}
+	getStat(stat) {
+		return this.#stats[stat];
+	}
 	updateStat(statid, statChange) {
 		this.#stats[statid] += statChange;
 	}

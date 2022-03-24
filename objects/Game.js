@@ -1,6 +1,7 @@
 class Game {
   // game-related attributes
   static #player_id;
+  static #score;
   static #player;
   static #npcList;
   static #allQuests;
@@ -64,6 +65,10 @@ class Game {
   static getPlayerId() {
     return this.#player_id;
   } 
+
+  static getScore() {
+    return this.#score;
+  }
 
   // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
@@ -899,9 +904,10 @@ class Game {
   }
 
   static savePlayer() {
+    // updates the score in the database
+    Game.saveScore();
     // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
-    xhr.addEventListener("error",event=>{console.log(event);})
     xhr.open("GET","objects/database-scripts/savePlayer.php?" +
     		 "player_id=" + Game.getPlayerId() + 
     		 "&coords=" + JSON.stringify(Game.getPlayer().getCoords()) + 
@@ -914,6 +920,20 @@ class Game {
     		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
     		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
     xhr.send();
+  }
+
+  static saveScore() {
+    this.#score = Math.floor((this.#player.getStat('money') + this.#player.getStat('grades') + this.#player.getStat('socialLife')) / 3);
+
+    console.log(this.#player.getStats(),this.#score)
+
+    // uses ajax to save the player's current score to the database
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET","objects/database-scripts/saveScore.php?" +
+         "user_id=" + Game.getPlayerId() + 
+         "&score=" + Game.getScore());
+    xhr.send();
+    xhr.onload = function() {console.log(xhr.responseText)}
   }
 
 
