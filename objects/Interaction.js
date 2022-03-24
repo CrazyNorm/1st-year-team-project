@@ -148,6 +148,7 @@ class Interaction {
     }
 
     // run the check requirements method for all quests which require this interation
+    console.log(this.#questsToUpdate);
     for (let questId of this.#questsToStart) {
       Game.getQuest(questId).checkRequirements();
     }

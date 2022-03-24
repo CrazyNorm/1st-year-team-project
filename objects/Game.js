@@ -217,7 +217,7 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP'];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP','KeyK'];
     this.#touchStarts = [];
     this.#volume = 100;
     this.#deltaTime = 0;
@@ -279,10 +279,10 @@ class Game {
     //sets up quest and interaction to starts
     for (let qPos = 0; qPos < this.#allQuests.length; qPos++) {
       for (let quest2 of this.#allQuests) {
-        if (quest2.getQuestRequirements().includes(parseInt(this.#allQuests[qPos].getId()))) {
+        if (quest2.getQuestRequirements().includes(this.#allQuests[qPos].getId())) {
           this.#allQuests[qPos].getQuestsToStart().push(quest2.getId())
         }
-        if (quest2.getUpdatedByQuests().includes(parseInt(this.#allQuests[qPos].getId()))) {
+        if (quest2.getUpdatedByQuests().includes(this.#allQuests[qPos].getId())) {
           this.#allQuests[qPos].getQuestsToUpdate().push(quest2.getId());
         }
       }
@@ -290,13 +290,14 @@ class Game {
 
     for (let iPos = 0; iPos < this.#allInteractions.length; iPos++) {
       for (let quest of this.#allQuests) {
-        if (quest.getInteractionRequirements().includes(parseInt(this.#allInteractions[iPos].getId()))) {
+        if (quest.getInteractionRequirements().includes(this.#allInteractions[iPos].getId())) {
           this.#allInteractions[iPos].getQuestsToStart().push(quest.getId());
         }
-        if (quest.getUpdatedByInteractions().includes(parseInt(this.#allInteractions[iPos].getId()))) {
+        if (quest.getUpdatedByInteractions().includes(this.#allInteractions[iPos].getId())) {
           this.#allInteractions[iPos].getQuestsToUpdate().push(quest.getId());
         }
       }
+      console.log(this.#allInteractions[iPos].getQuestsToUpdate(),this.#allInteractions[iPos].getQuestsToStart());
     }
 
 
@@ -536,6 +537,9 @@ class Game {
               case "ShiftRight":
               case "touchSprint":
                 this.#player.setSpeed(10);
+                break;
+              case "KeyK":
+                console.log(this.#player.getCurrentQuests());
                 break;
             }
           }
@@ -982,7 +986,6 @@ class Game {
           menuClosed = true;
         }
       } else if (this.#isPauseMenu) {
-        console.log(element.id);
         if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.id != "menubutton") {
           this.closePauseMenu();
           menuClosed = true;
@@ -1123,7 +1126,7 @@ class Game {
       tempButton.onmouseout = function () {tempButton.style.backgroundColor = "#660099";}
       let expanded = document.createElement("div");
       expanded.setAttribute("id","questLogExpanded");
-      if (quest.getTargetCount > 0) {
+      if (quest.getTargetCount() > 0) {
         expanded.innerHTML = (quest.getDescription() + "<br>" + this.#player.getQuestCount(questId) + "/" + quest.getTargetCount());  
       } else {
         expanded.innerHTML = quest.getDescription();
