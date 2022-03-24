@@ -2,7 +2,7 @@
 
 $sql = "SELECT * FROM interactions";
 
-$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=u49728rt","u49728rt","Y4A6pE28gEJqnBw");
+$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=2021_comp10120_y12","v80015aa","12345678");
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE,
 				   PDO::ERRMODE_WARNING);

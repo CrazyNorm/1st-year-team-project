@@ -167,8 +167,9 @@ class Quest {
         }
         for (let method of this.#rewardActions) {
   	      eval(method);
-  	    }
+  	    }   
 
+        // mark this quest as complete
         player.finishCurrentQuest(this.#id);
 
   	    // run the check requirements method for all quests which require this quest
@@ -180,9 +181,8 @@ class Quest {
   	      Game.getQuest(questId).update();
   	    }
 
-  	    // mark this quest as complete
-  	    
-  	  }
+        // Game.savePlayer();
+    	}
   	}
   }
 }
