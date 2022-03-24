@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>GAME TEST</title>
+	<link rel="shortcut icon" type="image/png" href="resources/imgs/icon.png"/>
+</head>
+<style>
+	#gameDiv {
+		position : absolute;
+		background-color: yellow;
+		width : 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+	}
+</style>
+<body style="padding:0; border: 0;">
+	<div id="gameDiv" style="top: 5%; left: 5%; width: 90%; height: 90%;">
+	</div>
+</body>
+<script type="text/javascript" src ="objects/minigames/frogger.js"></script>
+<script type="text/javascript">
+	let frogger = new FroggerGame("gameDiv", true);
+	frogger.startGame();
+</script>
+
+</html>
