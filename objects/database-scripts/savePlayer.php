@@ -15,15 +15,15 @@ $sql = "UPDATE player_data
 		SET coords = :coords,
 			character_type = :character_type,
 			stats = :stats,
-			current_quests = :current_quests,
-			selected_quest = :selected_quest,
-			completed_interactions = :completed_interactions,
-			completed_quests = :completed_quests,
-			quest_counts = :quest_counts,
-			time_of_day = :time_of_day
-		WHERE player_id = :player_id";
+			currentQuests = :current_quests,
+			selectedQuest = :selected_quest,
+			completedInteractions = :completed_interactions,
+			completedQuests = :completed_quests,
+			questCounts = :quest_counts,
+			timeOfDay = :time_of_day
+		WHERE userid = :player_id";
 
-$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=u49728rt","u49728rt","Y4A6pE28gEJqnBw");
+$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=2021_comp10120_y12","v80015aa","12345678");
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE,
 				   PDO::ERRMODE_WARNING);

@@ -2,9 +2,9 @@
 
 $player_id = $_GET["player_id"];
 
-$sql = "SELECT * FROM player_data WHERE player_id = :player_id";
+$sql = "SELECT * FROM player_data WHERE userid = :player_id";
 
-$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=u49728rt","u49728rt","Y4A6pE28gEJqnBw");
+$pdo = new pdo("mysql:host=dbhost.cs.man.ac.uk;dbname=2021_comp10120_y12","v80015aa","12345678");
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE,
 				   PDO::ERRMODE_WARNING);
@@ -17,6 +17,6 @@ $stmt->execute([
 $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
 $row = $stmt->fetch();
-echo ($row['coords'] . "|" . $row['character_type'] . "|" . $row['stats'] . "|" . $row['current_quests'] . "|" . $row["selected_quest"]  . "|" . $row["completed_interactions"] . "|" . $row["completed_quests"] . "|" . $row["quest_counts"] . "|" . $row["time_of_day"]);
+echo ($row['coords'] . "|" . $row['character_type'] . "|" . $row['stats'] . "|" . $row['currentQuests'] . "|" . $row["selectedQuest"]  . "|" . $row["completedInteractions"] . "|" . $row["completedQuests"] . "|" . $row["questCounts"] . "|" . $row["timeOfDay"]);
 
 ?>

@@ -896,8 +896,6 @@ class Game {
     		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
     		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
     xhr.send();
-    xhr.onload = function () {console.log(xhr.responseText)}
-    console.log("done")
   }
 
 
@@ -912,6 +910,7 @@ class Game {
     div.addEventListener('touchend', function() {Game.touchEndHandler(event)});
     div.addEventListener('touchcancel', function() {Game.touchEndHandler(event)});
     window.addEventListener('resize', function() {Game.resizeHandler()});
+    // window.addEventListener('close', function() {Game.savePlayer()});
   }
 
   static keyDownHandler(event) {
@@ -924,7 +923,13 @@ class Game {
       switch (event.code) {
         case "Space":
         case "Enter":
+        case "KeyE":
+          let index = this.#heldKeys.indexOf(event.code);
+          this.#heldKeys.splice(index, 1);
+          this.closeDialog();
+          break;
         case "Escape":
+        case "KeyP":
           this.closeDialog();
           break;
       }
