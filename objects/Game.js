@@ -680,6 +680,20 @@ class Game {
     } 
     for (let npc of this.#npcList) {
       if (npc.getCoords().x == this.#player.getCoords().x+dir.x && npc.getCoords().y == this.#player.getCoords().y+dir.y) {
+        switch (direction) {
+          case 'N':
+            npc.setCurrentElement('S_Standing');
+            break;
+          case 'E':
+            npc.setCurrentElement('W_Standing');
+            break;
+          case 'W':
+            npc.setCurrentElement('E_Standing');
+            break;
+          case 'S':
+            npc.setCurrentElement('N_Standing');
+            break;
+        }
         npc.checkInteractions();
         return true
       }
