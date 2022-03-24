@@ -117,6 +117,10 @@ class Quest {
     this.#updatedByInteractions = updatedByInteractions;
   }
 
+  getTargetCount() {
+    return this.#targetCount;
+  }
+
 
   // returns true if all elements in the requirements lists are in the appropriate completed lists;
   checkRequirements() {
@@ -126,12 +130,16 @@ class Quest {
     if (!player.getCurrentQuests().includes(this.#id)) {
   	  // quest requirements
   	  let qCompleted = player.getCompletedQuests();
+      console.log(this.#title)
+      console.log(qCompleted);
   	  // checks if every element of the requirements list is in the completed list
   	  let qBool = this.#questRequirements.every(e => qCompleted.includes(e));
   	  // interaction requirements
   	  let iCompleted = player.getCompletedInteractions();
   	  // checks if every element of the requirements list is in the completed list
   	  let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
+      console.log(qBool)
+      console.log(iBool)
 
   	  // if all requirements are met, adds to the list of active quests
   	  if (qBool && iBool) {
@@ -142,38 +150,40 @@ class Quest {
 
 
   update() {
-  	let player = Game.player();
+  	let player = Game.getPlayer();
 
   	// only updates the quest count if this quest is active and not complete
-  	let active = player.getCurrentQuests().contain(this.#id);
-  	let complete = player.getCompletedQuests.includes(this.#id);
+  	let active = player.getCurrentQuests().includes(parseInt(this.#id));
+  	let complete = player.getCompletedQuests().includes(parseInt(this.#id));
   	if (active && !complete) {
   	  // increment quest count by 1
   	  player.incrementCurrentQuest(this.#id, 1);
 
   	  // checks if the target count has been reached
-  	  if (player.getQuestCount(this.#id) >= this.#targetCount) {
+  	  if (player.getQuestCount(this.#id) >= this.#targetCount || this.#targetCount == undefined) {
   	  	// quest rewards
-	    for (stat in this.#rewardStatChanges) {
+        for (let stat in this.#rewardStatChanges) {
 	      // stats
-	      player.updateStat(stat, this.#rewardStatChanges[stat]);
-	    }
-	    for (method of this.#rewardActions) {
-	      eval(method);
-	    }
+          player.updateStat(stat, this.#rewardStatChanges[stat]);
+        }
+        for (let method of this.#rewardActions) {
+  	      eval(method);
+  	    }
 
-	    // run the check requirements method for all quests which require this quest
-	    for (quest of this.#questsToStart) {
-	      quest.checkRequirements();
-	    }
-	    // runs the update method for all quests which are updated by this quest
-	    for (quest of this.#questsToUpdate) {
-	      quest.update();
-	    }
+        player.finishCurrentQuest(this.#id);
 
-	    // mark this quest as complete
-	    Player.finishCurrentQuest(this.#id);
-  	  }
+  	    // run the check requirements method for all quests which require this quest
+  	    for (let questId of this.#questsToStart) {
+  	      Game.getQuest(questId).checkRequirements();
+  	    }
+  	    // runs the update method for all quests which are updated by this quest
+  	    for (let questId of this.#questsToUpdate) {
+  	      Game.getQuest(questId).update();
+  	    }
+
+  	    // mark this quest as complete
+  	    
+    	  }
   	}
   }
 }

@@ -142,19 +142,22 @@ class Interaction {
       eval(method);
     }
 
-    // run the check requirements method for all quests which require this interation
-    for (let quest of this.#questsToStart) {
-      quest.checkRequirements();
-    }
-
-    // runs the update method for all quests which are updated by this interaction
-    for (let quest of this.#questsToUpdate) {
-      quest.update();
-    }
-
     // mark this interaction as complete (default interactions aren't "completeable")
     if (!this.#isDefault) {
       player.finishInteraction(this.#id);
     }
+
+    // run the check requirements method for all quests which require this interation
+    for (let questId of this.#questsToStart) {
+      Game.getQuest(questId).checkRequirements();
+    }
+
+    // runs the update method for all quests which are updated by this interaction
+    for (let questId of this.#questsToUpdate) {
+      Game.getQuest(questId).update();
+    }
+
+    
+
   }
 }

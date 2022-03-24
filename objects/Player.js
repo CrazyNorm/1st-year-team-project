@@ -166,6 +166,7 @@ class Player { //TEST THIS
 	}
 
 	finishCurrentQuest(id) {
+		console.log(id)
 		this.#currentQuests.splice(this.#currentQuests.indexOf(id),1);
 		delete this.#questCounts[id];
 		this.#completedQuests.push(id)

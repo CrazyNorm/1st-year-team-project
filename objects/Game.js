@@ -57,10 +57,18 @@ class Game {
     return this.#fps;
   }
 
+  static getQuest(questId) {
+    return this.#allQuests[questId];
+  }
+
+  static getPlayerId() {
+    return this.#player_id;
+  } 
 
   // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
     this.#divId = 'gameDiv';
+    this.#player_id = "0";
     let gameDiv = document.getElementById(this.#divId);
 
     // sets up loading screen
@@ -121,13 +129,12 @@ class Game {
     //pause menu
     let pauseMenu = document.createElement("div");
     pauseMenu.setAttribute("id","pauseMenu");
-    pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow: auto;");
+    pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-y: auto;");
     gameDiv.appendChild(pauseMenu);
-    let buttonStyling = document.createElement("style");
-    buttonStyling.innerHTML = "#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 70%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; margin-left: 50%; transform: translateX(-50%); font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;}";
-    pauseMenu.appendChild(buttonStyling);
+    pauseMenu.innerHTML = "<style>#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;}</style>";
     let pauseCentre = document.createElement("div");
-    pauseCentre.setAttribute("style","position: absolute; width: 100%; top: 50%; left: 50%; -ms-transform: translate(-50%,-50%); transform: translate(-50%,-50%); display: inline-block;");
+    pauseCentre.setAttribute("style","display: flex; justify-content: center; align-items: center; flex-wrap: wrap; text-align: center; position: absolute; height:100%; width: 100%; top: 0; left: 0;");
+    //align-items: center; justify-content: center; flex-direction: column
     pauseCentre.setAttribute("id","pauseCentre");
     pauseMenu.appendChild(pauseCentre);
 
@@ -142,10 +149,22 @@ class Game {
     }
     makeButton("Continue",Game.closePauseMenu);
     makeButton("Settings",function(){});
-    makeButton("Quest Log",function(){this.closePauseMenu(); this.openQuestLog();});
+    makeButton("Quest Log",function(){Game.closePauseMenu(); Game.openQuestLog();});
     makeButton("Leaderboard",function(){});
     makeButton("Save",this.savePlayer);
     makeButton("Quit",function(){});
+
+
+
+
+    //quest log
+    let questLog = document.createElement("div");
+    questLog.setAttribute("id","questLog");
+    questLog.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-x: hidden; overflow-y: auto;");
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; display: block; background-color: #660099; color: yellow; width : 70%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; margin-left: 50%; transform: translateX(-50%); font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;}</style>";
+    
+    gameDiv.appendChild(questLog);
+
 
     
 
@@ -198,7 +217,7 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape'];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP'];
     this.#touchStarts = [];
     this.#volume = 100;
     this.#deltaTime = 0;
@@ -255,6 +274,31 @@ class Game {
       });
       await wait;
     }
+
+
+    //sets up quest and interaction to starts
+    for (let qPos = 0; qPos < this.#allQuests.length; qPos++) {
+      for (let quest2 of this.#allQuests) {
+        if (quest2.getQuestRequirements().includes(parseInt(this.#allQuests[qPos].getId()))) {
+          this.#allQuests[qPos].getQuestsToStart().push(quest2.getId())
+        }
+        if (quest2.getUpdatedByQuests().includes(parseInt(this.#allQuests[qPos].getId()))) {
+          this.#allQuests[qPos].getQuestsToUpdate().push(quest2.getId());
+        }
+      }
+    }
+
+    for (let iPos = 0; iPos < this.#allInteractions.length; iPos++) {
+      for (let quest of this.#allQuests) {
+        if (quest.getInteractionRequirements().includes(parseInt(this.#allInteractions[iPos].getId()))) {
+          this.#allInteractions[iPos].getQuestsToStart().push(quest.getId());
+        }
+        if (quest.getUpdatedByInteractions().includes(parseInt(this.#allInteractions[iPos].getId()))) {
+          this.#allInteractions[iPos].getQuestsToUpdate().push(quest.getId());
+        }
+      }
+    }
+
 
    	// loading images
     for (let characterType of characterTypes) {
@@ -475,13 +519,17 @@ class Game {
                 direction.x += 1;
                 break;
               case "KeyQ":
-                // open quest log
+                // open quest 
+                let index = this.#heldKeys.indexOf(code);
+                this.#heldKeys.splice(index, 1);
+                this.openQuestLog();
                 break;
               case "KeyE":
                 // interact
                 this.npcInteractionCollision();
                 break;
               case "Escape":
+              case "KeyP":
                 this.openPauseMenu();
                 break;
               case "ShiftLeft":
@@ -509,6 +557,8 @@ class Game {
             direction.x = 1;
              spriteDir = "E";
           }
+          let temp = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
+          this.#player.setSpeed(this.#player.getSpeed() / temp);
           this.#player.setCurrentElement(spriteDir + "_Standing");
 
           this.#player.move(direction.x, direction.y);
@@ -751,7 +801,7 @@ class Game {
                       			  JSON.parse(string[6]).requirements, // quest_requirements
                       			  JSON.parse(string[7]).requirements, // interaction_requirements
                       			  JSON.parse(string[8]).quests, // updated_by_quests
-                      			  JSON.parse(string[9]).interractions); // updated_by_interactions
+                      			  JSON.parse(string[9]).interactions); // updated_by_interactions
         Game.addQuest(tempQuest);
         loaded = true
       }
@@ -806,7 +856,7 @@ class Game {
     xhr.onload = function() {
       let records = xhr.responseText;
       let string = records.split("|");
-      let tempPlayer = new Player("0",
+      let tempPlayer = new Player(Game.getPlayerId(),
           							          JSON.parse(string[0]), // coords
                         			    string[1], // character_type
                        			      JSON.parse(string[2]), // stats
@@ -819,7 +869,7 @@ class Game {
       Game.setPlayer(tempPlayer);
       loaded = true;
     };
-    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id=0");// need to replace this with actual id
+    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id="+this.#player_id);// need to replace this with actual id
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -833,18 +883,21 @@ class Game {
   static savePlayer() {
     // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
+    xhr.addEventListener("error",event=>{console.log(event);})
     xhr.open("GET","objects/database-scripts/savePlayer.php?" +
-    		 "player_id=" + this.#player_id +
-    		 "coords=" + JSON.stringify(this.#player.getCoords()) + 
-    		 "character_type=" + this.#player.getCharacterType() + 
-    		 "stats=" + JSON.stringify(this.#player.getStats()) + 
-    		 "current_quest=" + JSON.stringify(this.#player.getCurrentQuests()) +
-    		 "selected_quest=" + this.#player.getSelectedQuest().toString() +
-    		 "completed_interactions=" + JSON.stringify(this.#player.getCompletedInteractions()) +
-    		 "completed_quests=" + JSON.stringify(this.#player.getCompletedQuests()) +
-    		 "quest_counts=" + JSON.stringify(this.#player.getQuestCounts()) +
-    		 "time_of_day=" + this.#player.getTimeOfDay().toString());
+    		 "player_id=" + Game.getPlayerId() + 
+    		 "&coords=" + JSON.stringify(Game.getPlayer().getCoords()) + 
+    		 "&character_type=" + Game.getPlayer().getCharacterType() + 
+    		 "&stats=" + JSON.stringify(Game.getPlayer().getStats()) + 
+    		 '&current_quests={"quests":' + JSON.stringify(Game.getPlayer().getCurrentQuests()) +
+    		 "}&selected_quest=" + Game.getPlayer().getSelectedQuest().toString() +
+    		 '&completed_interactions={"interactions":' + JSON.stringify(Game.getPlayer().getCompletedInteractions()) +
+    		 '}&completed_quests={"quests":'+JSON.stringify(Game.getPlayer().getCompletedQuests()) +
+    		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
+    		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
     xhr.send();
+    xhr.onload = function () {console.log(xhr.responseText)}
+    console.log("done")
   }
 
 
@@ -879,9 +932,23 @@ class Game {
     if (this.#isPauseMenu) {
       switch (event.code) {
         case "Escape":
+        case "KeyP":
           let index = this.#heldKeys.indexOf(event.code);
           this.#heldKeys.splice(index, 1);
           this.closePauseMenu();
+          break;
+      }
+    }
+    if (this.#isQuestLogOpen) {
+      switch (event.code) {
+        case "KeyQ":
+          let index = this.#heldKeys.indexOf(event.code);
+          this.#heldKeys.splice(index, 1);
+          this.closeQuestLog();
+          break;
+        case "Escape":
+        case "KeyP":
+          this.closeQuestLog();
           break;
       }
     }
@@ -899,7 +966,7 @@ class Game {
 
   static touchStartHandler(event) {
     let menuClosed = false
-    if (!(this.#isDialog || this.#isPauseMenu)) {
+    if (!(this.#isDialog || this.#isQuestLogOpen ||this.#isPauseMenu)) {
       event.preventDefault();
     }
     // refreshes the list of current touches
@@ -938,7 +1005,7 @@ class Game {
   }
 
   static touchMoveHandler(event) {
-    if (!(this.#isDialog || this.#isPauseMenu)) {
+    if (!(this.#isDialog || this.#isPauseMenu || this.#isQuestLogOpen)) {
       event.preventDefault();
     }
     // if the joystick touch has moved, update it
@@ -952,7 +1019,7 @@ class Game {
   }
 
   static touchEndHandler(event) {
-    if (!(this.#isDialog || this.#isPauseMenu)) {
+    if (!(this.#isDialog || this.#isPauseMenu || this.#isQuestLogOpen)) {
       event.preventDefault();
     }
     // if the joystick touch has ended, remove it
@@ -1035,5 +1102,55 @@ class Game {
     Game.#isPaused = false; //called from button cannot access this
     Game.#isPauseMenu = false;
   }
+
+  static openQuestLog() {
+    let questLog = document.getElementById("questLog");
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 2em; font-size: 1.25em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+        
+    this.#isQuestLogOpen = true;
+    if (this.#canvas.width < this.#canvas.height) {
+      questLog.style.width = "80%";
+    } else {
+      questLog.style.width = "40%";
+    }
+    
+    for (let questId of this.#player.getCurrentQuests()) {
+      let quest = this.#allQuests[questId];
+      let tempButton = document.createElement("button");
+      tempButton.setAttribute("id", "questLogButtons");
+      tempButton.innerHTML = quest.getTitle();
+      tempButton.onmouseover = function () {tempButton.style.backgroundColor = "#34994f";}
+      tempButton.onmouseout = function () {tempButton.style.backgroundColor = "#660099";}
+      let expanded = document.createElement("div");
+      expanded.setAttribute("id","questLogExpanded");
+      if (quest.getTargetCount > 0) {
+        expanded.innerHTML = (quest.getDescription() + "<br>" + this.#player.getQuestCount(questId) + "/" + quest.getTargetCount());  
+      } else {
+        expanded.innerHTML = quest.getDescription();
+      }
+      
+
+      tempButton.onclick = function () {if (expanded.style.display == "none") {
+        expanded.style.display = "block";
+      } else {
+        expanded.style.display = "none";
+      }
+    };
+      questLog.appendChild(tempButton);
+      questLog.appendChild(expanded);
+       
+    } 
+    questLog.style.display = "block";
+    //this.#isPaused = true; //If we want to pause on quest log 
+  }
+
+  static closeQuestLog() {
+    let questLog = document.getElementById("questLog");
+    questLog.style.display = "none";
+    this.#isQuestLogOpen = false;
+    //this.#isPaused = false;
+  }
+
+  
 
 }
