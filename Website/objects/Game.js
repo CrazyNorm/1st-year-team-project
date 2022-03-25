@@ -194,7 +194,7 @@ class Game {
 
     let sideDiv = document.createElement("div");
     sideDiv.setAttribute("id", "sideContainer");
-    sideDiv.setAttribute("style", "display: none; z-index: 2; position: relative; top: 15%")
+    sideDiv.setAttribute("style", "display: none; z-index: 0; position: relative; top: 15%")
     gameDiv.appendChild(sideDiv);
 
 
