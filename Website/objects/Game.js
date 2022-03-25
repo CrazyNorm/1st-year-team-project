@@ -324,7 +324,7 @@ class Game {
           tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
-        // continue; - UNCOMMENT THIS WHEN THERE'S UNIQUE PLAYER SPRITES
+        continue;
       }
 
       // npcs
