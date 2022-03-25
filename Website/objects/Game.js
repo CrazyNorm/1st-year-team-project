@@ -267,7 +267,7 @@ class Game {
     }
     // function scope lists used for loading
     let scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
-    let characterTypes = ['Female_Gareth','playerFemale','Gareth','Stewart'];
+    let characterTypes = ['Female_Gareth','Gareth','Stewart','Blank'];
 
     // keeps count of when everything has finished loading
     let maxLoad = 32; // doesn't need to be too accurate, just used for loading bar
