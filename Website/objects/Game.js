@@ -1101,6 +1101,8 @@ class Game {
 
   	this.#canvas.width = div.clientWidth;
   	this.#canvas.height = div.clientHeight;
+
+    this.draw();
   }
 
 
