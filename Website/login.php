@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("register.php")
+include("register.php");
 include("connection.php");
 include("functions.php");
 
@@ -45,6 +45,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     else{
         echo "Username and password are required";
     }
+}
 }
 ?>
 <!DOCTYPE html>
