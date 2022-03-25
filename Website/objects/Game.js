@@ -1225,7 +1225,6 @@ class Game {
 
   static openPauseMenu () {
     let pauseMenu = document.getElementById("pauseMenu");
-    console.log(pauseMenu)
     if (this.#canvas.width < this.#canvas.height) {
       pauseMenu.style.width = "80%";
     } else {
@@ -1252,7 +1251,7 @@ class Game {
 
   static openQuestLog() {
     let questLog = document.getElementById("questLog");
-    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogButtons:hover {background-color: #bb33ff} #questLogExpanded {position: relative; display: none; background-color: #3a0057; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogButtons:hover {background-color: #bb33ff} #questLogExpanded {position: relative; display: none; background-color: #3a0057; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;} #questSelect {width: 40%; left: 80%; background-color: #660099; color: yellow; font-family: 'Press Start 2P', cursive; border: solid 0.1em;} #questSelect:hover {background-color: #bb33ff}</style>";
     let questLogTitle = document.createElement("h1")
     questLogTitle.setAttribute("style","position: relative; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; display: block;  color: yellow;  margin-top: 0.75em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; text-align:center;" );
     questLogTitle.innerHTML = "Quest Log"
@@ -1273,7 +1272,22 @@ class Game {
       let quest = this.#allQuests[questId];
       let tempButton = document.createElement("button");
       tempButton.setAttribute("id", "questLogButtons");
-      tempButton.innerHTML = quest.getTitle();
+      tempButton.innerHTML = quest.getTitle()+"<br>";
+      let tempSelectButton = document.createElement("button");
+      tempSelectButton.setAttribute("id", "questSelect");
+      tempSelectButton.style.backgroundColor = ((this.#player.getSelectedQuest() == questId) ? "green" : "#660099")
+      tempSelectButton.innerHTML = ((this.#player.getSelectedQuest() ==questId) ? "Selected" : "Not Selected")
+      tempSelectButton.onclick = function () {
+        if (Game.#player.getSelectedQuest() == questId) {
+          tempSelectButton.innerHTML = "Not Selected"
+          Game.setSelectedQuest(-1)
+        } else {
+          Game.setSelectedQuest(questId)
+        }
+        Game.closeQuestLog();
+        Game.openQuestLog();
+      }
+      tempButton.appendChild(tempSelectButton);
       let expanded = document.createElement("div");
       expanded.setAttribute("id","questLogExpanded");
       if (quest.getTargetCount() > 0) {
@@ -1323,6 +1337,7 @@ class Game {
       }
       selectedQuestDisplay.style.display = "block";
     } else {
+      let selectedQuestDisplay = document.getElementById("selectedquest")
       selectedQuestDisplay.style.display = "none";
     }
   }
