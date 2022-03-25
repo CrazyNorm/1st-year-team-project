@@ -320,7 +320,6 @@ class Game {
           tempDict[type] = new Image();
           toLoad ++;
           tempDict[type].onload = load;
-          console.log("resources/imgs/characters/" + characterType + "/" + type + ".png")
           tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
