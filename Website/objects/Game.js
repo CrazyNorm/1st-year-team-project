@@ -1332,6 +1332,9 @@ class Game {
   static openStatWindow() {
     this.saveScore();
     this.#isStatWindow = true;
+    if (this.#currentMinigame != undefined) {
+      this.#currentMinigame.setPaused(true);
+    }
     let statWindow = document.getElementById("statWindow")
     statWindow.innerHTML = "<h1 style='font-size: 1.5em; color:yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099;'>STATS</h1>"
     statWindow.innerHTML += "Hunger: " + this.#player.getStat("hunger") +"%<br>";
@@ -1346,6 +1349,9 @@ class Game {
   static closeStatWindow() {
     this.#isStatWindow = false;
     statWindow.style.display = "none";
+    if (this.#currentMinigame != undefined) {
+      this.#currentMinigame.setPaused(false);
+    }
   }
 
 
