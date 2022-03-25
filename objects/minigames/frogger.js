@@ -10,6 +10,7 @@ class FroggerGame {
 	#touches;
 	#deltaTime;
 	#gameOver;
+	#isPaused;
 
 	#background;
 	#mapSize;
@@ -23,6 +24,10 @@ class FroggerGame {
 	#canvas;
 	#canvasContext;
 
+	setPaused(isPaused) {
+		this.#isPaused = isPaused;
+	}
+
 	constructor(divId, isMobile) {
 		// sets div, isMobile and defaults for some other attributes
 		this.#divId = divId;
@@ -35,6 +40,7 @@ class FroggerGame {
 		this.#mapSize = {"x":0, "y":0};
 		this.#lanes = ['1l','2r','3l','5r','6r','8l','9l','10r','12r','13l'];
 		this.#deltaTime = 0;
+		this.#isPaused = false;
 	}
 
 	async startGame() {
@@ -53,11 +59,11 @@ class FroggerGame {
     minigameDiv.style.overflow = 'hidden';
     let tempCanvas = document.createElement("canvas");
     // set id
-    tempCanvas.setAttribute('id', 'canvas');
+    tempCanvas.setAttribute('id', 'mCanvas');
     // set styling
     tempCanvas.setAttribute('style', "background: blue; padding: 0; margin: auto; position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: optimizeSpeed; image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: -o-crisp-edges; image-rendering: optimize-contrast; -ms-interpolation-mode: nearest-neighbor;")
     minigameDiv.appendChild(tempCanvas);
-    this.#canvas = document.getElementById("canvas");
+    this.#canvas = document.getElementById("mCanvas");
     this.#canvasContext = this.#canvas.getContext("2d");
 
 		// load images
@@ -146,110 +152,112 @@ class FroggerGame {
       });
       let preTime = new Date().getTime();
 
-			// player movement
-			if (!moving) {
-				// touch controls
-				let touchKeys = ['touchUp','touchDown','touchLeft','touchRight'];
-        // removes all touch keys from currently held keys
-        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
-        // adds the current touches to held keys
-        this.#heldKeys = this.#heldKeys.concat(this.#touches);
+      if (!this.#isPaused) {
+				// player movement
+				if (!moving) {
+					// touch controls
+					let touchKeys = ['touchUp','touchDown','touchLeft','touchRight'];
+	        // removes all touch keys from currently held keys
+	        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
+	        // adds the current touches to held keys
+	        this.#heldKeys = this.#heldKeys.concat(this.#touches);
 
-				// keyboard controls
-        direction = {"x":0, "y":0};
-        this.#player.setSpeed(4);
-        for (let code of this.#heldKeys) {
-          switch(code) {
-            case "KeyW":
-            case "ArrowUp":
-            case "touchUp":
-              direction.y -= 1;
-              break;
-            case "KeyA":
-            case "ArrowLeft":
-            case "touchLeft":
-              direction.x -= 1;
-              break;
-            case "KeyS":
-            case "ArrowDown":
-            case "touchDown":
-              direction.y += 1;
-              break;
-            case "KeyD":
-            case "ArrowRight":
-            case "touchRight":
-              direction.x += 1;
-              break;
-          }
-        }
+					// keyboard controls
+	        direction = {"x":0, "y":0};
+	        this.#player.setSpeed(4);
+	        for (let code of this.#heldKeys) {
+	          switch(code) {
+	            case "KeyW":
+	            case "ArrowUp":
+	            case "touchUp":
+	              direction.y -= 1;
+	              break;
+	            case "KeyA":
+	            case "ArrowLeft":
+	            case "touchLeft":
+	              direction.x -= 1;
+	              break;
+	            case "KeyS":
+	            case "ArrowDown":
+	            case "touchDown":
+	              direction.y += 1;
+	              break;
+	            case "KeyD":
+	            case "ArrowRight":
+	            case "touchRight":
+	              direction.x += 1;
+	              break;
+	          }
+	        }
 
-        // sets sprite
-        if (direction.y <= -1) {
-          direction.y = -1;
-          spriteDir = "N";
-        }
-        else if (direction.y >= 1) {
-          direction.y = 1;
-          spriteDir = "S";
-        }
-        if (direction.x <= -1) {
-          direction.x = -1;
-          spriteDir = "W";
-        }
-        else if (direction.x >= 1) {
-          direction.x = 1;
-          spriteDir = "E";
-        }
-        // regulate speed when moving diagonally
-        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
-        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
-        this.#player.setCurrentElement(spriteDir);
+	        // sets sprite
+	        if (direction.y <= -1) {
+	          direction.y = -1;
+	          spriteDir = "N";
+	        }
+	        else if (direction.y >= 1) {
+	          direction.y = 1;
+	          spriteDir = "S";
+	        }
+	        if (direction.x <= -1) {
+	          direction.x = -1;
+	          spriteDir = "W";
+	        }
+	        else if (direction.x >= 1) {
+	          direction.x = 1;
+	          spriteDir = "E";
+	        }
+	        // regulate speed when moving diagonally
+	        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
+	        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
+	        this.#player.setCurrentElement(spriteDir);
 
-        // check edge collisions and start moving
-        this.#player.move(direction.x, direction.y);
-        if (this.edgeCollision()) {
-          this.#player.move(-direction.x, -direction.y);
-        }
-        else if (direction.x != 0 || direction.y != 0){
-          moving = true;
-          totalMoved = 0;
-        }
-			}
+	        // check edge collisions and start moving
+	        this.#player.move(direction.x, direction.y);
+	        if (this.edgeCollision()) {
+	          this.#player.move(-direction.x, -direction.y);
+	        }
+	        else if (direction.x != 0 || direction.y != 0){
+	          moving = true;
+	          totalMoved = 0;
+	        }
+				}
 
-			else {
-				// moves a fraction of a tile each frame for smooth movement
-	      let pxPerFrame = Math.floor(this.#pxPerTile * this.#player.getSpeed() * this.#deltaTime);
-	      this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
-	      totalMoved += pxPerFrame;
-	      if (totalMoved >= this.#pxPerTile - pxPerFrame / 2) {
-	        let coords = this.#player.getCoords();
-	        this.#player.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
-	        moving = false;
-	      }
-	    }
-
-			// move cars
-			for (let car of this.#carList) {
-				let pxPerFrame = Math.floor(this.#pxPerTile * car.getSpeed() * this.#deltaTime);
-		    car.movePx(pxPerFrame);
-		    if (car.getTotalMoved() >= this.#pxPerTile - pxPerFrame / 2) {
-		      let coords = car.getCoords();
-		      car.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
-		      car.move();
+				else {
+					// moves a fraction of a tile each frame for smooth movement
+		      let pxPerFrame = Math.floor(this.#pxPerTile * this.#player.getSpeed() * this.#deltaTime);
+		      this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
+		      totalMoved += pxPerFrame;
+		      if (totalMoved >= this.#pxPerTile - pxPerFrame / 2) {
+		        let coords = this.#player.getCoords();
+		        this.#player.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+		        moving = false;
+		      }
 		    }
-			}
-			this.carDiscard();
-			// max no. of cars proportional to width of screen
-			if (this.#carList.length < this.#mapSize.x) {
-				this.createCar();
-			}
 
-			// checks win and lose conditions
-			if (!this.winCollision()){
-				this.carCollision();
-			}
+				// move cars
+				for (let car of this.#carList) {
+					let pxPerFrame = Math.floor(this.#pxPerTile * car.getSpeed() * this.#deltaTime);
+			    car.movePx(pxPerFrame);
+			    if (car.getTotalMoved() >= this.#pxPerTile - pxPerFrame / 2) {
+			      let coords = car.getCoords();
+			      car.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+			      car.move();
+			    }
+				}
+				this.carDiscard();
+				// max no. of cars proportional to width of screen
+				if (this.#carList.length < this.#mapSize.x) {
+					this.createCar();
+				}
 
-			this.draw();
+				// checks win and lose conditions
+				if (!this.winCollision()){
+					this.carCollision();
+				}
+
+				this.draw();
+			}
 
 			await loopPromise;
 		  let postTime = new Date().getTime();
@@ -364,12 +372,14 @@ class FroggerGame {
 		console.log("yay");
 		// show victory message
 		// return victory to Game
+		Game.endMinigame();
 	}
 	lose() {
 		this.#gameOver = true;
 		console.log("oh no");
 		// show loss message
 		// return loss to Game
+		Game.endMinigame();
 	}
 
 
