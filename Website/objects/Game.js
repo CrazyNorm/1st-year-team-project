@@ -159,11 +159,16 @@ class Game {
       pauseCentre.appendChild(tempButton);
     }
     makeButton("Continue",Game.closePauseMenu);
-    makeButton("Settings",function(){});
+    makeButton("Stats",function(){Game.closePauseMenu(); Game.openStatWindow();});
     makeButton("Quest Log",function(){Game.closePauseMenu(); Game.openQuestLog();});
-    makeButton("Leaderboard",function(){});
+    makeButton("Leaderboard",function(){
+      //Game.savePlayer();
+      window.open("leaderboard.php","name?").focus();});
     makeButton("Save",this.savePlayer);
-    makeButton("Quit",function(){});
+    makeButton("Quit",function(){
+      //Game.savePLayer();
+      document.location.href = "homepage.html";
+    });
 
     //quest log
     let questLog = document.createElement("div");
@@ -965,7 +970,9 @@ class Game {
     div.addEventListener('touchend', function() {Game.touchEndHandler(event)});
     div.addEventListener('touchcancel', function() {Game.touchEndHandler(event)});
     window.addEventListener('resize', function() {Game.resizeHandler()});
-    // window.addEventListener('close', function() {Game.savePlayer()});
+    window.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
+    //Game.savePlayer()});
+  });
   }
 
   static keyDownHandler(event) {
@@ -994,6 +1001,10 @@ class Game {
         case "KeyF":
           let index = this.#heldKeys.indexOf(event.code);
           this.#heldKeys.splice(index, 1);
+          this.closeStatWindow();
+          break;
+        case "Escape":
+        case "KeyP":
           this.closeStatWindow();
           break;
       }
