@@ -184,11 +184,7 @@ class Game {
     
     gameDiv.appendChild(questLog);
 
-    //selected quest display
-    let selectedQuestDisplay = document.createElement("div");
-    selectedQuestDisplay.setAttribute("id","selectedquest");
-    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; left: 0%; top: 20%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
-    gameDiv.appendChild(selectedQuestDisplay);
+    
 
     //stat window
     let statWindow = document.createElement("div");
@@ -196,11 +192,23 @@ class Game {
     statWindow.setAttribute('style',"font-family: 'Press Start 2P', cursive; display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-x: hidden; overflow-y: auto; text-align: center; max-width: 70%; padding: 1em;");
     gameDiv.appendChild(statWindow);
 
+    let sideDiv = document.createElement("div");
+    sideDiv.setAttribute("id", "sideContainer");
+    sideDiv.setAttribute("style", "display: none; z-index: 2; position: relative; top: 15%")
+    gameDiv.appendChild(sideDiv);
+
+
+    //selected quest display
+    let selectedQuestDisplay = document.createElement("div");
+    selectedQuestDisplay.setAttribute("id","selectedquest");
+    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; width: 30%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
+    sideDiv.appendChild(selectedQuestDisplay);
+
     //stat display
     let statDisplay = document.createElement("div");
     statDisplay.setAttribute("id","statdisplay");
-    statDisplay.setAttribute("style","display:block; z-index: 0; max-width: 30%; position: absolute; left: 0%; top: 30%; font-family: 'Press Start 2P', cursive; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; border: solid; border-color: black; border-width: 0.25em;");
-    gameDiv.appendChild(statDisplay);
+    statDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; max-width: 8em; font-family: 'Press Start 2P', cursive; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; border: solid; border-color: black; border-width: 0.25em; margin-left: 0.25em; background-color: rgba(255,255,255,0.4); line-height: 1.3em;");
+    sideDiv.appendChild(statDisplay);
 
 
     // mobile detection
@@ -425,6 +433,7 @@ class Game {
 
     // removes the loading screen
     loadingDiv.style.display = "none";
+    sideDiv.style.display = "block";
     this.draw();
 
     // starts the main loop
@@ -1093,7 +1102,7 @@ class Game {
 
         }
       } else if (this.#isQuestLogOpen) {
-        if (element.id != "questLog" && element.id != "questLogButtons" && element.id != "questLogExpanded") {
+        if (element.id != "questLog" && element.id != "questLogButtons" && element.id != "questLogExpanded" && element.id != "questSelect") {
           this.closeQuestLog();
           menuClosed = true;
         }
