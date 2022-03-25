@@ -581,7 +581,7 @@ class Game {
 
         else {
           let ppt = this.#map.getPxPerTile()
-          let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
+          let pxPerFrame = Math.floor(ppt * this.#player.getSpeed() * this.#deltaTime);
           this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
           totalMoved += pxPerFrame;
           if (totalMoved >= ppt - pxPerFrame / 2) {
