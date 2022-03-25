@@ -175,8 +175,14 @@ class Game {
     //selected quest display
     let selectedQuestDisplay = document.createElement("div");
     selectedQuestDisplay.setAttribute("id","selectedquest");
-    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; left: 0%; top: 50%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
+    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; left: 0%; top: 20%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
     gameDiv.appendChild(selectedQuestDisplay);
+
+    //stat display
+    let statDisplay = document.createElement("div");
+    statDisplay.setAttribute("id","statdisplay");
+    statDisplay.setAttribute("style","display:block; z-index: 0; max-width: 30%; position: absolute; left: 0%; top: 30%; font-family: 'Press Start 2P', cursive; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; border: solid; border-color: black; border-width: 0.25em;");
+    gameDiv.appendChild(statDisplay);
 
 
     // mobile detection
@@ -1123,6 +1129,15 @@ class Game {
   	this.#canvas.width = div.clientWidth;
   	this.#canvas.height = div.clientHeight;
 
+    if (this.#isQuestLogOpen) {
+      this.closeQuestLog();
+      this.openQuestLog();
+    }
+    if (this.#isPauseMenu) {
+      this.closePauseMenu();
+      this.openPauseMenu();
+    }
+
     this.draw();
   }
 
@@ -1187,9 +1202,9 @@ class Game {
 
   static openQuestLog() {
     let questLog = document.getElementById("questLog");
-    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 1.25em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
     let questLogTitle = document.createElement("h1")
-    questLogTitle.setAttribute("style","position: relative; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; display: block;  color: yellow;  margin-top: 0.75em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; text-align:center;" );
+    questLogTitle.setAttribute("style","position: relative; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; display: block;  color: yellow;  margin-top: 0.75em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; text-align:center;" );
     questLogTitle.innerHTML = "Quest Log"
     questLog.appendChild(questLogTitle);
         
@@ -1246,7 +1261,7 @@ class Game {
 
   static setSelectedQuest(questid) {
     this.#player.setSelectedQuest(questid);
-    this.updateSelectedQuestDisplay();
+    this.updateStatDisplay();
   }
 
   static updateSelectedQuestDisplay() {
@@ -1260,9 +1275,17 @@ class Game {
       }
       selectedQuestDisplay.style.display = "block";
     } else {
-      console.log("huh")
-      document.getElementById("selectedquest").style.display = "none";
+      selectedQuestDisplay.style.display = "none";
     }
+  }
+
+  static updateStatDisplay() {
+    let selectedQuestDisplay = document.getElementById("statdisplay")
+    this.updateSelectedQuestDisplay()
+    selectedQuestDisplay.innerHTML += "Hunger: " + this.#player.getStat("hunger") +"%<br>";
+    selectedQuestDisplay.innerHTML += "Fatigue: " + this.#player.getStat("sleep") +"%<br>";
+    selectedQuestDisplay.innerHTML += "<br>$" + this.#player.getStat("money") +"<br>";
+
   }
 
 

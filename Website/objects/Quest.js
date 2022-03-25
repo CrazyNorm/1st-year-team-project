@@ -179,7 +179,7 @@ class Quest {
   	    for (let questId of this.#questsToUpdate) {
   	      Game.getQuest(questId).update();
   	    }
-        Game.updateSelectedQuestDisplay();
+        Game.updateStatDisplay();
 
         // Game.savePlayer();
     	}

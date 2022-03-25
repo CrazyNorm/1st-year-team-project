@@ -153,7 +153,7 @@ class Interaction {
     for (let questId of this.#questsToUpdate) {
       Game.getQuest(questId).update();
     }
-    Game.updateSelectedQuestDisplay();
+    Game.updateStatDisplay();
 
     
 
