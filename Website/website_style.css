@@ -1,4 +1,4 @@
-@meta only screen and (min-width:  480px){
+@media only screen and (min-width:  480px){
     body{
     background: url(test-map.png);
     }
@@ -59,7 +59,7 @@
     }
 }
 
-@meta only screen and (max-width: 480px){
+@media only screen and (max-width: 480px){
     body{
     background: url(test-map.png);
     }
