@@ -13,7 +13,7 @@ class Game {
   static #touchStarts;
   static #joystickTouch;
   static #interactTouch;
-  static #volume;
+  static #currentInteraction;
   static #deltaTime;
   static #fps;
   static #isMobile;
@@ -70,6 +70,10 @@ class Game {
 
   static getScore() {
     return this.#score;
+  }
+
+  static setCurrentInteraction(currentInteraction) {
+    this.#currentInteraction = currentInteraction;
   }
 
   // set up the game attributes, html elements, loads resources, etc.
@@ -222,7 +226,6 @@ class Game {
     this.#heldKeys = [];
     this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP','KeyK'];
     this.#touchStarts = [];
-    this.#volume = 100;
     this.#deltaTime = 0;
     this.#fps = 30;
     this.#isPaused = false;
@@ -360,7 +363,7 @@ class Game {
       // set id
       outerCircle.setAttribute('id', 'controls');
       // set styling
-      outerCircle.setAttribute('style',"width: 25%; padding-bottom: 25%; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
+      outerCircle.setAttribute('style',"width: 25vmax; height:25vmax; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
       gameDiv.appendChild(outerCircle);
 
       let innerCircle = document.createElement("span");
@@ -470,7 +473,7 @@ class Game {
             let xDiff = touchX - (controlsCoords.width / 2);
             let yDiff = touchY - (controlsCoords.height / 2);
             // x direction
-            if (Math.abs(xDiff) > controlsCoords.width / 6) {
+            if (Math.abs(xDiff) > controlsCoords.width / 10) {
               if (xDiff < 0) {
                 this.#heldKeys.push('touchLeft');
               }
@@ -479,7 +482,7 @@ class Game {
               }
             }
             // y direction
-            if (Math.abs(yDiff) > controlsCoords.height / 6) {
+            if (Math.abs(yDiff) > controlsCoords.height / 10) {
               if (yDiff < 0) {
                 this.#heldKeys.push('touchUp');
               }
@@ -957,7 +960,7 @@ class Game {
       this.#heldKeys.push(event.code);
     }
     //closes dialog on button press
-    if (this.#isDialog && this.#currentMinigame == undefined) {
+    if (this.#isDialog) {
       switch (event.code) {
         case "Space":
         case "Enter":
@@ -1125,12 +1128,12 @@ class Game {
 
 
   // dialog & menus
-  static displayDialog (text) {
+  static displayDialog () {
     let dialogBox = document.getElementById("dialogBox");
 
 
     //adds text to dialog
-    dialogBox.innerHTML = text+"<br><button id='dialogSubmit' onclick='Game.closeDialog()'>Press to Continue!</button>";
+    dialogBox.innerHTML = this.#currentInteraction.getDialog()+"<br><button id='dialogSubmit' onclick='Game.closeDialog()'>Press to Continue!</button>";
     let dialogSubmit = document.getElementById("dialogSubmit");
     // button to continue dialog
     dialogSubmit.style = "font-size: 1.5em; font-family: 'Press Start 2P', cursive; padding: 1vh; background-color: #660099; color: yellow; border: solid; border-radius: 1vh; margin: 0.5em;"
@@ -1151,6 +1154,9 @@ class Game {
     document.getElementById('dialogBox').style.display = 'none'; 
     this.#isPaused = false; 
     this.#isDialog = false;
+
+    // complete the interaction
+    this.#currentInteraction.runInteraction();
   }
 
   static openPauseMenu () {
@@ -1261,6 +1267,7 @@ class Game {
 
 
   static async startMinigame(game) {
+    this.#isPaused = true;
     // minigame div
     let minigameDiv = document.createElement("div");
     minigameDiv.setAttribute('id', 'minigame');

@@ -80,9 +80,9 @@ class NPC {
     for (let id of this.#interactions) {
       let interaction = Game.getInteraction(id);
       if (interaction.checkRequirements()) {
-        // if all quest and interaction requirements are met for the current interaction,
-        // calls the runInteraction method and stops looping
-        interaction.runInteraction();
+        Game.setCurrentInteraction(interaction);
+        // displays dialog in game
+        Game.displayDialog();
         break
       }
     }

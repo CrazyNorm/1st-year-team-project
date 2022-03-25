@@ -129,9 +129,6 @@ class Interaction {
   runInteraction() {
     let player = Game.getPlayer();
 
-    // displays dialog in game
-    Game.displayDialog(this.#dialog);
-
     // updates stats
     for (let stat in this.#statChanges) {
       player.updateStat(stat, this.#statChanges[stat]);
