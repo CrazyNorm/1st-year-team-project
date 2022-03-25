@@ -36,7 +36,7 @@ class Player { //TEST THIS
 		this.#completedInteractions = completedInteractions;
 		this.#completedQuests = completedQuests;
 		this.#questCounts = questCounts;
-		this.#timeOfDay = timeOfDay;
+		this.setTimeOfDay(timeOfDay);	
 	}
 
 	getId () {
@@ -162,6 +162,29 @@ class Player { //TEST THIS
 	}
 	setTimeOfDay(timeOfDay) {
 		this.#timeOfDay = timeOfDay;
+		let tint = document.getElementById("tint");
+		switch (this.#timeOfDay) {
+			case 0:
+				tint.style.color = "orange";
+				tint.opacity = "10%";
+				break;
+			case 1:
+				tint.style.color = "orange";
+				tint.opacity = "0%";
+				break;
+			case 2:
+				tint.style.color = "orange";
+				tint.opacity = "10%";
+				break;
+			case 3:
+				tint.style.color = "black";
+				tint.opacity = "10%";
+				break;
+			case 4:
+				tint.style.color = "black";
+				tint.opacity = "20%";
+				break;
+		}
 	}
 
 	incrementCurrentQuest(id, value){
@@ -186,7 +209,33 @@ class Player { //TEST THIS
 		if (this.#timeOfDay > 4) {
 			this.#timeOfDay = 0;
 		}
+		let tint = document.getElementById("tint");
+		console.log(tint)
+		switch (this.#timeOfDay) {
+			case 0:
+				tint.style.backgroundColor = "orange";
+				tint.style.opacity = "10%";
+				break;
+			case 1:
+				tint.style.backgroundColor = "orange";
+				tint.style.opacity = "0%";
+				break;
+			case 2:
+				tint.style.backgroundColor = "black";
+				tint.style.opacity = "10%";
+				break;
+			case 3:
+				tint.style.backgroundColor = "black";
+				tint.style.opacity = "30%";
+				break;
+			case 4:
+				tint.style.backgroundColor = "black";
+				tint.style.opacity = "10%";
+				break;
+		}
 	}
+
+
 
 
 	startAnimationWalk(direction) {

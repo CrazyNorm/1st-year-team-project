@@ -154,6 +154,8 @@ class Interaction {
       Game.getQuest(questId).update();
     }
     Game.updateStatDisplay();
+    player.incrementTime();
+    console.log(player.getTimeOfDay())
 
     
 
