@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['email'] = $user_data['email'];
 
-                    if($user_data['isadmin'] == 1){
+                    if($user_data['is_admin'] == 1){
                         header("Location: adminPage.php");
                     }
                     else{
