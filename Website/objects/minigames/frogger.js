@@ -74,13 +74,15 @@ class FroggerGame {
 		this.#background.src = "resources/imgs/minigames/frogger/background.png";
 		
 		// 4 player sprites
-		let spriteTypes = ["N","E","S","W"];
+		let spriteTypes = ['E_Standing','E_Walk_Left','E_Walk_Right',
+                       'W_Standing','W_Walk_Left','W_Walk_Right',
+                       'N_Standing','N_Walk_Left','N_Walk_Right'];
 		let tempDict = {};
 		for (let type of spriteTypes) {
 			tempDict[type] = new Image();
       toLoad ++;
       tempDict[type].onload = load;
-      tempDict[type].src = "resources/imgs/minigames/frogger/player_" + type + ".png";
+      tempDict[type].src = "resources/imgs/characters/" + Game.getPlayer().getCharacterType() + "/" + type + ".png";
 		}
 		this.#player = new FroggerPlayer(tempDict);
 
@@ -101,19 +103,15 @@ class FroggerGame {
 		{
 			let tempDiv = document.createElement("div");
 			tempDiv.setAttribute('id','touchUp');
-			tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:25%; width:100%; border:solid 3px;');
+			tempDiv.setAttribute('style','position:absolute; top:0; left:25%; height:100%; width:50%; border:solid #660099 3px; opacity: 0.5;');
 			minigameDiv.appendChild(tempDiv);
 			tempDiv = document.createElement("div");
 			tempDiv.setAttribute('id','touchLeft');
-			tempDiv.setAttribute('style','position:absolute; top:25%; left:0; height:50%; width:50%; border:solid 3px;');
+			tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:100%; width:25%;');
 			minigameDiv.appendChild(tempDiv);
 			tempDiv = document.createElement("div");
 			tempDiv.setAttribute('id','touchRight');
-			tempDiv.setAttribute('style','position:absolute;top:25%; left:50%; height:50%; width:50%; border:solid 3px;');
-			minigameDiv.appendChild(tempDiv);
-			tempDiv = document.createElement("div");
-			tempDiv.setAttribute('id','touchDown');
-			tempDiv.setAttribute('style','position:absolute; top:75%; left:0; height:25%; width:100%; border:solid 3px;');
+			tempDiv.setAttribute('style','position:absolute;top:0; left:75%; height:100%; width:25%;');
 			minigameDiv.appendChild(tempDiv);
 		}
 		// wait for load
@@ -128,8 +126,8 @@ class FroggerGame {
 		this.startInputListeners();
 		this.resizeHandler();
 
-		this.#player.setCoords(Math.floor(this.#mapSize.x/2), 0);
-		this.#player.setCoordsPx(this.#player.getCoords().x * this.#pxPerTile, 0);
+		this.#player.setCoords(Math.floor(this.#mapSize.x/2), this.#mapSize.y - 1);
+		this.#player.setCoordsPx(this.#player.getCoords().x * this.#pxPerTile, this.#player.getCoords().y * this.#pxPerTile);
 		// spawn new cars
 		while (this.#carList.length < 10) {
 			this.createCar();
@@ -146,7 +144,7 @@ class FroggerGame {
 		let moving = false;
 		let direction;
     let totalMoved;
-    let spriteDir = "S";
+    let spriteDir = "N";
 
 		while (!this.#gameOver) {
       let loopPromise = new Promise(function(resolve, reject) {
@@ -158,7 +156,7 @@ class FroggerGame {
 				// player movement
 				if (!moving) {
 					// touch controls
-					let touchKeys = ['touchUp','touchDown','touchLeft','touchRight'];
+					let touchKeys = ['touchUp','touchLeft','touchRight'];
 	        // removes all touch keys from currently held keys
 	        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
 	        // adds the current touches to held keys
@@ -179,11 +177,6 @@ class FroggerGame {
 	            case "touchLeft":
 	              direction.x -= 1;
 	              break;
-	            case "KeyS":
-	            case "ArrowDown":
-	            case "touchDown":
-	              direction.y += 1;
-	              break;
 	            case "KeyD":
 	            case "ArrowRight":
 	            case "touchRight":
@@ -197,10 +190,6 @@ class FroggerGame {
 	          direction.y = -1;
 	          spriteDir = "N";
 	        }
-	        else if (direction.y >= 1) {
-	          direction.y = 1;
-	          spriteDir = "S";
-	        }
 	        if (direction.x <= -1) {
 	          direction.x = -1;
 	          spriteDir = "W";
@@ -212,7 +201,7 @@ class FroggerGame {
 	        // regulate speed when moving diagonally
 	        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
 	        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
-	        this.#player.setCurrentElement(spriteDir);
+	        this.#player.setCurrentElement(spriteDir + "_Standing");
 
 	        // check edge collisions and start moving
 	        this.#player.move(direction.x, direction.y);
@@ -222,6 +211,7 @@ class FroggerGame {
 	        else if (direction.x != 0 || direction.y != 0){
 	          moving = true;
 	          totalMoved = 0;
+            this.#player.startAnimationWalk(spriteDir);
 	        }
 				}
 
@@ -333,16 +323,16 @@ class FroggerGame {
 	}
 
 
-	// returns true on collision with side of map (except bottom)
+	// returns true on collision with side of map (except top)
 	edgeCollision() {
 		return (this.#player.getCoords().x < 0 || 
-			this.#player.getCoords().y < 0 || 
+			this.#player.getCoords().y >= this.#mapSize.y || 
 			this.#player.getCoords().x >= this.#mapSize.x)
 	}
 
 	// runs the win method if the player is at the bottom of the screen
 	winCollision() {
-		if (this.#player.getCoordsPx().y >= (this.#mapSize.y - 1) * this.#pxPerTile) {
+		if (this.#player.getCoordsPx().y <= 0) {
 			this.win();
 		}
 	}
@@ -415,6 +405,7 @@ class FroggerGame {
     // stores the direction div being pressed if it isn't already stored
     for (let touch of event.touches) {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
+      console.log(element.id)
       if (!this.#touches.includes(element.id)) {
       	this.#touches.push(element.id);
       }
@@ -444,6 +435,8 @@ class FroggerGame {
 
     let coords = this.#player.getCoords();
     this.#player.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+
+    this.draw();
   }
 }
 
@@ -464,7 +457,7 @@ class FroggerPlayer {
 		this.#coordsPx = {"x":0, "y":0};
 		this.#elements = elements;
 		// no animation (for now) - elements are just different direction (standing) - i.e [N,E,S,W]
-		this.#currentElement = this.#elements["S"];
+		this.#currentElement = this.#elements["N_Standing"];
 		this.#speed = 4;
 	}
 
@@ -514,6 +507,15 @@ class FroggerPlayer {
 	movePx(x,y) {
 		this.#coordsPx.x += x;
 		this.#coordsPx.y += y;
+	}
+
+
+	startAnimationWalk(direction) {
+		let delay = 1000 / (this.#speed * 2);
+		this.setCurrentElement(direction + "_Walk_Right");
+		setTimeout(() => {
+			this.setCurrentElement(direction + "_Walk_Left");
+		}, delay);
 	}
 }
 
