@@ -8,16 +8,17 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $email = $_POST['email'];
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $unsafe_username = $_POST['username'];
-    $uername = mysqli_real_escape_string($con, $unsafe_username);  //prevent injection
+    $username = $_POST['username'];
+    //$uername = mysqli_real_escape_string($con, $unsafe_username);  //prevent injection
     $unsafe_password = $_POST['password'];
-    $password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
-    $password = password_hash($password, PASSWORD_DEFAULT);
-    $is_admin = 0;s
+    //$password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
+    $password = password_hash($unsafe_password, PASSWORD_DEFAULT);
+    $is_admin = 0;
+    $score = 0;
 
     if(!empty($username) && !empty($password)){
         //save data to database
-        $query = "insert into user (email, username, password, is_admin) values ('$email', '$username', '$password', '$is_admin')";
+        $query = "insert into user (email, username, password, is_admin, socre) values ('$email', '$username', '$password', '$is_admin', '$score')";
         mysqli_query($con, $query);
         header("Location:login.php");
 
