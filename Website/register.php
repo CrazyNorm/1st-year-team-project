@@ -12,14 +12,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 
     if(!empty($username) && !empty($password)){
         //save data to database
-        $query = "insert into user (email, username, password, is_admin) values ('$email', '$username', '$password', '$is_admin')";
+        $query = "insert into user (email, username, password, is_admin) values ('$email', '$username', '$hashed_password', '$is_admin')";
         $unsafe_username = $_POST['username'];
         $username = mysqli_real_escape_string($con, $unsafe_username);  //prevent injection
         $unsafe_password = $_POST['password'];
         $password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $password = password_hash($password, PASSWORD_DEFAULT);
-
-
         mysqli_query($con, $query);
         header("Location:login.php");
 

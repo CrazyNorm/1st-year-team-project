@@ -1,10 +1,16 @@
 <?php
 session_start();
+include("register.php")
 include("connection.php");
 include("functions.php");
 
 if($_SERVER['REQUEST_METHOD'] == "POST")
 {
+    $unsafe_email = $_POST['email']; 
+    $email = mysqli_real_escape_string($con, $unsafe_email);  //prevent injection
+    $unsafe_password = $_POST['password'];
+    $password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
+
     $email = $_POST['email'];
     $password = $_POST['password'];
     $is_admin = 0;
@@ -19,6 +25,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             if($result && mysqli_num_rows($result) > 0){
                 $user_data = mysqli_fetch_assoc($result);
 
+
+                if(password_verify($password, $hashed_passwords)){
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['email'] = $user_data['email'];
 
