@@ -171,7 +171,7 @@ class Game {
     //selected quest display
     let selectedQuestDisplay = document.createElement("div");
     selectedQuestDisplay.setAttribute("id","selectedquest");
-    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; right: 0%; top: 50%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: right;");
+    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; left: 0%; top: 50%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
     gameDiv.appendChild(selectedQuestDisplay);
 
 
