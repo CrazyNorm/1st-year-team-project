@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("register.php")
+include("register.php");
 include("connection.php");
 include("functions.php");
 
