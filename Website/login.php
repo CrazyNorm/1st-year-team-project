@@ -52,7 +52,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register page</title>
     <link rel="shortcut icon" type="image/png" href="resources/imgs/icon.png"/>
-    <link rel="stylesheet" type="text/css" href="website_style.css">
+    <link rel="stylesheet" type="text/css" href="resources/css/website_style.css">
 </head>
 <body>
 <script>

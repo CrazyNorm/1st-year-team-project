@@ -63,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             }
             
         </style>
-        <link rel="stylesheet" type="text/css" href="website_style.css">
+        <link rel="stylesheet" type="text/css" href="resources/css/website_style.css">
 </head>
     <body>
         <form action="adminPage2.php" method="POST">

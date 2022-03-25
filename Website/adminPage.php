@@ -56,7 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         }
             
     </style>
-    <link rel="stylesheet" type="text/css" href="website_style.css">
+    <link rel="stylesheet" type="text/css" href="resources/css/website_style.css">
 </head>
 <body>
 <label>
@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         <button type="submit" class= "submit">Submit</button>
 
     </form>
-    <p id="inner_box_text">EDIT Quests page <br><a id="link" href="adminPage2.php">Go</a></p>
+    <p class="inner_box_text">EDIT Quests page <br><a id="link" href="adminPage2.php">Go</a></p>
 
 </label>
 </body>
