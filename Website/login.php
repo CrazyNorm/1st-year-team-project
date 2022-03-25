@@ -24,8 +24,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             if($result && mysqli_num_rows($result) > 0){
                 $user_data = mysqli_fetch_assoc($result);
 
-
-                if(password_verify($password, $hashed_passwords)){
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['email'] = $user_data['email'];
 
