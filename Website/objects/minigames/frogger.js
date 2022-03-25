@@ -296,7 +296,7 @@ class FroggerGame {
 
 
 	createCar() {
-		let tempCoords = {'x':0, 'y':0};
+		let tempCoords = {'x':-1, 'y':0};
 		let direction = 1;
 		// picks a lane at random
 		let n = Math.floor(Math.random() * this.#lanes.length)
@@ -307,7 +307,7 @@ class FroggerGame {
 		// parse lane no and direction
 		tempCoords.y = laneNo;
 		if (tempDirection == 'l') {
-			tempCoords.x = this.#mapSize.x - 1;
+			tempCoords.x = this.#mapSize.x;
 			direction = -1;
 		}
 
