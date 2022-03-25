@@ -17,13 +17,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
         $username = mysqli_real_escape_string($con, $unsafe_username);  //prevent injection
         $unsafe_password = $_POST['password'];
         $password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
-<<<<<<< HEAD
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-=======
         $password = password_hash($password, PASSWORD_DEFAULT);
-
->>>>>>> c6a888d83163085235c0c63ef238d1c46ea1068b
-
         mysqli_query($con, $query);
         header("Location:login.php");
 
