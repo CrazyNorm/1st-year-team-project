@@ -21,6 +21,8 @@ class Game {
   static #isQuestLogOpen;
   static #isDialog;
   static #isPauseMenu;
+  static #currentMinigame; // undefined if not in minigame
+  static #loadedMinigames; // minigame scripts aren't loaded until needed, but should only be loaded once
 
   // DOM-related attributes
   static #canvas;
@@ -195,6 +197,7 @@ class Game {
       }
     }
 
+    // dialog
     let dialogBox = document.createElement("div");
     dialogBox.setAttribute("id","dialogBox");
     if (this.#isMobile) {
@@ -226,6 +229,7 @@ class Game {
     this.#isQuestLogOpen = false;
     this.#isDialog = false;
     this.#isPauseMenu = false;
+    this.#loadedMinigames = [];
     if (this.#isMobile) {
       this.#tilesDesired = 15;
     } else {
@@ -581,7 +585,7 @@ class Game {
 
         else {
           let ppt = this.#map.getPxPerTile()
-          let pxPerFrame = ppt * this.#player.getSpeed() * this.#deltaTime;
+          let pxPerFrame = Math.floor(ppt * this.#player.getSpeed() * this.#deltaTime);
           this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
           totalMoved += pxPerFrame;
           if (totalMoved >= ppt - pxPerFrame / 2) {
@@ -954,7 +958,7 @@ class Game {
       this.#heldKeys.push(event.code);
     }
     //closes dialog on button press
-    if (this.#isDialog) {
+    if (this.#isDialog && this.#currentMinigame == undefined) {
       switch (event.code) {
         case "Space":
         case "Enter":
@@ -969,7 +973,7 @@ class Game {
           break;
       }
     }
-    if (this.#isPauseMenu) {
+    if (this.#isPauseMenu && this.#currentMinigame == undefined) {
       switch (event.code) {
         case "Escape":
         case "KeyP":
@@ -979,7 +983,7 @@ class Game {
           break;
       }
     }
-    if (this.#isQuestLogOpen) {
+    if (this.#isQuestLogOpen && this.#currentMinigame == undefined) {
       switch (event.code) {
         case "KeyQ":
           let index = this.#heldKeys.indexOf(event.code);
@@ -989,6 +993,21 @@ class Game {
         case "Escape":
         case "KeyP":
           this.closeQuestLog();
+          break;
+      }
+    }
+    if (this.#currentMinigame != undefined) {
+      switch (event.code) {
+        case "Escape":
+        case "KeyP":
+          if (this.#isQuestLogOpen) {
+            this.closeQuestLog();
+          }
+          if (!this.#isPauseMenu) {
+            this.openPauseMenu();
+          } else {
+            this.closePauseMenu();
+          }
           break;
       }
     }
@@ -1015,7 +1034,7 @@ class Game {
     // if there is no joystick touch and there is a new touch on the joystick, sets joystickTouch
     for (let touch of event.changedTouches) {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (this.#isDialog) {
+      if (this.#isDialog && this.#currentMinigame == undefined) {
         // Closes the dialog if tapped outside of the dialog box
         if (element.id != "dialogBox") {
           this.closeDialog();
@@ -1036,7 +1055,7 @@ class Game {
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
       } 
-            if (!menuClosed) {
+      if (!menuClosed) {
         if (element.id == "interactButton") {
           this.#interactTouch = touch;
         } else if (element.id == "pauseButton") {
@@ -1146,12 +1165,19 @@ class Game {
     pauseMenu.scrollTop = 0;
     this.#isPaused = true;
     this.#isPauseMenu = true;
+    if (this.#currentMinigame != undefined) {
+      this.#currentMinigame.setPaused(true);
+    }
   }
   static closePauseMenu() {
     let pauseMenu = document.getElementById("pauseMenu");
     pauseMenu.style.display = "none";
     Game.#isPaused = false; //called from button cannot access this
     Game.#isPauseMenu = false;
+    if (Game.#currentMinigame != undefined) {
+      Game.#isPaused = true;
+      Game.#currentMinigame.setPaused(false);
+    }
   }
 
   static openQuestLog() {
@@ -1163,6 +1189,10 @@ class Game {
     questLog.appendChild(questLogTitle);
         
     this.#isQuestLogOpen = true;
+    if (this.#currentMinigame != undefined) {
+      this.#currentMinigame.setPaused(true);
+    }
+
     if (this.#canvas.width < this.#canvas.height) {
       questLog.style.width = "80%";
     } else {
@@ -1203,6 +1233,9 @@ class Game {
     let questLog = document.getElementById("questLog");
     questLog.style.display = "none";
     this.#isQuestLogOpen = false;
+    if (this.#currentMinigame != undefined) {
+      this.#currentMinigame.setPaused(false);
+    }
     //this.#isPaused = false;
   }
 
@@ -1225,6 +1258,44 @@ class Game {
       console.log("huh")
       document.getElementById("selectedquest").style.display = "none";
     }
+  }
+
+
+  static async startMinigame(game) {
+    // minigame div
+    let minigameDiv = document.createElement("div");
+    minigameDiv.setAttribute('id', 'minigame');
+    minigameDiv.setAttribute('style',"position:absolute; width:90%; height:90%; top:5%; left:5%; border:solid #660099 5px; z-index:1;");
+    document.getElementById(this.#divId).appendChild(minigameDiv);
+
+    if (!this.#loadedMinigames.includes(game)) {
+      let loaded = false;
+      let gameScript = document.createElement("script");
+      gameScript.onload = () => loaded = true;
+      gameScript.setAttribute('id', 'minigameScript'); // used to remove the script when the game is done
+      gameScript.setAttribute('type', 'text/javascript');
+      gameScript.setAttribute('src', 'objects/minigames/' + game + '.js');
+      document.getElementById(this.#divId).appendChild(gameScript);
+      this.#loadedMinigames.push(game);
+
+      while (!loaded) {
+        let wait = new Promise(function(resolve, reject) {
+          setTimeout(resolve, 100);
+        });
+        await wait;
+      }
+    }
+
+    let gameClass = game.charAt(0).toUpperCase() + game.slice(1) + "Game";
+    this.#currentMinigame = eval('new ' + gameClass + '("minigame",' + this.#isMobile + ')');
+    this.#currentMinigame.startGame()
+  }
+
+  static endMinigame(game) {
+    let div = document.getElementById("minigame");
+    div.parentNode.removeChild(div);
+
+    this.#currentMinigame = undefined;
   }
   
 

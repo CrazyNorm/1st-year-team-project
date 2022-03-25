@@ -9,6 +9,8 @@ class FroggerGame {
 	#heldKeys;
 	#touches;
 	#deltaTime;
+	#gameOver;
+	#isPaused;
 
 	#background;
 	#mapSize;
@@ -22,6 +24,10 @@ class FroggerGame {
 	#canvas;
 	#canvasContext;
 
+	setPaused(isPaused) {
+		this.#isPaused = isPaused;
+	}
+
 	constructor(divId, isMobile) {
 		// sets div, isMobile and defaults for some other attributes
 		this.#divId = divId;
@@ -32,7 +38,9 @@ class FroggerGame {
 		this.#carList = [];
 		this.#desiredHeight = 15;
 		this.#mapSize = {"x":0, "y":0};
-		this.#lanes = ['1l','2r','3l','5r','6r','8l','9l','10r','12r','13l','14r'];
+		this.#lanes = ['1l','2r','3l','5r','6r','8l','9l','10r','12r','13l'];
+		this.#deltaTime = 0;
+		this.#isPaused = false;
 	}
 
 	async startGame() {
@@ -51,11 +59,11 @@ class FroggerGame {
     minigameDiv.style.overflow = 'hidden';
     let tempCanvas = document.createElement("canvas");
     // set id
-    tempCanvas.setAttribute('id', 'canvas');
+    tempCanvas.setAttribute('id', 'mCanvas');
     // set styling
     tempCanvas.setAttribute('style', "background: blue; padding: 0; margin: auto; position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: optimizeSpeed; image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: -o-crisp-edges; image-rendering: optimize-contrast; -ms-interpolation-mode: nearest-neighbor;")
     minigameDiv.appendChild(tempCanvas);
-    this.#canvas = document.getElementById("canvas");
+    this.#canvas = document.getElementById("mCanvas");
     this.#canvasContext = this.#canvas.getContext("2d");
 
 		// load images
@@ -89,23 +97,25 @@ class FroggerGame {
 		// audio?
 
 		// controls
-		let tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchUp');
-		tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:25%; width:100%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchLeft');
-		tempDiv.setAttribute('style','position:absolute; top:25%; left:0; height:50%; width:50%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchRight');
-		tempDiv.setAttribute('style','position:absolute;top:25%; left:50%; height:50%; width:50%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchDown');
-		tempDiv.setAttribute('style','position:absolute; top:75%; left:0; height:25%; width:100%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-
+		if (this.#isMobile)
+		{
+			let tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchUp');
+			tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:25%; width:100%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchLeft');
+			tempDiv.setAttribute('style','position:absolute; top:25%; left:0; height:50%; width:50%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchRight');
+			tempDiv.setAttribute('style','position:absolute;top:25%; left:50%; height:50%; width:50%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchDown');
+			tempDiv.setAttribute('style','position:absolute; top:75%; left:0; height:25%; width:100%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+		}
 		// wait for load
 		while (loaded < toLoad) {
       let wait = new Promise(function(resolve, reject) {
@@ -120,9 +130,14 @@ class FroggerGame {
 
 		this.#player.setCoords(Math.floor(this.#mapSize.x/2), 0);
 		this.#player.setCoordsPx(this.#player.getCoords().x * this.#pxPerTile, 0);
+		// spawn new cars
+		while (this.#carList.length < 10) {
+			this.createCar();
+		}
 
 		this.draw();
 
+		this.#gameOver = false;
 		this.mainloop();
 	}
 
@@ -133,111 +148,118 @@ class FroggerGame {
     let totalMoved;
     let spriteDir = "S";
 
-		while (true) {
+		while (!this.#gameOver) {
       let loopPromise = new Promise(function(resolve, reject) {
         setTimeout(resolve, 1000/30);
       });
       let preTime = new Date().getTime();
 
-			// player movement
-			if (!moving) {
-				// touch controls
-				let touchKeys = ['touchUp','touchDown','touchLeft','touchRight'];
-        // removes all touch keys from currently held keys
-        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
-        // adds the current touches to held keys
-        this.#heldKeys = this.#heldKeys.concat(this.#touches);
+      if (!this.#isPaused) {
+				// player movement
+				if (!moving) {
+					// touch controls
+					let touchKeys = ['touchUp','touchDown','touchLeft','touchRight'];
+	        // removes all touch keys from currently held keys
+	        this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
+	        // adds the current touches to held keys
+	        this.#heldKeys = this.#heldKeys.concat(this.#touches);
 
-				// keyboard controls
-        direction = {"x":0, "y":0};
-        this.#player.setSpeed(4);
-        for (let code of this.#heldKeys) {
-          switch(code) {
-            case "KeyW":
-            case "ArrowUp":
-            case "touchUp":
-              direction.y -= 1;
-              break;
-            case "KeyA":
-            case "ArrowLeft":
-            case "touchLeft":
-              direction.x -= 1;
-              break;
-            case "KeyS":
-            case "ArrowDown":
-            case "touchDown":
-              direction.y += 1;
-              break;
-            case "KeyD":
-            case "ArrowRight":
-            case "touchRight":
-              direction.x += 1;
-              break;
-          }
-        }
+					// keyboard controls
+	        direction = {"x":0, "y":0};
+	        this.#player.setSpeed(4);
+	        for (let code of this.#heldKeys) {
+	          switch(code) {
+	            case "KeyW":
+	            case "ArrowUp":
+	            case "touchUp":
+	              direction.y -= 1;
+	              break;
+	            case "KeyA":
+	            case "ArrowLeft":
+	            case "touchLeft":
+	              direction.x -= 1;
+	              break;
+	            case "KeyS":
+	            case "ArrowDown":
+	            case "touchDown":
+	              direction.y += 1;
+	              break;
+	            case "KeyD":
+	            case "ArrowRight":
+	            case "touchRight":
+	              direction.x += 1;
+	              break;
+	          }
+	        }
 
-        // sets sprite
-        if (direction.y <= -1) {
-          direction.y = -1;
-          spriteDir = "N";
-        }
-        else if (direction.y >= 1) {
-          direction.y = 1;
-          spriteDir = "S";
-        }
-        if (direction.x <= -1) {
-          direction.x = -1;
-          spriteDir = "W";
-        }
-        else if (direction.x >= 1) {
-          direction.x = 1;
-          spriteDir = "E";
-        }
-        // regulate speed when moving diagonally
-        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
-        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
+	        // sets sprite
+	        if (direction.y <= -1) {
+	          direction.y = -1;
+	          spriteDir = "N";
+	        }
+	        else if (direction.y >= 1) {
+	          direction.y = 1;
+	          spriteDir = "S";
+	        }
+	        if (direction.x <= -1) {
+	          direction.x = -1;
+	          spriteDir = "W";
+	        }
+	        else if (direction.x >= 1) {
+	          direction.x = 1;
+	          spriteDir = "E";
+	        }
+	        // regulate speed when moving diagonally
+	        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
+	        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
+	        this.#player.setCurrentElement(spriteDir);
 
-        // check player collisions and start moving
-        this.#player.move(direction.x, direction.y);
-        if (this.collision()) {
-          this.#player.move(-direction.x, -direction.y);
-        }
-        else if (direction.x != 0 || direction.y != 0){
-          moving = true;
-          totalMoved = 0;
-        }
-			}
+	        // check edge collisions and start moving
+	        this.#player.move(direction.x, direction.y);
+	        if (this.edgeCollision()) {
+	          this.#player.move(-direction.x, -direction.y);
+	        }
+	        else if (direction.x != 0 || direction.y != 0){
+	          moving = true;
+	          totalMoved = 0;
+	        }
+				}
 
-			else {
-	      let pxPerFrame = this.#pxPerTile * this.#player.getSpeed() * this.#deltaTime;
-	      this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
-	      totalMoved += pxPerFrame;
-	      if (totalMoved >= this.#pxPerTile - pxPerFrame / 2) {
-	        let coords = this.#player.getCoords();
-	        this.#player.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
-	        moving = false;
-	      }
-	    }
-
-			// move cars
-			for (let car of this.#carList) {
-				let pxPerFrame = this.#pxPerTile * car.getSpeed() * this.#deltaTime;
-		    car.movePx(pxPerFrame);
-		    if (car.getTotalMoved() >= this.#pxPerTile - pxPerFrame / 2) {
-		      let coords = car.getCoords();
-		      car.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
-		      car.move();
-		      console.log(car.getCoords());
+				else {
+					// moves a fraction of a tile each frame for smooth movement
+		      let pxPerFrame = Math.floor(this.#pxPerTile * this.#player.getSpeed() * this.#deltaTime);
+		      this.#player.movePx(direction.x * pxPerFrame, direction.y * pxPerFrame);
+		      totalMoved += pxPerFrame;
+		      if (totalMoved >= this.#pxPerTile - pxPerFrame / 2) {
+		        let coords = this.#player.getCoords();
+		        this.#player.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+		        moving = false;
+		      }
 		    }
-			}
-			this.carDiscard();
-			// spawn new cars
-			while (this.#carList.length < 2) {
-				this.createCar();
-			}
-			this.collision();
 
-			this.draw();
+				// move cars
+				for (let car of this.#carList) {
+					let pxPerFrame = Math.floor(this.#pxPerTile * car.getSpeed() * this.#deltaTime);
+			    car.movePx(pxPerFrame);
+			    if (car.getTotalMoved() >= this.#pxPerTile - pxPerFrame / 2) {
+			      let coords = car.getCoords();
+			      car.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+			      car.move();
+			    }
+				}
+				this.carDiscard();
+				// max no. of cars proportional to width of screen
+				if (this.#carList.length < this.#mapSize.x) {
+					this.createCar();
+				}
+
+				// checks win and lose conditions
+				if (!this.winCollision()){
+					this.carCollision();
+				}
+
+				this.draw();
+			}
 
 			await loopPromise;
 		  let postTime = new Date().getTime();
@@ -252,7 +274,10 @@ class FroggerGame {
     this.#canvasContext.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
 		// draw background
-		this.#canvasContext.drawImage(this.#background, 0, 0, this.#canvas.width, this.#canvas.height);
+		this.#canvasContext.drawImage(this.#background,
+																	0, 0,
+																	this.#background.naturalWidth / 16 * this.#pxPerTile,
+																	this.#mapSize.y * this.#pxPerTile);
 
 		// draw player
 		this.#canvasContext.drawImage(this.#player.getCurrentElement(),
@@ -271,71 +296,72 @@ class FroggerGame {
 
 
 	createCar() {
-		// generates a random valid position for a new car
-		let validCar = false
-		let tempCoords;
-		let direction; // l=1, r=-1
-		let sprite;
-
-		while (!validCar) {
-			validCar = true;
-			tempCoords = {'x':0, 'y':0};
-			direction = 1;
-			// picks a lane at random
-			let laneChoice = this.#lanes[Math.floor(Math.random() * this.#lanes.length)];
-
-			// splits to lane no and direction
-			let laneNo = laneChoice.substring(0, laneChoice.length-1);
-			let tempDirection = laneChoice.substring(laneChoice.length-1);
-			console.log(tempDirection);
-			tempCoords.y = laneNo;
-			if (tempDirection == 'r') {
-				tempCoords.x = this.#mapSize.x;
-				direction = -1;
-			}
-
-			// checks if this will overlap another car
-			for (let car of this.#carList) {
-				if (car.getCoords() == tempCoords) {
-					validCar = false;
-				}
-			}
-			sprite = this.#carSprites[tempDirection.toUpperCase()];
+		let tempCoords = {'x':0, 'y':0};
+		let direction = 1;
+		// picks a lane at random
+		let n = Math.floor(Math.random() * this.#lanes.length)
+		let laneChoice = this.#lanes[n];
+		// splits to lane no and direction
+		let laneNo = laneChoice.substring(0, laneChoice.length-1);
+		let tempDirection = laneChoice.substring(laneChoice.length-1);
+		// parse lane no and direction
+		tempCoords.y = laneNo;
+		if (tempDirection == 'l') {
+			tempCoords.x = this.#mapSize.x - 1;
+			direction = -1;
 		}
 
-		let tempCoordsPx = {'x':tempCoords.x * this.#pxPerTile, 'y':tempCoords.y * this.#pxPerTile};
+		// checks if there is already another overlapping car
+		let validCar = true;
+		for (let car of this.#carList) {
+			if (car.getCoords().x == tempCoords.x && car.getCoords().y == tempCoords.y) {
+				validCar = false;
+			}
+		}
 
-		let tempCar = new FroggerCar(tempCoords, tempCoordsPx, sprite, direction);
-		this.#carList.push(tempCar);
+		// creates the new car object
+		if (validCar) {
+			let sprite = this.#carSprites[tempDirection.toUpperCase()];
+
+			let tempCoordsPx = {'x':tempCoords.x * this.#pxPerTile, 'y':tempCoords.y * this.#pxPerTile};
+			let tempSpeed = Math.floor(Math.random() * 7) + 2; // randint from 2-8
+
+			let tempCar = new FroggerCar(tempCoords, tempCoordsPx, sprite, tempSpeed, direction);
+			tempCar.move();
+			this.#carList.push(tempCar);
+		}
 	}
 
 
-	// returns true on collision (side or car) and runs win or lose method as appropriate
-	collision() {
-		// win boundary
-		if (this.#player.getCoords().y >= this.#mapSize.y) {
+	// returns true on collision with side of map (except bottom)
+	edgeCollision() {
+		return (this.#player.getCoords().x < 0 || 
+			this.#player.getCoords().y < 0 || 
+			this.#player.getCoords().x >= this.#mapSize.x)
+	}
+
+	// runs the win method if the player is at the bottom of the screen
+	winCollision() {
+		if (this.#player.getCoordsPx().y >= (this.#mapSize.y - 1) * this.#pxPerTile) {
 			this.win();
 		}
-		// sides of canvas
-		if (this.#player.getCoords().x < 0
-				|| this.#player.getCoords().y < 0
-				|| this.#player.getCoords().x >= this.#mapSize.x) {
-			return true;
-		}
-		// loop through cars
+	}
+
+	// runs the lose method if the player is colliding with any of the cars
+	carCollision() {
 		for (let car of this.#carList) {
-			if (this.#player.getCoords() == car.getCoords()) {
+			if (this.#player.getCoords().x == car.getCoords().x
+					&& this.#player.getCoords().y == car.getCoords().y) {
 				this.lose();
-				return true;
 			}
 		}
-		return false;
 	}
 
 	// checks to remove cars that have left the screen
 	carDiscard() {
 		for (let car of this.#carList) {
-			if (car.getCoords().x < 0 || car.getCoords().x >= this.#mapSize.x) {
+			if ((car.getDirection() == -1 && car.getCoords().x < 0)
+					|| (car.getDirection() == 1 && car.getCoords().x > this.#mapSize.x)) {
 	      let index = this.#carList.indexOf(car);
 	      this.#carList.splice(index, 1);
 			}
@@ -344,13 +370,18 @@ class FroggerGame {
 
 
 	win() {
+		this.#gameOver = true;
 		console.log("yay");
 		// show victory message
 		// return victory to Game
+		Game.endMinigame();
 	}
 	lose() {
+		this.#gameOver = true;
+		console.log("oh no");
 		// show loss message
 		// return loss to Game
+		Game.endMinigame();
 	}
 
 
@@ -463,8 +494,8 @@ class FroggerPlayer {
 	getCurrentElement() {
 		return this.#currentElement;
 	}
-	setCurrentElement(currentElement) {
-		this.#currentElement = currentElement;
+	setCurrentElement(direction) {
+		this.#currentElement = this.#elements[direction];
 	}
 
 	getSpeed() {
@@ -499,11 +530,11 @@ class FroggerCar {
 	#totalMoved;
 
 
-	constructor(coords, coordsPx, currentElement, direction) {
+	constructor(coords, coordsPx, currentElement, speed, direction) {
 		this.#coords = coords;
 		this.#coordsPx = coordsPx;
 		this.#currentElement = currentElement;
-		this.#speed = 4;
+		this.#speed = speed;
 		this.#direction = direction;
 		this.#totalMoved = 0;
 	}
@@ -538,6 +569,13 @@ class FroggerCar {
 		this.#speed = speed;
 	}
 
+	getDirection() {
+		return this.#direction;
+	}
+	setDirection(direction) {
+		this.#direction = direction;
+	}
+
 	getTotalMoved() {
 		return this.#totalMoved;
 	}
@@ -547,6 +585,7 @@ class FroggerCar {
 
 
 	move() {	
+		this.#totalMoved = 0;
 		this.#coords.x += this.#direction;
 	}
 
