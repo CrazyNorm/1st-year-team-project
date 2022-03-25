@@ -9,113 +9,76 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 		<style type="text/css">
+			html,
+			body,
+			#outer {
+				width: 100%;
+				height: 100%;
+			}
+			#outer {
+				display: table;
+			}
+			.background {
+			 	width: 100%;
+			 	height: 100%;
+			 	top: 0;
+			 	left: 0;
+			 	position: absolute;
+			 	opacity: 50%;		  
+			}  
 
+			.play {
+				max-width: 80%;
+				top: 0%;
+			    padding: 0.5em;
+			    background: #660099;
+			    color: #ffffff;
+			    border-color: #ffffff;
+			    border-width: 1px;
+			    border-style: solid;
+			    border-radius: 20px;
+			    font-family: 'Press Start 2P';
+			    font-weight: 400;
+			    font-size: 2em;
+			    text-align: center;
+			    opacity: 100%;
+			    position: relative; 
+			    cursor:  pointer; 
+			    left: 50%;
+			    min-height: 3em;
+				transform: translate(-50%,0);
+			}
+			.container {
+				display: table-row;
+			}
+			
+			.play:hover {
+				background: #bb33ff;
+			    color: #ffffff;
+			}
 
-			@media only screen and (min-width: 480px){			
-					 .background {
-					 	width: 100%;
-					 	height: 100%;
-					 	top: 0;
-					 	left: 0;
-					 	position: absolute;
-					 	opacity: 50%;	  
-					}  
-
-					.play {
-					    width: 	55%;
-					    height: 24%;
-					    padding: 0px 10px 0px 10px;
-					    background: #660099;
-					    color: #ffffff;
-					    border-color: #ffffff;
-					    border-width: 1px;
-					    border-style: solid;
-					    border-radius: 20px 20px 20px 20px;
-					    font-family: 'Press Start 2P';
-					    font-weight: 400;
-					    font-size: 3em;
-					    text-align: center;
-					    opacity: 100%;
-					    position: absolute; 
-					    cursor:  pointer; 
-						bottom: 15%;
-						left: 22.5%;
-					}
-
-					.play:hover {
-						background: #bb33ff;
-					    color: #ffffff;
-					}
-
-					.logo {
-						position: absolute;
-						width: 55%;
-						height: 25%;
-						top: 20%;
-						left: 22.5%;
-					}
-
-				}
-
-			@media only screen and (max-width: 480px){
-					 .background {
-					 	width: 100%;
-					 	height: 100%;
-					 	top: 0;
-					 	left: 0;
-					 	position: absolute;
-					 	opacity: 50%;
-
-						  
-					}  
-
-					.play {
-					    width: 	75%;
-					    height: 15%;
-					    padding: 0px 10px 0px 10px;
-					    background: #660099;
-					    color: #ffffff;
-					    border-color: #ffffff;
-					    border-width: 1px;
-					    border-style: solid;
-					    border-radius: 20px 20px 20px 20px;
-					    font-family: 'Press Start 2P';
-					    font-weight: 400;
-					    font-size: 1.6em;
-					    text-align: center;
-					    opacity: 100%;
-					    position: absolute; 
-					    cursor:  pointer; 
-						bottom: 25%;
-						left: 12.5%;
-					}
-
-					.play:hover {
-						background: #bb33ff;
-					    color: #ffffff;
-					}
-
-					.logo {
-						position: absolute;
-						width: 70%;
-						height: 20%;
-						top: 20%;
-						left: 15%;
-					}
-				}
+			.logo {
+				margin-top: 2em;
+				display: table-row;
+				position: relative;
+				width: 70%;
+				left: 15%;
+			}
 
 
 		</style>
 </head>
 <body>
 
-
-	<img src="background.JPG" alt="Background"class="background">
-	<img src="Logo.png" alt="Game Logo" class="logo">
-
-	<a href="register.php">
-		<button class="play"> Start Playing Now  </button>
-	</a>
+	<div id="outer">
+		<img src="background.JPG" alt="Background"class="background">
+		<img src="Logo.png" alt="Game Logo" class="logo">
+		<div class="container">
+			<a href="register.php">
+				<button class="play"> Start Playing Now  </button>
+			</a>
+		</div>
+	</div>
 
 
 </body>
