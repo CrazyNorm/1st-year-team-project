@@ -94,7 +94,7 @@ class Game {
     loadingDiv.appendChild(logo);
     let loadingLabel = document.createElement('p');
     loadingLabel.appendChild(document.createTextNode("Loading..."));
-    loadingLabel.setAttribute('style', 'position:absolute; top:45%; text-align:center; font-size:7vmin; color:#660099; font-family:Helvetica;');
+    loadingLabel.setAttribute('style', 'position:absolute; top:45%; text-align:center; font-size:7vmin; color:#660099; font-family:"Press Start 2P", cursive;');
     loadingDiv.appendChild(loadingLabel);
     let emptyBar = document.createElement('div');
     emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
@@ -135,6 +135,8 @@ class Game {
     }
     fullscrButton.onmousedown = () => fullscreen(this.#divId);
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
+    fullscrButton.onmouseover = () => {fullscrButton.style.backgroundColor = "#bb33ff"}
+    fullscrButton.onmouseout = () => {fullscrButton.style.backgroundColor = "#660099"}
     gameDiv.appendChild(fullscrButton);
 
     //pause menu
@@ -142,7 +144,7 @@ class Game {
     pauseMenu.setAttribute("id","pauseMenu");
     pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-y: auto;");
     gameDiv.appendChild(pauseMenu);
-    pauseMenu.innerHTML = "<style>#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;}</style>";
+    pauseMenu.innerHTML = "<style>#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} #menubutton:hover {background-color: #bb33ff}</style>";
     let pauseCentre = document.createElement("div");
     pauseCentre.setAttribute("style","display: flex; justify-content: center; align-items: center; flex-wrap: wrap; text-align: center; position: absolute; height:100%; width: 100%; top: 0; left: 0;");
     //align-items: center; justify-content: center; flex-direction: column
@@ -153,8 +155,6 @@ class Game {
       let tempButton = document.createElement("button");
       tempButton.setAttribute("id", "menubutton");
       tempButton.innerHTML = text;
-      tempButton.onmouseover = function () {tempButton.style.backgroundColor = "#34994f";}
-      tempButton.onmouseout = function () {tempButton.style.backgroundColor = "#660099";}
       tempButton.onclick = func;
       pauseCentre.appendChild(tempButton);
     }
@@ -174,7 +174,7 @@ class Game {
     let questLog = document.createElement("div");
     questLog.setAttribute("id","questLog");
     questLog.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-x: hidden; overflow-y: auto;");
-    questLog.innerHTML = "<style>#questLogButtons {position: relative; display: block; background-color: #660099; color: yellow; width : 70%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; margin-left: 50%; transform: translateX(-50%); font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;}</style>";
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; display: block; background-color: #660099; color: yellow; width : 70%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; margin-left: 50%; transform: translateX(-50%); font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogButtons:hover {background-color: #bb33ff}</style>";
     
     gameDiv.appendChild(questLog);
 
@@ -228,6 +228,8 @@ class Game {
       // button for pause meun
       let pauseButton = document.createElement("div");
       pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
+      pauseButton.onmouseover = () => {fullscrButton.style.backgroundColor = "#bb33ff"}
+      pauseButton.onmouseout = () => {fullscrButton.style.backgroundColor = "#660099"}
       pauseButton.setAttribute('id',"pauseButton");
       gameDiv.appendChild(pauseButton)
     } else {
@@ -1236,7 +1238,7 @@ class Game {
 
   static openQuestLog() {
     let questLog = document.getElementById("questLog");
-    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogButtons:hover {background-color: #bb33ff} #questLogExpanded {position: relative; display: none; background-color: #3a0057; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
     let questLogTitle = document.createElement("h1")
     questLogTitle.setAttribute("style","position: relative; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; display: block;  color: yellow;  margin-top: 0.75em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; text-align:center;" );
     questLogTitle.innerHTML = "Quest Log"
@@ -1258,8 +1260,6 @@ class Game {
       let tempButton = document.createElement("button");
       tempButton.setAttribute("id", "questLogButtons");
       tempButton.innerHTML = quest.getTitle();
-      tempButton.onmouseover = function () {tempButton.style.backgroundColor = "#34994f";}
-      tempButton.onmouseout = function () {tempButton.style.backgroundColor = "#660099";}
       let expanded = document.createElement("div");
       expanded.setAttribute("id","questLogExpanded");
       if (quest.getTargetCount() > 0) {
