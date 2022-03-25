@@ -71,8 +71,8 @@
         left: 50%;
         margin-left: -200px;
         background-color: whitesmoke;
-        width: 200px;
-        height: 250px;
+        width: 30%;
+        height: 50%;
         border-radius: 25px;
         text-align: center;
         padding: 5px 40px;
@@ -97,8 +97,8 @@
 
     .text_block{
         background-color: whitesmoke;
-        width: 50%;
-        height: 24px;
+        width: 30%;
+        height: 50%;
         margin-bottom: 10px;
         border: none;
         border-bottom: 2px solid silver;
