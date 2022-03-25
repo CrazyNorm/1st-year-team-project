@@ -137,26 +137,23 @@ class Quest {
   	  // checks if every element of the requirements list is in the completed list
   	  let iBool = this.#interactionRequirements.every(e => iCompleted.includes(e));
   	  // if all requirements are met, adds to the list of active quests
-      console.log(this.#title,">>>",qBool,iBool);
   	  if (qBool && iBool) {
   	    player.addCurrentQuest(this.#id);
+        return true;
       }
+      return false;
     }
   }
 
 
   update() {
   	let player = Game.getPlayer();
-    console.log(this.#title)
-
   	// only updates the quest count if this quest is active and not complete
   	let active = player.getCurrentQuests().includes(this.#id);
   	let complete = player.getCompletedQuests().includes(this.#id);
-    console.log(active, complete)
   	if (active && !complete) {
   	  // increment quest count by 1
   	  player.incrementCurrentQuest(this.#id, 1);
-      console.log(player.getQuestCount(this.#id))
 
   	  // checks if the target count has been reached
   	  if (player.getQuestCount(this.#id) >= this.#targetCount || this.#targetCount == undefined) {
@@ -174,12 +171,15 @@ class Quest {
 
   	    // run the check requirements method for all quests which require this quest
   	    for (let questId of this.#questsToStart) {
-  	      Game.getQuest(questId).checkRequirements();
+  	      if (Game.getQuest(questId).checkRequirements()) {
+            Game.setSelectedQuest(questId);
+          }
   	    }
   	    // runs the update method for all quests which are updated by this quest
   	    for (let questId of this.#questsToUpdate) {
   	      Game.getQuest(questId).update();
   	    }
+        Game.updateSelectedQuestDisplay();
 
         // Game.savePlayer();
     	}

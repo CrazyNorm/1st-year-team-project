@@ -32,7 +32,7 @@ class Player { //TEST THIS
 		this.#stats = stats; // stats["stat name"]
 		this.#speed = 4;
 		this.#currentQuests = currentQuests;
-		this.#selectedQuest = selectedQuest; //index of currentQuests
+		this.#selectedQuest = selectedQuest; 
 		this.#completedInteractions = completedInteractions;
 		this.#completedQuests = completedQuests;
 		this.#questCounts = questCounts;
@@ -122,8 +122,8 @@ class Player { //TEST THIS
 
 
 	getSelectedQuest() {
-		//returns quest id of selected quest index
-		return this.#currentQuests[this.#selectedQuest];
+		//returns quest id
+		return this.#selectedQuest;
 	}
 	setSelectedQuest(selectedQuest) {
 		this.#selectedQuest = selectedQuest;
@@ -166,7 +166,9 @@ class Player { //TEST THIS
 	}
 
 	finishCurrentQuest(id) {
-		console.log(id)
+		if (id == this.#selectedQuest) {
+			this.#selectedQuest = -1;
+		}
 		this.#currentQuests.splice(this.#currentQuests.indexOf(id),1);
 		delete this.#questCounts[id];
 		this.#completedQuests.push(id)

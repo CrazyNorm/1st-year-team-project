@@ -110,7 +110,6 @@ class Game {
     function fullscreen(id) {
       let div = document.getElementById(id);
       if (document.fullscreen) {
-        console.log("fullscreen");
         document.exitFullscreen();
       } else {
         try {
@@ -154,9 +153,6 @@ class Game {
     makeButton("Save",this.savePlayer);
     makeButton("Quit",function(){});
 
-
-
-
     //quest log
     let questLog = document.createElement("div");
     questLog.setAttribute("id","questLog");
@@ -165,12 +161,11 @@ class Game {
     
     gameDiv.appendChild(questLog);
 
-
-    
-
-    
-
-    
+    //selected quest display
+    let selectedQuestDisplay = document.createElement("div");
+    selectedQuestDisplay.setAttribute("id","selectedquest");
+    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; right: 0%; top: 50%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: right;");
+    gameDiv.appendChild(selectedQuestDisplay);
 
 
     // mobile detection
@@ -297,8 +292,11 @@ class Game {
           this.#allInteractions[iPos].getQuestsToUpdate().push(quest.getId());
         }
       }
-      console.log(this.#allInteractions[iPos].getQuestsToUpdate(),this.#allInteractions[iPos].getQuestsToStart());
     }
+
+    this.setSelectedQuest(this.#player.getSelectedQuest());
+
+
 
 
    	// loading images
@@ -539,7 +537,6 @@ class Game {
                 this.#player.setSpeed(10);
                 break;
               case "KeyK":
-                console.log(this.#player.getCurrentQuests());
                 break;
             }
           }
@@ -901,7 +898,6 @@ class Game {
   static savePlayer() {
     // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
-    xhr.addEventListener("error",event=>{console.log(event);})
     xhr.open("GET","objects/database-scripts/savePlayer.php?" +
     		 "player_id=" + Game.getPlayerId() + 
     		 "&coords=" + JSON.stringify(Game.getPlayer().getCoords()) + 
@@ -1010,16 +1006,24 @@ class Game {
           menuClosed = true;
 
         }
+      } else if (this.#isQuestLogOpen) {
+        if (element.id != "questLog" && element.id != "questLogButtons" && element.id != "questLogExpanded") {
+          this.closeQuestLog();
+          menuClosed = true;
+        }
       }
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
-      }  
-      if (!menuClosed) {
+      } 
+            if (!menuClosed) {
         if (element.id == "interactButton") {
           this.#interactTouch = touch;
         } else if (element.id == "pauseButton") {
           this.openPauseMenu();
-        }
+        } else if (element.id == "selectedquest") {
+        this.openQuestLog();
+        } 
+
       }
       
       
@@ -1028,6 +1032,8 @@ class Game {
 
   static touchMoveHandler(event) {
     if (!(this.#isDialog || this.#isPauseMenu || this.#isQuestLogOpen)) {
+      event.preventDefault();
+    } else if (this.#isQuestLogOpen && this.#isMobile) {
       event.preventDefault();
     }
     // if the joystick touch has moved, update it
@@ -1127,7 +1133,11 @@ class Game {
 
   static openQuestLog() {
     let questLog = document.getElementById("questLog");
-    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 2em; font-size: 1.25em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+    questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 1.25em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogExpanded {position: relative; display: none; background-color: #af10ff; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;}</style>";
+    let questLogTitle = document.createElement("h1")
+    questLogTitle.setAttribute("style","position: relative; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; display: block;  color: yellow;  margin-top: 0.75em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; text-align:center;" );
+    questLogTitle.innerHTML = "Quest Log"
+    questLog.appendChild(questLogTitle);
         
     this.#isQuestLogOpen = true;
     if (this.#canvas.width < this.#canvas.height) {
@@ -1173,6 +1183,26 @@ class Game {
     //this.#isPaused = false;
   }
 
+  static setSelectedQuest(questid) {
+    this.#player.setSelectedQuest(questid);
+    this.updateSelectedQuestDisplay();
+  }
+
+  static updateSelectedQuestDisplay() {
+    let questid = this.#player.getSelectedQuest();
+    if (questid >= 0) {
+      let tempQuest = this.#allQuests[questid];
+      let selectedQuestDisplay = document.getElementById("selectedquest")
+      selectedQuestDisplay.innerHTML = tempQuest.getTitle();
+      if (tempQuest.getTargetCount() > 0) {
+        selectedQuestDisplay.innerHTML += "<br>"+this.#player.getQuestCount(questid)+"/"+tempQuest.getTargetCount();
+      }
+      selectedQuestDisplay.style.display = "block";
+    } else {
+      console.log("huh")
+      document.getElementById("selectedquest").style.display = "none";
+    }
+  }
   
 
 }
