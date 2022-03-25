@@ -7,14 +7,16 @@ class NPC {
   #elements;
   #currentElement;
   #interactions;
+  #defaultDirection;
 
 
-  constructor(id, name, coords, characterType, interactions) {
+  constructor(id, name, coords, characterType, interactions, defaultDirection) {
     this.#id = id;
     this.#name = name;
     this.#coords = coords;
     this.#characterType = characterType;
-    this.#currentElement = "S_Standing";
+    this.#defaultDirection = defaultDirection
+    this.#currentElement = defaultDirection + "_Standing";
     this.#interactions = interactions;
   }
 
@@ -71,6 +73,13 @@ class NPC {
   }
   setInteractions(interactions) {
     this.#interactions = interactions;
+  }
+
+  getDefaultDirection() {
+    return this.#defaultDirection;
+  }
+  setDefaultDirection(defaultDirection) {
+    this.#defaultDirection = defaultDirection
   }
 
 

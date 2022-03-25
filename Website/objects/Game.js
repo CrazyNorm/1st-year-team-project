@@ -14,6 +14,7 @@ class Game {
   static #joystickTouch;
   static #interactTouch;
   static #currentInteraction;
+  static #currentNPC;
   static #deltaTime;
   static #fps;
   static #isMobile;
@@ -736,7 +737,8 @@ class Game {
             break;
         }
         npc.checkInteractions();
-        return true
+        this.#currentNPC = npc;
+        return true;
       }
     }
 
@@ -887,7 +889,8 @@ class Game {
                               string[1], // name
                               JSON.parse(string[2]), // coords
                               string[3], // character_type
-                              JSON.parse(string[4]).interactions); // interactions
+                              JSON.parse(string[4]).interactions, // interactions
+                              string[5]); // direction
         Game.addNPC(tempNPC);
         loaded = true;
       }
@@ -1213,6 +1216,11 @@ class Game {
 
     // complete the interaction
     this.#currentInteraction.runInteraction();
+    this.#currentInteraction = undefined;
+
+    // turn npc back to default position
+    this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
+    this.#currentNPC = undefined;
   }
 
   static openPauseMenu () {
