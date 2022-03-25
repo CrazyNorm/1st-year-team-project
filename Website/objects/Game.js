@@ -118,7 +118,7 @@ class Game {
 
     // fullscreen button
     let fullscrButton = document.createElement("button");
-    fullscrButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
+    fullscrButton.setAttribute('style', "z-index: 2; position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
     function fullscreen(id) {
       let div = document.getElementById(id);
       if (document.fullscreen) {
@@ -136,6 +136,11 @@ class Game {
     fullscrButton.onmousedown = () => fullscreen(this.#divId);
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
     gameDiv.appendChild(fullscrButton);
+
+    let tint = document.createElement("div");
+    tint.setAttribute("id","tint");
+    tint.setAttribute("style","position: absolute; width:100%; height: 100%; opacity:10%; background-color:orange;");
+    gameDiv.appendChild(tint);
 
     //pause menu
     let pauseMenu = document.createElement("div");
@@ -1210,6 +1215,7 @@ class Game {
 
   static openPauseMenu () {
     let pauseMenu = document.getElementById("pauseMenu");
+    console.log(pauseMenu)
     if (this.#canvas.width < this.#canvas.height) {
       pauseMenu.style.width = "80%";
     } else {
@@ -1381,6 +1387,7 @@ class Game {
     this.#currentMinigame = undefined;
     this.#isPaused = false;
   }
+
 
   
 
