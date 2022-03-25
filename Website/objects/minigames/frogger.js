@@ -97,23 +97,25 @@ class FroggerGame {
 		// audio?
 
 		// controls
-		let tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchUp');
-		tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:25%; width:100%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchLeft');
-		tempDiv.setAttribute('style','position:absolute; top:25%; left:0; height:50%; width:50%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchRight');
-		tempDiv.setAttribute('style','position:absolute;top:25%; left:50%; height:50%; width:50%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-		tempDiv = document.createElement("div");
-		tempDiv.setAttribute('id','touchDown');
-		tempDiv.setAttribute('style','position:absolute; top:75%; left:0; height:25%; width:100%; border:solid 3px;');
-		minigameDiv.appendChild(tempDiv);
-
+		if (this.#isMobile)
+		{
+			let tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchUp');
+			tempDiv.setAttribute('style','position:absolute; top:0; left:0; height:25%; width:100%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchLeft');
+			tempDiv.setAttribute('style','position:absolute; top:25%; left:0; height:50%; width:50%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchRight');
+			tempDiv.setAttribute('style','position:absolute;top:25%; left:50%; height:50%; width:50%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+			tempDiv = document.createElement("div");
+			tempDiv.setAttribute('id','touchDown');
+			tempDiv.setAttribute('style','position:absolute; top:75%; left:0; height:25%; width:100%; border:solid 3px;');
+			minigameDiv.appendChild(tempDiv);
+		}
 		// wait for load
 		while (loaded < toLoad) {
       let wait = new Promise(function(resolve, reject) {
