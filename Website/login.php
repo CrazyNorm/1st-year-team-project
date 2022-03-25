@@ -1,6 +1,5 @@
 <?php
 session_start();
-include("register.php");
 include("connection.php");
 include("functions.php");
 
@@ -25,8 +24,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             if($result && mysqli_num_rows($result) > 0){
                 $user_data = mysqli_fetch_assoc($result);
 
-
-                if(password_verify($password, $hashed_passwords)){
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['email'] = $user_data['email'];
 
@@ -46,7 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
         echo "Username and password are required";
     }
 }
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
