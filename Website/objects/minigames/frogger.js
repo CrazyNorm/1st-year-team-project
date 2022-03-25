@@ -36,9 +36,9 @@ class FroggerGame {
 		this.#heldKeys = [];
 		this.#touches = [];
 		this.#carList = [];
-		this.#desiredHeight = 15;
+		this.#desiredHeight = 18;
 		this.#mapSize = {"x":0, "y":0};
-		this.#lanes = ['1l','2r','3l','5r','6r','8l','9l','10r','12r','13l'];
+		this.#lanes = ['2r','3l','4r','5r','6r','7l','10r','11r','12r','13l','14l','15r'];
 		this.#deltaTime = 0;
 		this.#isPaused = false;
 	}
@@ -87,7 +87,7 @@ class FroggerGame {
 		this.#player = new FroggerPlayer(tempDict);
 
 		// >= 2 car sprites (l/r) - for now just one car type
-		spriteTypes = ["L","R"];
+		spriteTypes = ["L_Blue","R_Blue","L_Green","R_Green","L_Red","R_Red"];
 		this.#carSprites = {};
 		for (let type of spriteTypes) {
 			this.#carSprites[type] = new Image();
@@ -129,7 +129,7 @@ class FroggerGame {
 		this.#player.setCoords(Math.floor(this.#mapSize.x/2), this.#mapSize.y - 1);
 		this.#player.setCoordsPx(this.#player.getCoords().x * this.#pxPerTile, this.#player.getCoords().y * this.#pxPerTile);
 		// spawn new cars
-		while (this.#carList.length < 10) {
+		while (this.#carList.length < 5) {
 			this.createCar();
 		}
 
@@ -278,15 +278,15 @@ class FroggerGame {
 		// draw cars
 		for (let car of this.#carList) {
 			this.#canvasContext.drawImage(car.getCurrentElement(),
-																		car.getCoordsPx().x,
-																		car.getCoordsPx().y,
-																		this.#pxPerTile, this.#pxPerTile);
+																		car.getCoordsPx().x - this.#pxPerTile,
+																		car.getCoordsPx().y - this.#pxPerTile,
+																		this.#pxPerTile*3, this.#pxPerTile*2);
 		}
 	}
 
 
 	createCar() {
-		let tempCoords = {'x':-1, 'y':0};
+		let tempCoords = {'x':-2, 'y':0};
 		let direction = 1;
 		// picks a lane at random
 		let n = Math.floor(Math.random() * this.#lanes.length)
@@ -297,21 +297,23 @@ class FroggerGame {
 		// parse lane no and direction
 		tempCoords.y = laneNo;
 		if (tempDirection == 'l') {
-			tempCoords.x = this.#mapSize.x;
+			tempCoords.x = this.#mapSize.x + 1;
 			direction = -1;
 		}
 
 		// checks if there is already another overlapping car
 		let validCar = true;
 		for (let car of this.#carList) {
-			if (car.getCoords().x == tempCoords.x && car.getCoords().y == tempCoords.y) {
+			if ((car.getCoords().x - 2 > tempCoords.x && car.getCoords().x + 2 < tempCoords.x) && car.getCoords().y == tempCoords.y) {
 				validCar = false;
 			}
 		}
 
 		// creates the new car object
 		if (validCar) {
-			let sprite = this.#carSprites[tempDirection.toUpperCase()];
+			let colours = ["_Blue","_Green","_Red"];
+			let chosenColour = colours[Math.floor(Math.random() * colours.length)];
+			let sprite = this.#carSprites[tempDirection.toUpperCase() + chosenColour];
 
 			let tempCoordsPx = {'x':tempCoords.x * this.#pxPerTile, 'y':tempCoords.y * this.#pxPerTile};
 			let tempSpeed = Math.floor(Math.random() * 7) + 2; // randint from 2-8
@@ -340,7 +342,8 @@ class FroggerGame {
 	// runs the lose method if the player is colliding with any of the cars
 	carCollision() {
 		for (let car of this.#carList) {
-			if (this.#player.getCoords().x == car.getCoords().x
+			if (this.#player.getCoords().x > car.getCoords().x - 2
+					&& this.#player.getCoords().x < car.getCoords().x + 2
 					&& this.#player.getCoords().y == car.getCoords().y) {
 				this.lose();
 			}
@@ -350,8 +353,8 @@ class FroggerGame {
 	// checks to remove cars that have left the screen
 	carDiscard() {
 		for (let car of this.#carList) {
-			if ((car.getDirection() == -1 && car.getCoords().x < 0)
-					|| (car.getDirection() == 1 && car.getCoords().x > this.#mapSize.x)) {
+			if ((car.getDirection() == -1 && car.getCoords().x < -2)
+					|| (car.getDirection() == 1 && car.getCoords().x > this.#mapSize.x + 1)) {
 	      let index = this.#carList.indexOf(car);
 	      this.#carList.splice(index, 1);
 			}

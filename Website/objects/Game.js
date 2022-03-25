@@ -1368,6 +1368,7 @@ class Game {
     div.parentNode.removeChild(div);
 
     this.#currentMinigame = undefined;
+    this.#isPaused = false;
   }
 
   
