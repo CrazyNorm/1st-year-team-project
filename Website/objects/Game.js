@@ -20,6 +20,7 @@ class Game {
   static #isPaused;
   static #isQuestLogOpen;
   static #isDialog;
+  static #isStatWindow;
   static #isPauseMenu;
   static #currentMinigame; // undefined if not in minigame
   static #loadedMinigames; // minigame scripts aren't loaded until needed, but should only be loaded once
@@ -178,6 +179,12 @@ class Game {
     selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; width: 30%; left: 0%; top: 20%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
     gameDiv.appendChild(selectedQuestDisplay);
 
+    //stat window
+    let statWindow = document.createElement("div");
+    statWindow.setAttribute("id","statWindow");
+    statWindow.setAttribute('style',"font-family: 'Press Start 2P', cursive; display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-x: hidden; overflow-y: auto; text-align: center; max-width: 70%; padding: 1em;");
+    gameDiv.appendChild(statWindow);
+
     //stat display
     let statDisplay = document.createElement("div");
     statDisplay.setAttribute("id","statdisplay");
@@ -230,7 +237,7 @@ class Game {
     this.#allInteractions =[];
     this.#npcList = [];
     this.#heldKeys = [];
-    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP','KeyK'];
+    this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight','ShiftLeft','ShiftRight','KeyE','Escape','KeyQ','KeyP','KeyK','KeyF'];
     this.#touchStarts = [];
     this.#deltaTime = 0;
     this.#fps = 30;
@@ -238,6 +245,7 @@ class Game {
     this.#isQuestLogOpen = false;
     this.#isDialog = false;
     this.#isPauseMenu = false;
+    this.#isStatWindow = false;
     this.#loadedMinigames = [];
     if (this.#isMobile) {
       this.#tilesDesired = 15;
@@ -554,6 +562,9 @@ class Game {
                 this.#player.setSpeed(10);
                 break;
               case "KeyK":
+                break;
+              case "KeyF":
+                this.openStatWindow();
                 break;
             }
           }
@@ -934,15 +945,12 @@ class Game {
   static saveScore() {
     this.#score = Math.floor((this.#player.getStat('money') + this.#player.getStat('grades') + this.#player.getStat('socialLife')) / 3);
 
-    console.log(this.#player.getStats(),this.#score)
-
     // uses ajax to save the player's current score to the database
     const xhr = new XMLHttpRequest();
     xhr.open("GET","objects/database-scripts/saveScore.php?" +
          "user_id=" + Game.getPlayerId() + 
          "&score=" + Game.getScore());
     xhr.send();
-    xhr.onload = function() {console.log(xhr.responseText)}
   }
 
 
@@ -978,6 +986,15 @@ class Game {
         case "Escape":
         case "KeyP":
           this.closeDialog();
+          break;
+      }
+    }
+    if (this.#isStatWindow) {
+      switch (event.code) {
+        case "KeyF":
+          let index = this.#heldKeys.indexOf(event.code);
+          this.#heldKeys.splice(index, 1);
+          this.closeStatWindow();
           break;
       }
     }
@@ -1059,6 +1076,10 @@ class Game {
           this.closeQuestLog();
           menuClosed = true;
         }
+      } else if (this.#isStatWindow) {
+        if (element.id != "statWindow")
+          this.closeStatWindow();
+          menuClosed = true;
       }
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
@@ -1069,8 +1090,10 @@ class Game {
         } else if (element.id == "pauseButton") {
           this.openPauseMenu();
         } else if (element.id == "selectedquest") {
-        this.openQuestLog();
-        } 
+          this.openQuestLog();
+        }  else if (element.id == "statdisplay") {
+          this.openStatWindow();
+        }
 
       }
       
@@ -1282,10 +1305,30 @@ class Game {
   static updateStatDisplay() {
     let selectedQuestDisplay = document.getElementById("statdisplay")
     this.updateSelectedQuestDisplay()
+    selectedQuestDisplay.innerHTML = "";
     selectedQuestDisplay.innerHTML += "Hunger: " + this.#player.getStat("hunger") +"%<br>";
     selectedQuestDisplay.innerHTML += "Fatigue: " + this.#player.getStat("sleep") +"%<br>";
-    selectedQuestDisplay.innerHTML += "<br>$" + this.#player.getStat("money") +"<br>";
+    selectedQuestDisplay.innerHTML += "<br>€" + this.#player.getStat("money") +"<br>";
 
+  }
+
+  static openStatWindow() {
+    this.saveScore();
+    this.#isStatWindow = true;
+    let statWindow = document.getElementById("statWindow")
+    statWindow.innerHTML = "<h1 style='font-size: 1.5em; color:yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099;'>STATS</h1>"
+    statWindow.innerHTML += "Hunger: " + this.#player.getStat("hunger") +"%<br>";
+    statWindow.innerHTML += "Fatigue: " + this.#player.getStat("sleep") +"%<br>";
+    statWindow.innerHTML += "Grades: " + this.#player.getStat("grades") +"<br>";
+    statWindow.innerHTML += "Social Life: " + this.#player.getStat("socialLife") +"<br>";
+    statWindow.innerHTML += "<br>€" + this.#player.getStat("money") +"<br>";
+    statWindow.innerHTML += "<br>Overall Scrore: " + this.#score +"<br>";
+    statWindow.style.display = "block";
+  }
+
+  static closeStatWindow() {
+    this.#isStatWindow = false;
+    statWindow.style.display = "none";
   }
 
 
@@ -1326,6 +1369,7 @@ class Game {
 
     this.#currentMinigame = undefined;
   }
+
   
 
 }
