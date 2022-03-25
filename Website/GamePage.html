@@ -4,6 +4,11 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Game Page</title>
+	<link rel="shortcut icon" type="image/png" href="resources/imgs/icon.png"/>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 		<style type="text/css">
 
 			@media only screen and (min-width: 480px){
@@ -20,7 +25,7 @@
 				
 				.Game {
 				 	width: 100%;
-				 	height: 140%;
+				 	height: 100%;
 				 	top: 0;
 				 	left: 0;
 				 	position: absolute;	
@@ -40,7 +45,7 @@
 				    line-height: 1.3;
 				    text-align: center;
 				    position: absolute; 
-				    bottom: 0.4%;
+				    top: 98%;
 				    left: 2.5%;
 
 				}
@@ -77,7 +82,7 @@
 				
 				.Game {
 				 	width: 100%;
-				 	height: 140%;
+				 	height: 100%;
 				 	top: 0;
 				 	left: 0;
 				 	position: absolute;	
@@ -97,7 +102,7 @@
 				    line-height: 1.3;
 				    text-align: center;
 				    position: absolute; 
-				    bottom: 0.4%;
+				    top: 0.4%;
 				    left: 2.5%;
 
 				}
@@ -129,10 +134,10 @@
 </head>
 <body>
 	<img src="background.JPG" alt="Background"class="background">
-	<div class="Game">
-		
-		
-	</div1>
+	<div class="Game" id="gameDiv">
+
+
+	</div>
 
 	<div class="HowToPlay">
 
@@ -155,6 +160,11 @@
 		</p>
 
 	</div1>
+
+	<script type="text/javascript" src ="objects/Game.js"></script>
+	<script type="text/javascript">
+		Game.startGame();
+	</script>
 
 
 

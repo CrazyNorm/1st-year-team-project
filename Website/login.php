@@ -6,11 +6,17 @@ include("functions.php");
 
 if($_SERVER['REQUEST_METHOD'] == "POST")
 {
+<<<<<<< HEAD
     $unsafe_email = $_POST['email']; 
     $email = mysqli_real_escape_string($con, $unsafe_email);  //prevent injection
     $unsafe_password = $_POST['password'];
     $password = mysqli_real_escape_string($con, $unsafe_password);  //prevent injection
 
+=======
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $is_admin = 0;
+>>>>>>> c6a888d83163085235c0c63ef238d1c46ea1068b
 
     if(!empty($email) && !empty($password)){
         //read data from database
@@ -22,17 +28,20 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             if($result && mysqli_num_rows($result) > 0){
                 $user_data = mysqli_fetch_assoc($result);
 
+<<<<<<< HEAD
                 if(password_verify($password, $hashed_passwords)){
+=======
+                if(password_verify($password, $user_data['password'])) {
+>>>>>>> c6a888d83163085235c0c63ef238d1c46ea1068b
                     $_SESSION['email'] = $user_data['email'];
 
-                    if ($user_data['is_admin'] == '1'){
+                    if($user_data['isadmin'] == 1){
                         header("Location: adminPage.php");
-                        die;
                     }
-                    else {
+                    else{
                         header("Location: GamePage.html");
-                        die;
                     }
+                    die;
                 }
             }
         }
