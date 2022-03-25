@@ -584,6 +584,7 @@ class Game {
                 this.#player.setSpeed(10);
                 break;
               case "KeyK":
+                console.log(this.#player.getCoords());
                 break;
               case "KeyF":
                 this.openStatWindow();

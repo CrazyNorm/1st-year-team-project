@@ -1,9 +1,73 @@
-@media only screen and (min-width:  480px){
-    body{
-    background: url(test-map.png);
+@media only screen and (max-width: 480px) { /*for phone*/
+    body {
+        background: url(test-map.png);
     }
 
-    #login_block{
+
+    #login_block {
+        position: absolute;
+        top: 50%;
+        margin-top: -200px;
+        left: 50%;
+        margin-left: -135px;
+        background-color: whitesmoke;
+        width: 70%;
+        height: 50%;
+        border-radius: 25px;
+        text-align: center;
+        padding: 5px 10px;
+        box-sizing: border-box;
+
+    }
+
+
+    .login-title {
+        color: #59c2c5;
+        font-size: 15px;
+        text-align: center;
+    }
+
+
+    .login-title span {
+        margin-right: 5px;
+        display: inline-block;
+        color: rgba(0, 0, 0, 0.4);
+
+    }
+
+    .text_block {
+        background-color: whitesmoke;
+        width: 100%;
+        height: 48px;
+        margin-bottom: 10px;
+        border: none;
+        border-bottom: 2px solid silver;
+        outline: none;
+        font-size: 22px;
+
+
+    }
+
+    #login_btn {
+        background-color: #59c2c5;
+        width: 38%;
+        height: 48px;
+        border-radius: 8px;
+        margin-top: 40px;
+        font-size: 14px;
+        font-weight: 600;
+        color: white;
+    }
+}
+
+
+@media only screen and (min-width: 480px){ /* for pc */
+    body {
+        background: url(test-map.png);
+    }
+
+
+    #login_block {
         position: absolute;
         top: 50%;
         margin-top: -200px;
@@ -20,21 +84,21 @@
     }
 
 
-    .login-title{
+    .login-title {
         color: #59c2c5;
         font-size: 15px;
         text-align: center;
     }
 
 
-    .login-title span{
+    .login-title span {
         margin-right: 5px;
         display: inline-block;
-        color: rgba(0,0,0,0.4);
+        color: rgba(0, 0, 0, 0.4);
 
     }
 
-    .text_block{
+    .text_block {
         background-color: whitesmoke;
         width: 100%;
         height: 48px;
@@ -47,7 +111,7 @@
 
     }
 
-    #login_btn{
+    #login_btn {
         background-color: #59c2c5;
         width: 38%;
         height: 48px;
@@ -58,66 +122,3 @@
         color: white;
     }
 }
-
-@media only screen and (max-width: 480px){
-    body{
-    background: url(test-map.png);
-    }
-
-    #login_block{
-        position: absolute;
-        top: 50%;
-        margin-top: -200px;
-        left: 50%;
-        margin-left: -200px;
-        background-color: whitesmoke;
-        width: 30%;
-        height: 50%;
-        border-radius: 25px;
-        text-align: center;
-        padding: 5px 40px;
-        box-sizing: border-box;
-
-    }
-
-
-    .login-title{
-        color: #59c2c5;
-        font-size: 15px;
-        text-align: center;
-    }
-
-
-    .login-title span{
-        margin-right: 5px;
-        display: inline-block;
-        color: rgba(0,0,0,0.4);
-
-    }
-
-    .text_block{
-        background-color: whitesmoke;
-        width: 30%;
-        height: 50%;
-        margin-bottom: 10px;
-        border: none;
-        border-bottom: 2px solid silver;
-        outline: none;
-        font-size: 12px;
-
-
-    }
-
-    #login_btn{
-        background-color: #59c2c5;
-        width: 20%;
-        height: 24px;
-        border-radius: 8px;
-        margin-top: 40px;
-        font-size: 14px;
-        font-weight: 400;
-        color: white;
-    }
-}
-
-
