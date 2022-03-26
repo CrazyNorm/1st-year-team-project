@@ -388,8 +388,7 @@ class Game {
     let tempForeground = new Image();
     toLoad ++;
     tempForeground.onload = load;
-    tempForeground.src = "resources/imgs/maps/foreground.png";
-    this.#map = new Map(tempBackground, tempForeground, 130, 120);  
+    tempForeground.src = "resources/imgs/maps/foreground.png";  
 
 
     // controls
@@ -1390,17 +1389,17 @@ class Game {
 
   static async startMinigame(game) {
     this.#isPaused = true;
-    // minigame div
+    // creates minigame div
     let minigameDiv = document.createElement("div");
     minigameDiv.setAttribute('id', 'minigame');
-    minigameDiv.setAttribute('style',"position:absolute; width:90%; height:90%; top:5%; left:5%; border:solid #660099 5px; z-index:1;");
+    minigameDiv.setAttribute('style',"position:absolute; width:90%; height:90%; top:50%; left:50%; transform:translate(-50%,-50%); border:solid #660099 5px; z-index:1;");
     document.getElementById(this.#divId).appendChild(minigameDiv);
 
+    // loads the script, but only if it isn't already loaded
     if (!this.#loadedMinigames.includes(game)) {
       let loaded = false;
       let gameScript = document.createElement("script");
       gameScript.onload = () => loaded = true;
-      gameScript.setAttribute('id', 'minigameScript'); // used to remove the script when the game is done
       gameScript.setAttribute('type', 'text/javascript');
       gameScript.setAttribute('src', 'objects/minigames/' + game + '.js');
       document.getElementById(this.#divId).appendChild(gameScript);
@@ -1414,15 +1413,19 @@ class Game {
       }
     }
 
+    // creates a new instance of the appropriate game class and starts the minigame
     let gameClass = game.charAt(0).toUpperCase() + game.slice(1) + "Game";
     this.#currentMinigame = eval('new ' + gameClass + '("minigame",' + this.#isMobile + ')');
     this.#currentMinigame.startGame()
   }
 
   static endMinigame(game) {
+    // removes the div and any leftover listeners
     let div = document.getElementById("minigame");
     div.parentNode.removeChild(div);
+    this.#currentMinigame.removeInputListeners();
 
+    // discards the minigame object (garbage collected) and resumes the main game
     this.#currentMinigame = undefined;
     this.#isPaused = false;
   }
