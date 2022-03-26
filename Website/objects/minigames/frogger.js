@@ -46,12 +46,33 @@ class FroggerGame {
 	async startGame() {
 		let minigameDiv = document.getElementById(this.#divId);
 
-		// loading screen?
+		// sets up loading screen
+    let loadingDiv = document.createElement("div");
+    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1; display:flex; justify-content:center;');
+    minigameDiv.appendChild(loadingDiv);
+
+    let logo = document.createElement("img");
+    logo.setAttribute('src', 'resources/imgs/logo.png');
+    logo.setAttribute('style', 'position:absolute; top:25%; width:90vmin;');
+    loadingDiv.appendChild(logo);
+    let loadingLabel = document.createElement('p');
+    loadingLabel.appendChild(document.createTextNode("Loading..."));
+    loadingLabel.setAttribute('style', 'position:absolute; top:45%; text-align:center; font-size:7vmin; color:#660099; font-family:"Press Start 2P", cursive;');
+    loadingDiv.appendChild(loadingLabel);
+    let emptyBar = document.createElement('div');
+    emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
+    loadingDiv.appendChild(emptyBar);
+    let fillBar = document.createElement('span');
+    fillBar.setAttribute('style', 'position:absolute; height:100%; background:#660099;')
+    emptyBar.appendChild(fillBar);
+
 		// keeps count of when everything has finished loading
+		let maxLoad = 116;
     let toLoad = 0;
     let loaded = 0;
     function load() {
       loaded ++;
+      fillBar.style.width = String(loaded / maxLoad * 100) + "%";
     }
 
 		// create canvas
@@ -136,7 +157,20 @@ class FroggerGame {
 		this.draw();
 
 		this.#gameOver = false;
+
 		this.mainloop();
+
+		// fake extra loading time - waits for cars to spread out properly
+		toLoad += 100;
+		for (var i = 0; i < 100; i++) {
+			let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 10);
+      });
+      await wait;
+      load();
+		}
+
+		loadingDiv.style.display = 'none';
 	}
 
 
