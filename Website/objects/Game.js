@@ -420,7 +420,6 @@ class Game {
     // sets up input listeners on the relevant elements
     this.startInputListeners();
 
-    this.toggleMobile();
 
     // wait for everything to load
     while (loaded < toLoad) {
@@ -431,9 +430,10 @@ class Game {
     }
 
     this.#map = new Map(tempBackground, tempForeground, Math.round(tempBackground.naturalWidth/16), Math.round(tempBackground.naturalHeight/16))
-
     // resize the canvas
     this.resizeHandler();
+
+    this.toggleMobile();
 
     // removes the loading screen
     loadingDiv.style.display = "none";
