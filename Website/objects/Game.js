@@ -150,7 +150,7 @@ class Game {
     pauseMenu.setAttribute("id","pauseMenu");
     pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-y: auto;");
     gameDiv.appendChild(pauseMenu);
-    pauseMenu.innerHTML = "<style>#menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} #menubutton:hover {background-color: #bb33ff}</style>";
+    pauseMenu.innerHTML = "<style>.menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} #menubutton:hover {background-color: #bb33ff}</style>";
     let pauseCentre = document.createElement("div");
     pauseCentre.setAttribute("style","display: flex; justify-content: center; align-items: center; flex-wrap: wrap; text-align: center; position: absolute; height:100%; width: 100%; top: 0; left: 0;");
     //align-items: center; justify-content: center; flex-direction: column
@@ -159,18 +159,26 @@ class Game {
 
     function makeButton(text, func) {
       let tempButton = document.createElement("button");
-      tempButton.setAttribute("id", "menubutton");
+      tempButton.setAttribute("class", "menubutton");
       tempButton.innerHTML = text;
       tempButton.onclick = func;
       pauseCentre.appendChild(tempButton);
     }
     makeButton("Continue",Game.closePauseMenu);
+    //mobile toggle button
+    let toggleMobileButton = document.createElement("button");
+    toggleMobileButton.setAttribute("class", "menubutton");
+    toggleMobileButton.setAttribute("id","togglemobile");
+    toggleMobileButton.innerHTML = "Mobile";
+    toggleMobileButton.onclick = function() {Game.toggleMobile();};
+    pauseCentre.appendChild(toggleMobileButton);
+
     makeButton("Stats",function(){Game.closePauseMenu(); Game.openStatWindow();});
     makeButton("Quest Log",function(){Game.closePauseMenu(); Game.openQuestLog();});
     makeButton("Leaderboard",function(){
       //Game.savePlayer();
       window.open("leaderboard.php","name?").focus();});
-    makeButton("Save",this.savePlayer);
+    makeButton("Save",function() {Game.savePlayer(); Game.closeQuestLog();});
     makeButton("Quit",function(){
       //Game.savePLayer();
       document.location.href = "homepage.html";
@@ -232,24 +240,21 @@ class Game {
         );
       }
     }
+    this.#isMobile = !this.#isMobile;
 
     // dialog
     let dialogBox = document.createElement("div");
     dialogBox.setAttribute("id","dialogBox");
-    if (this.#isMobile) {
-      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
 
-      // button for pause meun
-      let pauseButton = document.createElement("div");
-      pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
-      pauseButton.onmouseover = () => {fullscrButton.style.backgroundColor = "#bb33ff"}
-      pauseButton.onmouseout = () => {fullscrButton.style.backgroundColor = "#660099"}
-      pauseButton.setAttribute('id',"pauseButton");
-      gameDiv.appendChild(pauseButton)
-    } else {
-      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
+    let pauseButton = document.createElement("div");
+    pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
+    pauseButton.onmousedown = () => this.openPauseMenu();
+    pauseButton.ontouchstart = () => this.openPauseMenu();
+    pauseButton.onmouseover = () => {pauseButton.style.backgroundColor = "#bb33ff"}
+    pauseButton.onmouseout = () => {pauseButton.style.backgroundColor = "#660099"}
+    pauseButton.setAttribute('id',"pauseButton");
+    gameDiv.appendChild(pauseButton)
 
-    }
     gameDiv.appendChild(dialogBox);
 
 
@@ -393,30 +398,30 @@ class Game {
 
 
     // controls
-    if (this.#isMobile) {
-      let outerCircle = document.createElement("div");
-      // set id
-      outerCircle.setAttribute('id', 'controls');
-      // set styling
-      outerCircle.setAttribute('style',"width: 25vmax; height:25vmax; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
-      gameDiv.appendChild(outerCircle);
+    let outerCircle = document.createElement("div");
+    // set id
+    outerCircle.setAttribute('id', 'controls');
+    // set styling
+    outerCircle.setAttribute('style',"width: 25vmax; height:25vmax; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
+    gameDiv.appendChild(outerCircle);
 
-      let innerCircle = document.createElement("span");
-      // set id
-      innerCircle.setAttribute('id', 'joystick');
-      // set styling
-      innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block;")
-      outerCircle.appendChild(innerCircle);
+    let innerCircle = document.createElement("span");
+    // set id
+    innerCircle.setAttribute('id', 'joystick');
+    // set styling
+    innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block;")
+    outerCircle.appendChild(innerCircle);
 
-      // interaction button
-      let interactButton = document.createElement("div");
-      interactButton.setAttribute("id","interactButton");
-      interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
-      gameDiv.appendChild(interactButton);
-    }
+    // interaction button
+    let interactButton = document.createElement("div");
+    interactButton.setAttribute("id","interactButton");
+    interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
+    gameDiv.appendChild(interactButton);
 
     // sets up input listeners on the relevant elements
     this.startInputListeners();
+
+    this.toggleMobile();
 
     // wait for everything to load
     while (loaded < toLoad) {
@@ -446,8 +451,6 @@ class Game {
     let direction;
     let totalMoved;
     let spriteDir = "S";
-    let joystick = document.getElementById("joystick");
-    let controls = document.getElementById("controls");
     // joystick coords relative to control circle
     let touchX;
     let touchY;
@@ -461,9 +464,10 @@ class Game {
       let preTime = new Date().getTime();
 
       if (!this.#isPaused) {
-
         // update joystick position
         if (this.#isMobile) {
+          let joystick = document.getElementById("joystick");
+          let controls = document.getElementById("controls");
           if (this.#joystickTouch != undefined) {
             let controlsCoords = controls.getBoundingClientRect();
             let joystickCoords = joystick.getBoundingClientRect();
@@ -503,6 +507,8 @@ class Game {
           this.#heldKeys = this.#heldKeys.filter(x => !touchKeys.includes(x));
 
           if (this.#joystickTouch != undefined) {
+            let joystick = document.getElementById("joystick");
+            let controls = document.getElementById("controls");
             // rather than applying the direction changes twice (keyboard and touch),
             // touch controls just simulate keyboard controls
             let controlsCoords = controls.getBoundingClientRect();
@@ -1192,6 +1198,8 @@ class Game {
       this.openPauseMenu();
     }
 
+    this.updateStatDisplay();
+
     this.draw();
   }
 
@@ -1355,9 +1363,10 @@ class Game {
   static updateStatDisplay() {
     let selectedQuestDisplay = document.getElementById("statdisplay")
     this.updateSelectedQuestDisplay()
+    selectedQuestDisplay.style.maxWidth = (this.#canvas.width < this.#canvas.height ? "8em" : "14em"); 
     selectedQuestDisplay.innerHTML = "";
-    selectedQuestDisplay.innerHTML += "Hunger: " + this.#player.getStat("hunger") +"%<br>";
-    selectedQuestDisplay.innerHTML += "Fatigue: " + this.#player.getStat("sleep") +"%<br>";
+    selectedQuestDisplay.innerHTML += "Hunger: " + this.#player.getStat("hunger") + "%<br>";;
+    selectedQuestDisplay.innerHTML += "Fatigue: " + this.#player.getStat("sleep") + "%<br>";
     selectedQuestDisplay.innerHTML += "<br>€" + this.#player.getStat("money") +"<br>";
 
   }
@@ -1427,7 +1436,36 @@ class Game {
     this.#isPaused = false;
   }
 
+  static toggleMobile() {
+    let toggleMobileButton = document.getElementById("togglemobile")
+    if (this.#isMobile) {
+      toggleMobileButton.style.backgroundColor = "red";
+      this.#isMobile = false;
+      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
+      document.getElementById("pauseButton").style.display = "none"
+      
+      this.#tilesDesired = 20;
 
+      document.getElementById("controls").style.display = "none";
+      document.getElementById("joystick").style.display = "none";
+      document.getElementById("interactButton").style.display = "none";
+
+    } else { // Mobile version
+      toggleMobileButton.style.backgroundColor = "green";
+      this.#isMobile = true;
+
+      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
+      document.getElementById("pauseButton").style.display = "block"
+
+      this.#tilesDesired = 15;
+
+      document.getElementById("controls").style.display = "block";
+      document.getElementById("joystick").style.display = "inline-block";
+      document.getElementById("interactButton").style.display = "block";
+    }
+    this.updateSelectedQuestDisplay();
+    this.resizeHandler();
+  }
   
 
 }
