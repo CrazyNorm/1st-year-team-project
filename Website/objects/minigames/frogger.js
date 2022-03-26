@@ -23,6 +23,7 @@ class FroggerGame {
 
 	#canvas;
 	#canvasContext;
+	#eventListeners;
 
 	setPaused(isPaused) {
 		this.#isPaused = isPaused;
@@ -41,18 +42,81 @@ class FroggerGame {
 		this.#lanes = ['2r','3l','4r','5r','6r','7l','10r','11r','12r','13l','14l','15r'];
 		this.#deltaTime = 0;
 		this.#isPaused = false;
+		this.#eventListeners = [];
 	}
 
 	async startGame() {
 		let minigameDiv = document.getElementById(this.#divId);
 
-		// loading screen?
+		// sets up loading screen
+    let loadingDiv = document.createElement("div");
+    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1; display:flex; justify-content:center;');
+    minigameDiv.appendChild(loadingDiv);
+
+    let logo = document.createElement("img");
+    logo.setAttribute('src', 'resources/imgs/logo.png');
+    logo.setAttribute('style', 'position:absolute; top:25%; width:80vmin;');
+    loadingDiv.appendChild(logo);
+    let loadingLabel = document.createElement('p');
+    loadingLabel.appendChild(document.createTextNode("Loading..."));
+    loadingLabel.setAttribute('style', 'position:absolute; top:45%; text-align:center; font-size:7vmin; color:#660099; font-family:"Press Start 2P", cursive;');
+    loadingDiv.appendChild(loadingLabel);
+    let emptyBar = document.createElement('div');
+    emptyBar.setAttribute('style', 'position:absolute; bottom:15%; width:100%; height:10%; background:yellow;');
+    loadingDiv.appendChild(emptyBar);
+    let fillBar = document.createElement('span');
+    fillBar.setAttribute('style', 'position:absolute; height:100%; background:#660099;')
+    emptyBar.appendChild(fillBar);
+
 		// keeps count of when everything has finished loading
+		let maxLoad = 117;
     let toLoad = 0;
     let loaded = 0;
     function load() {
       loaded ++;
+      fillBar.style.width = String(loaded / maxLoad * 100) + "%";
     }
+
+    // tutorial screen
+    let tutorialDiv = document.createElement('div');
+		tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:1; display:flex; justify-content:center; text-align:center; display:none;');
+		minigameDiv.appendChild(tutorialDiv);
+
+		let titleLabel = document.createElement('h1');
+		titleLabel.appendChild(document.createTextNode("Frogger"));
+		titleLabel.setAttribute('style', 'width:100%; font-size:10vmin; color:#660099; font-family:"Press Start 2P", cursive; margin-bottom:5%;')
+		tutorialDiv.appendChild(titleLabel);
+		toLoad ++;
+		let tutorialImg = document.createElement('img');
+		tutorialImg.onload = load;
+		if (this.#isMobile) {
+			tutorialImg.setAttribute('src', 'resources/imgs/minigames/frogger/tutorialMobile.png');
+		} else {
+			tutorialImg.setAttribute('src', 'resources/imgs/minigames/frogger/tutorial.png');
+		}
+		tutorialImg.setAttribute('style', 'position:absolute; left:25%; top:50%; transform:translate(-50%,-50%); max-width:50%; max-height:60%;');
+		tutorialDiv.appendChild(tutorialImg);
+		let instructionDiv = document.createElement('div');
+		instructionDiv.setAttribute('style', 'position:absolute; width:50%; height:60%; right:25%; top:50%; transform:translate(+50%,-50%); font-size:3vmin; color:#660099; font-family:"Press Start 2P", cursive; display:flex; justify-content:space-evenly; text-align:center; flex-direction:column;')
+		tutorialDiv.appendChild(instructionDiv);
+		let instructionLabel = document.createElement('p');
+		instructionLabel.appendChild(document.createTextNode("Get to the other side of the road without getting hit by a car"));
+		instructionDiv.appendChild(instructionLabel);
+		let controlsLabel = document.createElement('p');
+		if (this.#isMobile) {
+			controlsLabel.appendChild(document.createTextNode("Tap the left or right section of the screen to move sideways, and the middle section to move forwards"));
+		} else {
+			controlsLabel.appendChild(document.createTextNode("Use A/D (or Left/Right) to move sideways, and W (or Up) to move forwards"));
+		}
+		instructionDiv.appendChild(controlsLabel);
+		let startLabel = document.createElement('p');
+		if (this.#isMobile) {
+			startLabel.appendChild(document.createTextNode("Tap anywhere to start"));
+		} else {
+			startLabel.appendChild(document.createTextNode("Press any key to start"));
+		}
+		startLabel.setAttribute('style', 'position:absolute; bottom:0; width:100%; font-size:5vmin; color:#bb33ff; font-family:"Press Start 2P", cursive; text-align:center;')
+		tutorialDiv.appendChild(startLabel);
 
 		// create canvas
     minigameDiv.style.margin = "0";
@@ -103,7 +167,7 @@ class FroggerGame {
 		{
 			let tempDiv = document.createElement("div");
 			tempDiv.setAttribute('id','touchUp');
-			tempDiv.setAttribute('style','position:absolute; top:0; left:25%; height:100%; width:50%; border:solid #660099 3px; opacity: 0.5;');
+			tempDiv.setAttribute('style','position:absolute; top:-3px; left:25%; height:101%; width:50%; border:solid #660099 3px; opacity: 0.5;');
 			minigameDiv.appendChild(tempDiv);
 			tempDiv = document.createElement("div");
 			tempDiv.setAttribute('id','touchLeft');
@@ -122,8 +186,6 @@ class FroggerGame {
       await wait;
     }
 
-		// input listeners
-		this.startInputListeners();
 		this.resizeHandler();
 
 		this.#player.setCoords(Math.floor(this.#mapSize.x/2), this.#mapSize.y - 1);
@@ -134,9 +196,35 @@ class FroggerGame {
 		}
 
 		this.draw();
-
 		this.#gameOver = false;
+
 		this.mainloop();
+
+		// artificial extra loading time - waits for cars to spread out properly
+		toLoad += 100;
+		for (var i = 0; i < 100; i++) {
+			let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 10);
+      });
+      await wait;
+      load();
+		}
+
+		loadingDiv.style.display = 'none';
+
+		// tutorial screen
+		this.#isPaused = true;
+		tutorialDiv.style.display = 'block';
+		let closeTutorial = () => {
+			tutorialDiv.style.display="none";
+			this.#isPaused=false;
+			this.startInputListeners();
+			document.removeEventListener('keydown', closeTutorial);
+		}
+
+		tutorialDiv.ontouchstart = closeTutorial;
+		tutorialDiv.onmousedown = closeTutorial;
+		document.addEventListener('keydown', closeTutorial);
 	}
 
 
@@ -200,7 +288,7 @@ class FroggerGame {
 	        }
 	        // regulate speed when moving diagonally
 	        let speedModifier = Math.sqrt(Math.abs(direction.x) + Math.abs(direction.y));
-	        this.#player.setSpeed(this.#player.getSpeed() * speedModifier);
+	        this.#player.setSpeed(this.#player.getSpeed() / speedModifier);
 	        this.#player.setCurrentElement(spriteDir + "_Standing");
 
 	        // check edge collisions and start moving
@@ -378,16 +466,31 @@ class FroggerGame {
 	}
 
 
-	startInputListeners() {
+	async startInputListeners() {
+		let wait = new Promise(function(resolve, reject) {
+      setTimeout(resolve, 100);
+    });
+    await wait;
     // applies all the necessary input listeners to the relevant elements
+    // some event listeners are stored in an array so they can be removed when the game ends
     let div = document.getElementById(this.#divId);
-		document.addEventListener('keydown', event => this.keyDownHandler(event));
-    document.addEventListener('keyup', event => this.keyUpHandler(event));
-    div.addEventListener('touchstart', event => this.touchStartHandler(event));
-    div.addEventListener('touchmove', event => this.touchStartHandler(event));
-    div.addEventListener('touchend', event => this.touchEndHandler(event));
-    div.addEventListener('touchcancel', event => this.touchEndHandler(event));
-    window.addEventListener('resize', event => this.resizeHandler());
+    this.#eventListeners[0] = [document, 'keydown', event => this.keyDownHandler(event)];
+		document.addEventListener('keydown', this.#eventListeners[0][2]);
+		this.#eventListeners[1] = [document, 'keyup', event => this.keyUpHandler(event)];
+    document.addEventListener('keyup', this.#eventListeners[1][2]);
+    div.addEventListener('touchstart', event => this.touchHandler(event));
+    div.addEventListener('touchmove', event => this.touchHandler(event));
+    div.addEventListener('touchend', event => this.touchHandler(event));
+    div.addEventListener('touchcancel', event => this.touchHandler(event));
+    this.#eventListeners[2] = [window, 'resize', event => this.resizeHandler()];
+    window.addEventListener('resize', this.#eventListeners[2][2]);
+	}
+	removeInputListeners() {
+		// removes listeners from anything not created by the minigame
+		// stops listeners piling up on document and window
+		for (let listener of this.#eventListeners) {
+			listener[0].removeEventListener(listener[1], listener[2]);
+		}
 	}
 
 	keyDownHandler(event) {
@@ -403,25 +506,14 @@ class FroggerGame {
       this.#heldKeys.splice(index, 1);
     }
   }
-  touchStartHandler(event) {
+  touchHandler(event) {
     event.preventDefault();
     // stores the direction div being pressed if it isn't already stored
+    this.#touches = [];
     for (let touch of event.touches) {
       let element = document.elementFromPoint(touch.clientX, touch.clientY);
-      console.log(element.id)
       if (!this.#touches.includes(element.id)) {
       	this.#touches.push(element.id);
-      }
-    }
-  }
-  touchEndHandler(event) {
-    event.preventDefault();
-    // removes the direction div that is no longer being touched from the array
-    for (let touch of event.changedTouches) {
-      let element = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (this.#touches.includes(element.id)) {
-	      let index = this.#touches.indexOf(event.code);
-	      this.#touches.splice(index, 1);
       }
     }
   }
