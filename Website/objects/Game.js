@@ -237,7 +237,7 @@ class Game {
     let dialogBox = document.createElement("div");
     dialogBox.setAttribute("id","dialogBox");
     if (this.#isMobile) {
-      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
+      dialogBox.setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 50%; transform:translate(-50%,0); width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
 
       // button for pause meun
       let pauseButton = document.createElement("div");
@@ -1228,8 +1228,10 @@ class Game {
     this.#currentInteraction = undefined;
 
     // turn npc back to default position
-    this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
-    this.#currentNPC = undefined;
+    if (this.#currentNPC != undefined) {
+      this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
+      this.#currentNPC = undefined;
+    }
   }
 
   static openPauseMenu () {
@@ -1387,7 +1389,7 @@ class Game {
   }
 
 
-  static async startMinigame(game) {
+  static async startMinigame(game, victory, loss) {
     this.#isPaused = true;
     // creates minigame div
     let minigameDiv = document.createElement("div");
@@ -1415,7 +1417,7 @@ class Game {
 
     // creates a new instance of the appropriate game class and starts the minigame
     let gameClass = game.charAt(0).toUpperCase() + game.slice(1) + "Game";
-    this.#currentMinigame = eval('new ' + gameClass + '("minigame",' + this.#isMobile + ')');
+    this.#currentMinigame = eval('new ' + gameClass + '("minigame",'+this.#isMobile+","+victory+","+loss+')');
     this.#currentMinigame.startGame()
   }
 
@@ -1425,9 +1427,9 @@ class Game {
     div.parentNode.removeChild(div);
     this.#currentMinigame.removeInputListeners();
 
-    // discards the minigame object (garbage collected) and resumes the main game
+    // discards the minigame object (garbage collected)
     this.#currentMinigame = undefined;
-    this.#isPaused = false;
+    // game is resumed when the win/loss dialog is closed
   }
 
 
