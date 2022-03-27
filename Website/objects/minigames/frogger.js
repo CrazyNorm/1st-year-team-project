@@ -12,6 +12,9 @@ class FroggerGame {
 	#gameOver;
 	#isPaused;
 
+	#victoryStats;
+	#lossStats;
+
 	#background;
 	#mapSize;
 	#desiredHeight; // set number of lanes, no matter screen width
@@ -29,10 +32,13 @@ class FroggerGame {
 		this.#isPaused = isPaused;
 	}
 
-	constructor(divId, isMobile) {
-		// sets div, isMobile and defaults for some other attributes
+	constructor(divId, isMobile, victory, loss) {
+		// sets div, isMobile, victory/loss  and defaults for some other attributes
 		this.#divId = divId;
 		this.#isMobile = isMobile;
+		this.#victoryStats = victory;
+		this.#lossStats = loss;
+
 		this.#importantKeys = ['KeyW','ArrowUp','KeyA','ArrowLeft','KeyS','ArrowDown','KeyD','ArrowRight'];
 		this.#heldKeys = [];
 		this.#touches = [];
@@ -140,7 +146,8 @@ class FroggerGame {
 		// 4 player sprites
 		let spriteTypes = ['E_Standing','E_Walk_Left','E_Walk_Right',
                        'W_Standing','W_Walk_Left','W_Walk_Right',
-                       'N_Standing','N_Walk_Left','N_Walk_Right'];
+                       'N_Standing','N_Walk_Left','N_Walk_Right',
+                       'S_Standing'];
 		let tempDict = {};
 		for (let type of spriteTypes) {
 			tempDict[type] = new Image();
@@ -374,13 +381,14 @@ class FroggerGame {
 
 
 	createCar() {
+		let tempCar;
 		let tempCoords = {'x':-2, 'y':0};
 		let direction = 1;
 		// picks a lane at random
 		let n = Math.floor(Math.random() * this.#lanes.length)
 		let laneChoice = this.#lanes[n];
 		// splits to lane no and direction
-		let laneNo = laneChoice.substring(0, laneChoice.length-1);
+		let laneNo = parseInt(laneChoice.substring(0, laneChoice.length-1));
 		let tempDirection = laneChoice.substring(laneChoice.length-1);
 		// parse lane no and direction
 		tempCoords.y = laneNo;
@@ -406,10 +414,11 @@ class FroggerGame {
 			let tempCoordsPx = {'x':tempCoords.x * this.#pxPerTile, 'y':tempCoords.y * this.#pxPerTile};
 			let tempSpeed = Math.floor(Math.random() * 7) + 2; // randint from 2-8
 
-			let tempCar = new FroggerCar(tempCoords, tempCoordsPx, sprite, tempSpeed, direction);
+			tempCar = new FroggerCar(tempCoords, tempCoordsPx, sprite, tempSpeed, direction);
 			tempCar.move();
 			this.#carList.push(tempCar);
 		}
+		return tempCar;
 	}
 
 
@@ -433,7 +442,8 @@ class FroggerGame {
 			if (this.#player.getCoords().x > car.getCoords().x - 2
 					&& this.#player.getCoords().x < car.getCoords().x + 2
 					&& this.#player.getCoords().y == car.getCoords().y) {
-				this.lose();
+				this.lose(car);
+				break;
 			}
 		}
 	}
@@ -449,19 +459,100 @@ class FroggerGame {
 		}
 	}
 
+	// short loop to keep cars moving until the given car moves one extra tile (makes sure the player is "hit")
+	async closeLoop(car) {
+		let oldCoords = car.getCoords().x;
 
-	win() {
+		while (oldCoords == car.getCoords().x) {
+      let loopPromise = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 1000/30);
+      });
+      let preTime = new Date().getTime();
+
+      // move cars
+			for (let car of this.#carList) {
+				let pxPerFrame = Math.floor(this.#pxPerTile * car.getSpeed() * this.#deltaTime);
+		    car.movePx(pxPerFrame);
+		    if (car.getTotalMoved() >= this.#pxPerTile - pxPerFrame / 2) {
+		      let coords = car.getCoords();
+		      car.setCoordsPx(coords.x * this.#pxPerTile, coords.y * this.#pxPerTile);
+		      car.move();
+		    }
+			}
+			this.draw();
+
+			await loopPromise;
+		  let postTime = new Date().getTime();
+		  this.#deltaTime = (postTime - preTime) / 1000;
+		}
+	}
+
+	async win() {
 		this.#gameOver = true;
-		console.log("yay");
-		// show victory message
-		// return victory to Game
+		// constructs the victory dialog
+		let victoryDialog = "Well done! You made it across safely.";
+		for (let stat in this.#victoryStats) {
+			victoryDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (this.#victoryStats[stat] >= 0) {
+				victoryDialog += ' +';
+			}
+			victoryDialog += this.#victoryStats[stat] + ".";
+		}
+		// creates a temporary interaction to interact with the dialog and stat systems of the main game
+		let tempInteraction	= new Interaction(NaN,
+																					1,
+																					victoryDialog,
+																					"",
+																					this.#victoryStats,
+																					[],
+																					[],
+																					[]);
+
+		// keeps the cars moving for a brief period before the minigame closes
+		this.#player.setCurrentElement("S_Standing");
+		let newCar;
+		// creates a brand new car as a counter for the close loop
+		while (newCar == undefined) {
+			newCar = this.createCar();
+		}
+		await this.closeLoop(newCar);
+
+		// opens the loss dialog in the main game
+		Game.setCurrentInteraction(tempInteraction);
+		Game.displayDialog();
+
+		// returns to the main game
 		Game.endMinigame();
 	}
-	lose() {
+	async lose(car) {
 		this.#gameOver = true;
-		console.log("oh no");
-		// show loss message
-		// return loss to Game
+		// constructs the loss dialog
+		let lossDialog = "Oh no! You were hit by a car.";
+		for (let stat in this.#lossStats) {
+			lossDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (this.#lossStats[stat] >= 0) {
+				lossDialog += ' +';
+			}
+			lossDialog += this.#lossStats[stat] + ".";
+		}
+		// creates a temporary interaction to interact with the dialog and stat systems of the main game
+		let tempInteraction	= new Interaction(NaN,
+																					1,
+																					lossDialog,
+																					"",
+																					this.#lossStats,
+																					[],
+																					[],
+																					[]);
+
+		// keeps the cars moving for a brief period before the minigame closes
+		await this.closeLoop(car);
+
+		// opens the loss dialog in the main game
+		Game.setCurrentInteraction(tempInteraction);
+		Game.displayDialog();
+
+		// returns to the main game
 		Game.endMinigame();
 	}
 

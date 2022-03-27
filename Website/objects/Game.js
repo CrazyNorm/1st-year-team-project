@@ -249,7 +249,6 @@ class Game {
     let pauseButton = document.createElement("div");
     pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
     pauseButton.onmousedown = () => this.openPauseMenu();
-    pauseButton.ontouchstart = () => this.openPauseMenu();
     pauseButton.onmouseover = () => {pauseButton.style.backgroundColor = "#bb33ff"}
     pauseButton.onmouseout = () => {pauseButton.style.backgroundColor = "#660099"}
     pauseButton.setAttribute('id',"pauseButton");
@@ -1102,7 +1101,7 @@ class Game {
           menuClosed = true;
         }
       } else if (this.#isPauseMenu) {
-        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.id != "menubutton") {
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton") {
           this.closePauseMenu();
           menuClosed = true;
 
@@ -1236,8 +1235,10 @@ class Game {
     this.#currentInteraction = undefined;
 
     // turn npc back to default position
-    this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
-    this.#currentNPC = undefined;
+    if (this.#currentNPC != undefined) {
+      this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
+      this.#currentNPC = undefined;
+    }
   }
 
   static openPauseMenu () {
@@ -1396,7 +1397,7 @@ class Game {
   }
 
 
-  static async startMinigame(game) {
+  static async startMinigame(game, victory, loss) {
     this.#isPaused = true;
     // creates minigame div
     let minigameDiv = document.createElement("div");
@@ -1424,7 +1425,7 @@ class Game {
 
     // creates a new instance of the appropriate game class and starts the minigame
     let gameClass = game.charAt(0).toUpperCase() + game.slice(1) + "Game";
-    this.#currentMinigame = eval('new ' + gameClass + '("minigame",' + this.#isMobile + ')');
+    this.#currentMinigame = eval('new ' + gameClass + '("minigame",'+this.#isMobile+","+victory+","+loss+')');
     this.#currentMinigame.startGame()
   }
 
@@ -1434,9 +1435,9 @@ class Game {
     div.parentNode.removeChild(div);
     this.#currentMinigame.removeInputListeners();
 
-    // discards the minigame object (garbage collected) and resumes the main game
+    // discards the minigame object (garbage collected)
     this.#currentMinigame = undefined;
-    this.#isPaused = false;
+    // game is resumed when the win/loss dialog is closed
   }
 
   static toggleMobile() {
@@ -1444,7 +1445,7 @@ class Game {
     if (this.#isMobile) {
       toggleMobileButton.style.backgroundColor = "red";
       this.#isMobile = false;
-      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
+      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 50%; transform:translate(-50%,0); width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
       document.getElementById("pauseButton").style.display = "none"
       
       this.#tilesDesired = 20;
@@ -1457,7 +1458,7 @@ class Game {
       toggleMobileButton.style.backgroundColor = "green";
       this.#isMobile = true;
 
-      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 10%; width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
+      document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 50%; transform:translate(-50%,0); width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 1em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0.5em;");
       document.getElementById("pauseButton").style.display = "block"
 
       this.#tilesDesired = 15;
