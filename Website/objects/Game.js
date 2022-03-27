@@ -249,7 +249,6 @@ class Game {
     let pauseButton = document.createElement("div");
     pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
     pauseButton.onmousedown = () => this.openPauseMenu();
-    pauseButton.ontouchstart = () => this.openPauseMenu();
     pauseButton.onmouseover = () => {pauseButton.style.backgroundColor = "#bb33ff"}
     pauseButton.onmouseout = () => {pauseButton.style.backgroundColor = "#660099"}
     pauseButton.setAttribute('id',"pauseButton");
@@ -1102,7 +1101,7 @@ class Game {
           menuClosed = true;
         }
       } else if (this.#isPauseMenu) {
-        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.id != "menubutton") {
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton") {
           this.closePauseMenu();
           menuClosed = true;
 
