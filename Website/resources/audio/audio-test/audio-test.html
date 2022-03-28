@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Audio test</title>
+</head>
+<body>
+	<button onclick="startBackground()">Press this to start background music</button>
+	<button onclick="playScream()">Press this to interrupt with another sound</button>
+	<button onclick="stopBackground()">Press this to stop backgroud music</button>
+	<button onclick="switchBackground()">Press this to change background music</button>
+	<p id="loaded"></p>
+
+	<p>Background tracks are:</p>
+	<a href="https://theirdogswereastronauts.bandcamp.com/album/neon-theatre">
+		<p>Get Up - Their Dogs Were Astronauts</p>
+	</a>
+	<a href="https://cloudkicker.bandcamp.com/album/the-discovery">
+		<p>Dysphoria - Cloudkicker</p>
+	</a>
+	<p>Interruption is:
+		<a href="https://freesound.org/people/TheSubber13/sounds/239901/">This</p></a>
+	</p>
+
+	<script type="text/javascript">
+		let loaded = 0;
+		
+		let background1 = new Audio();
+		background1.oncanplaythrough = () => loaded ++;
+		background1.src = "background1.mp3";
+		background1.controls = false;
+		background1.loop = true;
+
+		let background2 = new Audio();
+		background2.oncanplaythrough = () => loaded ++;
+		background2.src = "background2.mp3";
+		background2.controls = false;
+		background2.loop = true;
+
+		let scream = new Audio();
+		scream.oncanplaythrough = () => loaded ++;
+		scream.src = "scream.ogg";
+		scream.controls = false;
+
+		window.onload = async function() {
+			while (loaded < 3) {
+				let waitPromise = new Promise(function(resolve, reject) {
+					setTimeout(resolve, 100);
+				});
+				await waitPromise;
+			}
+			document.getElementById('loaded').innerHTML = "Loaded";
+		}
+
+		function startBackground() {
+			if (background1.paused && background2.paused) {
+				background1.play();
+			}
+		}
+
+		async function playScream() {
+			if (!background1.paused) {
+				background1.pause();
+				scream.play();
+				while (!scream.ended) {
+					let waitPromise = new Promise(function(resolve, reject) {
+						setTimeout(resolve, 100);
+					});
+					await waitPromise;
+				}
+				background1.play();
+			}
+			else if (!background2.paused) {
+				background2.pause();
+				scream.play();
+				while (!scream.ended) {
+					let waitPromise = new Promise(function(resolve, reject) {
+						setTimeout(resolve, 100);
+					});
+					await waitPromise;
+				}
+				background2.play();
+			}
+			else {
+				scream.play();
+			}
+		}
+
+		function stopBackground() {
+			if (!background1.paused) {
+				background1.pause();
+			}
+			else if (!background2.paused) {
+				background2.pause();
+			}
+		}
+
+		function switchBackground() {
+			if (!background1.paused) {
+				background1.pause();
+				background2.play();
+			}
+			else if (!background2.paused) {
+				background2.pause();
+				background1.play();
+			}
+		}
+	</script>
+</body>
+</html>

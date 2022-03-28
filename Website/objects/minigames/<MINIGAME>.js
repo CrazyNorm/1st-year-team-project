@@ -19,6 +19,8 @@ class <MINIGAME>Game {
 	#lossStats;
 	// Also must include this - explained in the startInputListners method
 	this.#eventListeners;
+	// This is probably a requirement unless the minigame is silent
+	this.#backgroundMusic;
 	// Canvas attributes will probably be needed (depending on the game) - remove if not
 	this.#canvas;
 	this.#canvasContext;
@@ -92,6 +94,8 @@ class <MINIGAME>Game {
 
 
     // Sample tutorial screen - shows as a pop up before the game starts
+    // NOTE - in the minigame's img folder, there must be a tutorial.png and tutorialMobile.png
+    // or edit the following code to remove the images
     let tutorialDiv = document.createElement('div');
 		tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:1; display:flex; justify-content:center; text-align:center; display:none;');
 		minigameDiv.appendChild(tutorialDiv);
@@ -151,25 +155,35 @@ class <MINIGAME>Game {
 
 
 		// Loads images to be used in the minigame
-		// background
+		// background - assumes the image is in the minigame's img folder and called background.png
 		this.#background = new Image();
 		toLoad ++;
 		this.#background.onload = load;
-		this.#background.src = "<PATH TO BACKGROUND>";
+		this.#background.src = "resources/imgs/minigames/<MINIGAME>/background.png";
 		
-		// loading sprites from an array
+		// loading sprites from an array - assumes all sprites are in the minigame's img folder
 		let spritesToLoad = ['<ARRAY>','<OF>','<SPRITE>','<NAMES>','</>','<PATHS>'];
 		let tempDict = {};
 		for (let type of spriteTypes) {
 			tempDict[type] = new Image();
       toLoad ++;
       tempDict[type].onload = load;
-      tempDict[type].src = "<PATH TO SPRITES>" + type + ".png";
+      tempDict[type].src = "resources/imgs/minigames/<MINIGAME>/" + type + ".png";
 		}
 		// Could replace tempDict with an attribute or pass it to be stored in another object
 
 
-		// Loading audio goes here - I'll update this guide once I add audio stuff
+		// Loading audio - background music
+		// assumes the background music is in the minigame's audio folder and called background.mp3
+		this.#backgroundMusic = new Audio();
+    toLoad ++;
+    this.#backgroundMusic.oncanplaythrough = load;
+    this.#backgroundMusic.src = "resources/audio/minigames/<MINIGAME>/background.mp3"; 
+    this.#backgroundMusic.controls = false;
+    this.#backgroundMusic.loop = true;
+    // For other audio clips, omit loop=true and call .play() on them when you want them to trigger
+    // (probably call .pause() or set .volume on background music first)
+    // Example of non-background audio can be found in Game
 
 
 		// Create html elements for mobile controls here - as a child of the minigame div
@@ -208,6 +222,12 @@ class <MINIGAME>Game {
 
 		// A maainloop-based game probably needs a boolean to terminate the loop on game end
 		this.#gameOver = false;
+
+
+		// Starts the background music
+		// Move to before the waiting loop if you want music to play on the loading screen
+		// However, it is probably better here for consistency with other minigames/the main game
+		this.#backgroundMusic.play();
 
 
 		// Starts main loop (a non-mainloop game might only need a loop to check win/loss conditions)
@@ -286,8 +306,9 @@ class <MINIGAME>Game {
 	// e.g. frogger has a short loop to move the cars a bit further
 	// This should be called when the win conditions are met
 	win() {
-		// Only needed if there is aa mainloop to terminate
+		// Only needed if there is a mainloop to terminate
 		this.#gameOver = true;
+		this.#backgroundMusic.pause();
 		let victoryDialog = "<VICTORY MESSAGE GOES HERE>";
 		for (let stat in this.#victoryStats) {
 			victoryDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
@@ -319,6 +340,7 @@ class <MINIGAME>Game {
 	lose(car) {
 		// Only needed if there is a mainloop to terminate
 		this.#gameOver = true;
+		this.#backgroundMusic.pause();
 		let lossDialog = "<LOSS MESSAGE GOES HERE>";
 		for (let stat in this.#lossStats) {
 			lossDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);

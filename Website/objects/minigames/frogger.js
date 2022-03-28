@@ -19,6 +19,7 @@ class FroggerGame {
 	#mapSize;
 	#desiredHeight; // set number of lanes, no matter screen width
 	#pxPerTile;
+	#backgroundMusic;
 	#player;
 	#carSprites;
 	#carList;
@@ -167,7 +168,13 @@ class FroggerGame {
       this.#carSprites[type].src = "resources/imgs/minigames/frogger/car_" + type + ".png";
 		}
 
-		// audio?
+		// loading audio
+    this.#backgroundMusic = new Audio();
+    toLoad ++;
+    this.#backgroundMusic.oncanplaythrough = load;
+    this.#backgroundMusic.src = "resources/audio/minigames/frogger/background.mp3"; 
+    this.#backgroundMusic.controls = false;
+    this.#backgroundMusic.loop = true;
 
 		// controls
 		if (this.#isMobile)
@@ -216,6 +223,9 @@ class FroggerGame {
       await wait;
       load();
 		}
+
+		// starts the background music
+    this.#backgroundMusic.play();
 
 		loadingDiv.style.display = 'none';
 
@@ -489,6 +499,8 @@ class FroggerGame {
 
 	async win() {
 		this.#gameOver = true;
+		// stops the minigame music
+		this.#backgroundMusic.pause();
 		// constructs the victory dialog
 		let victoryDialog = "Well done! You made it across safely.";
 		for (let stat in this.#victoryStats) {
@@ -526,6 +538,8 @@ class FroggerGame {
 	}
 	async lose(car) {
 		this.#gameOver = true;
+		// stops the minigame music
+		this.#backgroundMusic.pause();
 		// constructs the loss dialog
 		let lossDialog = "Oh no! You were hit by a car.";
 		for (let stat in this.#lossStats) {
