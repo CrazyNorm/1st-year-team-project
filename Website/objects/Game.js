@@ -146,12 +146,17 @@ class Game {
     tint.setAttribute("style","position: absolute; width:100%; height: 100%; opacity:10%; background-color:orange;");
     gameDiv.appendChild(tint);
 
+    let saveDisplay = document.createElement("div");
+    saveDisplay.setAttribute("id","savedisplay");
+    saveDisplay.setAttribute("style","padding: 0.5em; display: none; position: absolute; font-weight:bold; font-size: 2em; z-index:2; display:block; text-align:right; bottom:0%; right:0%;");
+    gameDiv.appendChild(saveDisplay);
+
     //pause menu
     let pauseMenu = document.createElement("div");
     pauseMenu.setAttribute("id","pauseMenu");
     pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-y: auto;");
     gameDiv.appendChild(pauseMenu);
-    pauseMenu.innerHTML = "<style>.menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} #menubutton:hover {background-color: #bb33ff}</style>";
+    pauseMenu.innerHTML = "<style>.menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} .menubutton:hover {background-color: #bb33ff; cursor: pointer;}</style>";
     let pauseCentre = document.createElement("div");
     pauseCentre.setAttribute("style","display: flex; justify-content: center; align-items: center; flex-wrap: wrap; text-align: center; position: absolute; height:100%; width: 100%; top: 0; left: 0;");
     //align-items: center; justify-content: center; flex-direction: column
@@ -179,7 +184,7 @@ class Game {
     makeButton("Leaderboard",function(){
       //Game.savePlayer();
       window.open("leaderboard.php","name?").focus();});
-    makeButton("Save",function() {Game.savePlayer(); Game.closeQuestLog();});
+    makeButton("Save",function() {Game.savePlayer(); Game.closePauseMenu();});
     makeButton("Quit",function(){
       //Game.savePLayer();
       document.location.href = "homepage.html";
@@ -984,6 +989,14 @@ class Game {
     Game.saveScore();
     // uses ajax to save the player's current progress to the database
     const xhr = new XMLHttpRequest();
+    let saveDisplay = document.getElementById("savedisplay");
+    saveDisplay.style.display = "block";
+    saveDisplay.innerHTML = "Saving...";
+    xhr.onload = function (e) {
+      let saveDisplay = document.getElementById("savedisplay");
+      saveDisplay.innerHTML = "Saved!";
+      setTimeout(function () {document.getElementById("savedisplay").style.display = "none";}, 5000);
+    }
     xhr.open("GET","objects/database-scripts/savePlayer.php?" +
     		 "player_id=" + Game.getPlayerId() + 
     		 "&coords=" + JSON.stringify(Game.getPlayer().getCoords()) + 
@@ -996,6 +1009,7 @@ class Game {
     		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
     		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
     xhr.send();
+
   }
 
   static saveScore() {
