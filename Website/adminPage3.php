@@ -68,6 +68,24 @@
             font-size: 1em;
             width: auto;
         } 
+        button:hover {
+            cursor: pointer;
+        }
+        .tooltiptext {
+            position: absolute;
+            z-index: 2;
+            visibility: hidden;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+            left: 50%;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
     </style>
 </head>
     <body>
@@ -76,15 +94,16 @@
             NPC Managment Page
         </p>
                 
-        <div class="text textTitle">Name :</div> <input type="text" name = "name" placeholder="Name" class="textBlock">
-        <div class="text textTitle">Coordinates :</div> <input type="number" class="numScroll" placeholder="X" name="x"> <input type="number" class="numScroll" placeholder="Y" name="y"> <br>
-        <div class="text textTitle">Character Type : </div> <input type="text" name = "character_type" placeholder="Character Type" class="textBlock">
-        <div class="text textTitle">Interactions :</div> <input type="text" class="textBlock" placeholder="Interactions" name= "interactions">
-        <div class="text textTitle">Direction :</div> <div class="text textTitle smaller">N :</div> <input type="radio" class="checkbox" name="direction" value='N'> <div class="text textTitle smaller">E :</div> <input type="radio" class="checkbox" name="direction" value='E'> <div class="text textTitle smaller">S :</div> <input type="radio" class="checkbox" name="direction" value='S'> <div class="text textTitle smaller">W :</div> <input type="radio" class="checkbox" name="direction" value='W'>
+        <div class="tooltip text textTitle">Name : <span class="tooltiptext">Text for the name of NPC. Try to keep Unique</span></div> <input type="text" name = "name" placeholder="Name" class="textBlock">
+        <div class="tooltip text textTitle">Coordinates : <span class="tooltiptext">Integer for X and Y Tile positions on the map</span></div> <input type="number" class="numScroll" placeholder="X" name="x"> <input type="number" class="numScroll" placeholder="Y" name="y"> <br>
+        <div class="tooltip text textTitle">Character Type : <span class="tooltiptext">Character Type Filename eg. Gareth</span></div> <input type="text" name = "character_type" placeholder="Character Type" class="textBlock">
+        <div class="tooltip text textTitle">Interactions : <span class="tooltiptext">List of interaction ids of format 1,2,3,4 where 1 is most important and 4 is least important. Default interactions should be less important</span></div> <input type="text" class="textBlock" placeholder="Interactions" name= "interactions">
+        <div class="tooltip text textTitle">Direction : <span class="tooltiptext">Direction for sprite to face</span></div> <div class="text textTitle smaller">N :</div> <input type="radio" class="checkbox" name="direction" value='N'> <div class="text textTitle smaller">E :</div> <input type="radio" class="checkbox" name="direction" value='E'> <div class="text textTitle smaller">S :</div> <input type="radio" class="checkbox" name="direction" value='S'> <div class="text textTitle smaller">W :</div> <input type="radio" class="checkbox" name="direction" value='W'>
 
         <button type="submit" class = "submit">Submit</button>
 
         </form>
-        <p id="inner_box_text">Edit Interactions page<br><a id="link" href="adminPage.php">Go</a></p>
+        <button onclick='location.href="adminPage2.php"' class="text textTitle">EDIT Quests page</button>
+        <button onclick='location.href="adminPage.php"' class="text textTitle">EDIT Interactions page</button>
     </body>
 </html>

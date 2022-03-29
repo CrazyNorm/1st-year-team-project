@@ -210,7 +210,6 @@ class Player { //TEST THIS
 			this.#timeOfDay = 0;
 		}
 		let tint = document.getElementById("tint");
-		console.log(tint)
 		switch (this.#timeOfDay) {
 			case 0:
 				tint.style.backgroundColor = "orange";

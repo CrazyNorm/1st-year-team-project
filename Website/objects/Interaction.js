@@ -155,9 +155,5 @@ class Interaction {
     }
     Game.updateStatDisplay();
     player.incrementTime();
-    console.log(player.getTimeOfDay())
-
-    
-
   }
 }
