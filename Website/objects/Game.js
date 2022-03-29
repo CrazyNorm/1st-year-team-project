@@ -18,8 +18,12 @@ class Game {
   static #currentNPC;
   static #deltaTime;
   static #fps;
+  static #tutorialPages;
+  static #tutorialIndex;
+  static #tutorialIndicators;
   static #isMobile;
   static #isPaused;
+  static #isTutorial;
   static #isQuestLogOpen;
   static #isDialog;
   static #isStatWindow;
@@ -87,7 +91,7 @@ class Game {
 
     // sets up loading screen
     let loadingDiv = document.createElement("div");
-    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:1; display:flex; justify-content:center;');
+    loadingDiv.setAttribute('style', 'position:absolute; height:100%; width:100%; background:white; z-index:2; display:flex; justify-content:center;');
     gameDiv.appendChild(loadingDiv);
 
     let logo = document.createElement("img");
@@ -106,6 +110,115 @@ class Game {
     emptyBar.appendChild(fillBar);
 
 
+    // tutorial screen
+    this.#tutorialIndex = 0;
+    this.#tutorialPages = [];
+    let tutorialDiv = document.createElement('div');
+    tutorialDiv.setAttribute('id','tutorial');
+    tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:2; display:none;');
+    gameDiv.appendChild(tutorialDiv);
+    // forward/backward + start game buttons
+    let backwardButton = document.createElement('button');
+    backwardButton.innerHTML = "Prev.";
+    backwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    let backwardFunc = () => {
+      if (this.#tutorialIndex == this.#tutorialPages.length - 1) {
+        startGameButton.style.display = 'none';
+        forwardButton.style.display = 'block';
+      } 
+      this.#tutorialPages[this.#tutorialIndex].style.display = 'none';
+      this.#tutorialIndicators[this.#tutorialIndex].style.background = '#660099';
+      this.#tutorialIndex --;
+      if (this.#tutorialIndex == 0) {
+        backwardButton.style.display = 'none';
+      }
+      this.#tutorialPages[this.#tutorialIndex].style.display = 'flex';
+      this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
+    }
+    backwardButton.onclick = backwardFunc;
+    backwardButton.onmouseover = () => {backwardButton.style.backgroundColor = "#bb33ff"}
+    backwardButton.onmouseout = () => {backwardButton.style.backgroundColor = "#660099"}
+    tutorialDiv.appendChild(backwardButton);
+    let forwardButton = document.createElement('button');
+    forwardButton.innerHTML = "Next";
+    forwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow;');
+    let forwardFunc = () => {
+      if (this.#tutorialIndex == 0) {
+        backwardButton.style.display = 'block';
+      } 
+      this.#tutorialPages[this.#tutorialIndex].style.display = 'none';
+      this.#tutorialIndicators[this.#tutorialIndex].style.background = '#660099';
+      this.#tutorialIndex ++;
+      if (this.#tutorialIndex == this.#tutorialPages.length - 1) {
+        forwardButton.style.display = 'none';
+        startGameButton.style.display = 'block';
+      }
+      this.#tutorialPages[this.#tutorialIndex].style.display = 'flex';
+      this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
+    }
+    forwardButton.onclick = forwardFunc;
+    forwardButton.onmouseover = () => {forwardButton.style.backgroundColor = "#bb33ff"}
+    forwardButton.onmouseout = () => {forwardButton.style.backgroundColor = "#660099"}
+    tutorialDiv.appendChild(forwardButton);
+    let startGameButton = document.createElement('button');
+    startGameButton.innerHTML = "Start";
+    startGameButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    let startFunc = () => {
+      this.#isPaused = false;
+      tutorialDiv.style.display = 'none';
+      // only activate th input listeners (except resize) when the tutorial is closed
+      this.startInputListeners();
+      // only activate the pause button when the tutorial is closed
+      pauseButton.onmousedown = () => this.openPauseMenu();
+    }
+    startGameButton.onclick = startFunc;
+    startGameButton.onmouseover = () => {startGameButton.style.backgroundColor = "#bb33ff"}
+    startGameButton.onmouseout = () => {startGameButton.style.backgroundColor = "#660099"}
+    tutorialDiv.appendChild(startGameButton);
+    // tutorial pages
+    let newPage = () => {
+      let tempPage = document.createElement('div');
+      tempPage.setAttribute('style', 'position:absolute; height:100%; width:100%; top:0; left:0; display:none; justify-content:center; text-align:center; flex-direction:column;');
+      tutorialDiv.appendChild(tempPage);
+      this.#tutorialPages.push(tempPage);
+    }
+    newPage();
+    this.#tutorialPages[0].style.display = 'flex';
+    let exampleText1 = document.createElement('p');
+    exampleText1.innerHTML = "This is page 1";
+    exampleText1.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
+    this.#tutorialPages[0].appendChild(exampleText1);
+    newPage();
+    let exampleText2 = document.createElement('p');
+    exampleText2.innerHTML = "This is page 2";
+    exampleText2.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
+    this.#tutorialPages[1].appendChild(exampleText2);
+    newPage();
+    let exampleText3 = document.createElement('p');
+    exampleText3.innerHTML = "This is page 3";
+    exampleText3.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
+    this.#tutorialPages[2].appendChild(exampleText3);
+    newPage();
+    let exampleText4 = document.createElement('p');
+    exampleText4.innerHTML = "This is page 4";
+    exampleText4.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
+    this.#tutorialPages[3].appendChild(exampleText4);
+    // page indicators
+    let indicatorsDiv = document.createElement('div');
+    indicatorsDiv.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:50%; transform:translate(-50%,50%); width:50%; height:10%; display:flex; justify-content:space-evenly; align-items:center;');
+    tutorialDiv.appendChild(indicatorsDiv);
+    this.#tutorialIndicators = [];
+    for (let page of this.#tutorialPages) {
+      let tempIndicator = document.createElement('span');
+      tempIndicator.setAttribute('style','height:5vmin; width:5vmin; background:#660099;');
+      indicatorsDiv.appendChild(tempIndicator);
+      this.#tutorialIndicators.push(tempIndicator);
+    }
+    this.#tutorialIndicators[0].style.backgroundColor = '#bb33ff';
+
+
+
+
     // create canvas
     gameDiv.style.margin = "0";
     gameDiv.style.overflow = 'hidden';
@@ -120,7 +233,7 @@ class Game {
 
     // fullscreen button
     let fullscrButton = document.createElement("button");
-    fullscrButton.setAttribute('style', "z-index: 2; position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
+    fullscrButton.setAttribute('style', "z-index: 1; position:absolute; width:10vmin; height:10vmin; top:0; left:0; background:#660099;");
     function fullscreen(id) {
       let div = document.getElementById(id);
       if (document.fullscreen) {
@@ -208,7 +321,7 @@ class Game {
 
     let sideDiv = document.createElement("div");
     sideDiv.setAttribute("id", "sideContainer");
-    sideDiv.setAttribute("style", "display: none; z-index: 0; position: relative; top: 15%")
+    sideDiv.setAttribute("style", "z-index: 0; position: relative; top: 15%")
     gameDiv.appendChild(sideDiv);
 
 
@@ -254,7 +367,6 @@ class Game {
 
     let pauseButton = document.createElement("div");
     pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
-    pauseButton.onmousedown = () => this.openPauseMenu();
     pauseButton.onmouseover = () => {pauseButton.style.backgroundColor = "#bb33ff"}
     pauseButton.onmouseout = () => {pauseButton.style.backgroundColor = "#660099"}
     pauseButton.setAttribute('id',"pauseButton");
@@ -273,6 +385,7 @@ class Game {
     this.#deltaTime = 0;
     this.#fps = 30;
     this.#isPaused = false;
+    this.#isTutorial = false;
     this.#isQuestLogOpen = false;
     this.#isDialog = false;
     this.#isPauseMenu = false;
@@ -337,6 +450,12 @@ class Game {
         if (quest2.getUpdatedByQuests().includes(this.#allQuests[qPos].getId())) {
           this.#allQuests[qPos].getQuestsToUpdate().push(quest2.getId());
         }
+      }
+      // if the quest has no requirements and is not active, activate it
+      if (this.#allQuests[qPos].getInteractionRequirements().length == 0
+          && this.#allQuests[qPos].getQuestRequirements().length == 0
+          && !this.#player.getCurrentQuests().includes(this.#allQuests[qPos].getId())) {
+        this.#player.addCurrentQuest(this.#allQuests[qPos].getId());
       }
     }
 
@@ -428,14 +547,14 @@ class Game {
     // set id
     outerCircle.setAttribute('id', 'controls');
     // set styling
-    outerCircle.setAttribute('style',"width: 25vmax; height:25vmax; position: fixed; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
+    outerCircle.setAttribute('style',"width: 25vmax; height:25vmax; position: absolute; bottom: 1em; right: 1em; border: 5px solid; border-radius: 50%; user-select: none; ")
     gameDiv.appendChild(outerCircle);
 
     let innerCircle = document.createElement("span");
     // set id
     innerCircle.setAttribute('id', 'joystick');
     // set styling
-    innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: gray; border: 3px solid; border-radius: 50%; display: inline-block;")
+    innerCircle.setAttribute('style', "position: absolute; height: 25%; width:  25%; padding: 0; margin: auto; left: 0; top: 0; right: 0; bottom: 0; background-color: #660099; border: 3px solid; border-radius: 50%; display: inline-block;")
     outerCircle.appendChild(innerCircle);
 
     // interaction button
@@ -444,9 +563,8 @@ class Game {
     interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
     gameDiv.appendChild(interactButton);
 
-    // sets up input listeners on the relevant elements
-    this.startInputListeners();
-
+    // applies the resize handler first
+    window.addEventListener('resize', function() {Game.resizeHandler()});
 
     // wait for everything to load
     while (loaded < toLoad) {
@@ -459,12 +577,8 @@ class Game {
     this.#map = new Map(tempBackground, tempForeground, Math.round(tempBackground.naturalWidth/16), Math.round(tempBackground.naturalHeight/16))
     // resize the canvas
     this.resizeHandler();
-
     this.toggleMobile();
 
-    // removes the loading screen
-    loadingDiv.style.display = "none";
-    sideDiv.style.display = "block";
     this.draw();
 
     // starts the background music
@@ -473,6 +587,17 @@ class Game {
 
     // starts the main loop
     this.mainloop();
+
+    // removes the loading screen
+    loadingDiv.style.display = "none";
+    // opens tutorial screen
+    if (this.#player.getCompletedQuests().length == 0) {
+      this.#isPaused = true;
+      tutorialDiv.style.display = 'block';
+    }
+    else {
+      this.startInputListeners();
+    }
   }
 
 
@@ -1025,7 +1150,11 @@ class Game {
 
 
   // listeners
-  static startInputListeners() {
+  static async startInputListeners() {
+    let wait = new Promise(function(resolve, reject) {
+      setTimeout(resolve, 100);
+    });
+    await wait;
     // applies all the necessary input listeners to the relevant elements
     let div = document.getElementById(this.#divId);
     document.addEventListener('keydown', function() {Game.keyDownHandler(event)});
@@ -1034,7 +1163,6 @@ class Game {
     div.addEventListener('touchmove', function() {Game.touchMoveHandler(event)});
     div.addEventListener('touchend', function() {Game.touchEndHandler(event)});
     div.addEventListener('touchcancel', function() {Game.touchEndHandler(event)});
-    window.addEventListener('resize', function() {Game.resizeHandler()});
     window.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
     //Game.savePlayer()});
   });
