@@ -7,6 +7,7 @@ class Game {
   static #allQuests;
   static #allInteractions;
   static #map;
+  static #backgroundMusic;
   static #carList;
   static #heldKeys;
   static #importantKeys;
@@ -282,7 +283,7 @@ class Game {
     let characterTypes = ['Female_Gareth','Gareth','Stewart','Blank'];
 
     // keeps count of when everything has finished loading
-    let maxLoad = 32; // doesn't need to be too accurate, just used for loading bar
+    let maxLoad = 34; // doesn't need to be too accurate, just used for loading bar
     let toLoad = 0;
     let loaded = 0;
     function load() {
@@ -392,7 +393,29 @@ class Game {
     let tempForeground = new Image();
     toLoad ++;
     tempForeground.onload = load;
-    tempForeground.src = "resources/imgs/maps/foreground.png";  
+    tempForeground.src = "resources/imgs/maps/foreground.png"; 
+
+
+    // loading audio
+    // interaction audio clips
+    for (let interaction of this.#allInteractions) {
+      if (interaction.getAudio() != "") {
+        let tempAudio = new Audio();
+        toLoad ++;
+        tempAudio.oncanplaythrough = load;
+        tempAudio.src = interaction.getAudio();
+        tempAudio.controls = false;
+        interaction.setAudio(tempAudio);
+      }
+    }
+
+    // background music
+    this.#backgroundMusic = new Audio();
+    toLoad ++;
+    this.#backgroundMusic.oncanplaythrough = load;
+    this.#backgroundMusic.src = "resources/audio/background/background.mp3"; 
+    this.#backgroundMusic.controls = false;
+    this.#backgroundMusic.loop = true;
 
 
     // controls
@@ -438,6 +461,10 @@ class Game {
     loadingDiv.style.display = "none";
     sideDiv.style.display = "block";
     this.draw();
+
+    // starts the background music
+    // NOTE - THIS is the ONLY reason we need a play button on the game page
+    this.#backgroundMusic.play();
 
     // starts the main loop
     this.mainloop();
@@ -1203,7 +1230,7 @@ class Game {
 
 
   // dialog & menus
-  static displayDialog () {
+  static async displayDialog () {
     let dialogBox = document.getElementById("dialogBox");
 
 
@@ -1224,6 +1251,20 @@ class Game {
     dialogBox.scrollTop = 0;
     this.#isDialog = true;
     this.#isPaused = true;
+
+    // plays interaction audio if it exists
+    let interactionAudio = this.#currentInteraction.getAudio();
+    if (interactionAudio != "") {
+      this.#backgroundMusic.volume = 0.3;
+      interactionAudio.play();
+      while (!interactionAudio.ended) {
+        let waitPromise = new Promise(function(resolve, reject) {
+          setTimeout(resolve, 100);
+        });
+        await waitPromise;
+      }
+      this.#backgroundMusic.volume = 1;
+    }
   }
   static closeDialog () {
     document.getElementById('dialogBox').style.display = 'none'; 
@@ -1399,6 +1440,8 @@ class Game {
 
   static async startMinigame(game, victory, loss) {
     this.#isPaused = true;
+    // pauses the background music
+    this.#backgroundMusic.pause();
     // creates minigame div
     let minigameDiv = document.createElement("div");
     minigameDiv.setAttribute('id', 'minigame');
@@ -1435,6 +1478,8 @@ class Game {
     div.parentNode.removeChild(div);
     this.#currentMinigame.removeInputListeners();
 
+    // resumes the background music
+    this.#backgroundMusic.play();
     // discards the minigame object (garbage collected)
     this.#currentMinigame = undefined;
     // game is resumed when the win/loss dialog is closed
