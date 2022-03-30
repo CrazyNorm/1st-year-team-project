@@ -8,6 +8,8 @@ class NPC {
   #currentElement;
   #interactions;
   #defaultDirection;
+  #room;
+  
 
 
   constructor(id, name, coords, characterType, interactions, defaultDirection) {
@@ -18,6 +20,7 @@ class NPC {
     this.#defaultDirection = defaultDirection
     this.#currentElement = defaultDirection + "_Standing";
     this.#interactions = interactions;
+    
   }
 
 
@@ -80,6 +83,13 @@ class NPC {
   }
   setDefaultDirection(defaultDirection) {
     this.#defaultDirection = defaultDirection
+  }
+
+  getRoom() {
+    return this.#room;
+  }
+  setRoom(room) {
+    this.#room = room;
   }
 
 

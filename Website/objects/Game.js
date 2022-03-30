@@ -338,6 +338,13 @@ class Game {
           this.#allQuests[qPos].getQuestsToUpdate().push(quest2.getId());
         }
       }
+      for (let nPos = 0; nPos < this.#npcList.length; nPos++) {
+        for (let interaction of this.#allQuests[qPos].getUpdatedByInteractions()) {
+          if (this.#npcList[nPos].getInteractions().includes(interaction)) {
+            this.#allQuests[qPos].addTargetNPC(nPos);
+          }
+        }
+      }
     }
 
     for (let iPos = 0; iPos < this.#allInteractions.length; iPos++) {
@@ -350,6 +357,8 @@ class Game {
         }
       }
     }
+
+    for (let quest of this.#allQuests) {}
 
     this.setSelectedQuest(this.#player.getSelectedQuest());
 
@@ -457,6 +466,28 @@ class Game {
     }
 
     this.#map = new Map(tempBackground, tempForeground, Math.round(tempBackground.naturalWidth/16), Math.round(tempBackground.naturalHeight/16))
+
+    //allocate rooms to npcs and warps
+    let roomBounds = this.#map.getRoomBounds();
+    let warps = this.#map.getWarpPoints();
+    for (let pos=0; pos<roomBounds.length; pos++) {
+      for (let npc of this.#npcList) {
+        if (this.#collisionDetector(npc.getCoords(),roomBounds[pos])) {
+          npc.setRoom(pos);
+        }
+      }
+      for (let warpIndex=0; warpIndex < warps.length; warpIndex++) {
+        if (this.#collisionDetector({"x":warps[warpIndex].sX,"y":warps[warpIndex].sY},roomBounds[pos])) {
+          warps[warpIndex]["sRoom"] = pos;
+        }
+        if (this.#collisionDetector({"x":warps[warpIndex].dX,"y":warps[warpIndex].dY},roomBounds[pos])) {
+          warps[warpIndex]["dRoom"] = pos;
+        }
+      }
+    }
+    this.#map.setWarpPoints(warps);
+
+
     // resize the canvas
     this.resizeHandler();
 
@@ -751,6 +782,11 @@ class Game {
                           			  mapY - tileSize / 2,
                           			  this.#map.getMapWidth() * tileSize,
                           			  this.#map.getMapHeight() * tileSize);
+
+    if (this.#player.getSelectedQuest() != -1) {
+      this.drawArrow();
+    }
+    
   }
 
 
@@ -808,9 +844,12 @@ class Game {
 
   // collision checking
   static #playerCollision(bounds) {
+    return this.#collisionDetector(this.#player.getCoords(),bounds)
+  }
+  static #collisionDetector(coords,bounds) {
     // utility function - returns true if the player overlaps the bounds in the parameter
-    let xBool = bounds.tlX <= this.#player.getCoords().x && this.#player.getCoords().x <= bounds.brX;
-    let yBool = bounds.tlY <= this.#player.getCoords().y && this.#player.getCoords().y <= bounds.brY;
+    let xBool = bounds.tlX <= coords.x && coords.x <= bounds.brX;
+    let yBool = bounds.tlY <= coords.y && coords.y <= bounds.brY;
 
     return xBool && yBool;
   }
@@ -1529,6 +1568,121 @@ class Game {
     this.updateSelectedQuestDisplay();
     this.resizeHandler();
   }
+
+  static drawArrow(){
+    this.#canvasContext.save();
+    let arrowWidth = 10; // 
+
+    let selectedQuest = this.#allQuests[this.#player.getSelectedQuest()];
+
+    let headlen = 10;
+    
+    for (let npcid of selectedQuest.getTargetNPCs()) {
+      let playerRoom;
+      let roomIndex = 0;
+      let roomBounds = this.#map.getRoomBounds();
+      let targetRoom = this.#npcList[npcid].getRoom();
+      while (playerRoom == undefined) {
+        if (roomIndex == roomBounds.length) {
+          playerRoom = targetRoom;
+        } else if (this.#playerCollision(roomBounds[roomIndex])) {
+          playerRoom = roomIndex;
+        }
+        roomIndex++;
+      } 
+
+      let coords;
+      let warps = this.#map.getWarpPoints();
+      if (playerRoom == targetRoom) {
+        coords = this.#npcList[npcid].getCoords();
+      } else {
+        let targets = [];
+        for (let warpIndex = 0; warpIndex<warps.length; warpIndex++) {
+          if (warps[warpIndex].dRoom == targetRoom) {
+            targets.push(warpIndex);
+          }
+        }
+
+        //finds the warp with source of player room and returns it if is in the array
+        function findPlayerRoom(targets) {
+          for (let target of targets) {
+            if (warps[target].sRoom == playerRoom) {
+              return target;
+            }
+          }
+          return -1;
+        }
+        let target;
+        while (findPlayerRoom(targets) < 0) {
+          let tempTargets = [];
+          for (let target of targets) {
+            targetRoom = warps[target].sRoom;
+            for (let warpIndex=0; warpIndex<warps.length; warpIndex++) {
+              if (warps[warpIndex].dRoom == targetRoom) {
+                tempTargets.push(warpIndex);
+              }
+            }
+          }
+          targets = tempTargets;
+        }
+        target = findPlayerRoom(targets);
+        coords = {"x":warps[target].sX,"y":warps[target].sY};
+      } 
+      
+      let canvasWidth = this.#canvas.width;
+      let canvasHeight = this.#canvas.height;
+
+      //console.log("Coords:",coords);
+      let tempX = (coords.x) * this.#map.getPxPerTile() - this.#player.getCoordsPx().x;
+      let tempY = (coords.y) * this.#map.getPxPerTile() - this.#player.getCoordsPx().y;
+
+      let magnitude = Math.sqrt(tempX**2 + tempY**2);
+      let scaledX = tempX/magnitude;
+      let scaledY = tempY/magnitude;
+
+      let tox;
+      let toy;
+
+      tox = (tempX > 0) ? Math.min(canvasWidth/2+scaledX*(canvasWidth/2),canvasWidth,canvasWidth/2+tempX) : Math.max(canvasWidth/2+scaledX*(canvasWidth/2),0,canvasWidth/2+tempX)
+      toy = (tempY > 0) ? Math.min(canvasHeight/2+scaledY*(canvasHeight/2),canvasHeight,canvasHeight/2+tempY) : Math.max(canvasHeight/2+scaledY*(canvasHeight/2),0,canvasHeight/2+tempY)
+
+      let fromx = tox - scaledX*Math.min(canvasHeight,canvasWidth)*0.1;
+      let fromy = toy - scaledY*Math.min(canvasHeight,canvasWidth)*0.1;
+
+      let angle = Math.atan2(toy-fromy,tox-fromx);
+      this.#canvasContext.strokeStyle = "#660099";
+   
+      //starting path of the arrow from the start square to the end square
+      //and drawing the stroke
+      // console.log(fromx,fromy, tox, toy)
+      this.#canvasContext.beginPath();
+      this.#canvasContext.moveTo(fromx, fromy);
+      this.#canvasContext.lineTo(tox, toy);
+      this.#canvasContext.lineWidth = arrowWidth;
+      this.#canvasContext.stroke();
+   
+      //starting a new path from the head of the arrow to one of the sides of
+      //the point
+      this.#canvasContext.beginPath();
+      this.#canvasContext.moveTo(tox, toy);
+      this.#canvasContext.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),
+                 toy-headlen*Math.sin(angle-Math.PI/7));
+   
+      //path from the side point of the arrow, to the other side point
+      this.#canvasContext.lineTo(tox-headlen*Math.cos(angle+Math.PI/7),
+                 toy-headlen*Math.sin(angle+Math.PI/7));
+   
+      //path from the side point back to the tip of the arrow, and then
+      //again to the opposite side point
+      this.#canvasContext.lineTo(tox, toy);
+      this.#canvasContext.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),
+                 toy-headlen*Math.sin(angle-Math.PI/7));
+   
+      //draws the paths created above
+      this.#canvasContext.stroke();
+      this.#canvasContext.restore();
+    }
+}
   
 
 }

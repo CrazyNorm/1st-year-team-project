@@ -12,6 +12,7 @@ class Quest {
   #questsToUpdate;
   #updatedByQuests;
   #updatedByInteractions;
+  #targetNPCs;
 
 
   constructor(id,
@@ -36,6 +37,7 @@ class Quest {
     this.#updatedByInteractions = updatedByInteractions;
     this.#questsToStart = [];
     this.#questsToUpdate = [];
+    this.#targetNPCs = [];
   }
 
 
@@ -121,6 +123,14 @@ class Quest {
     return this.#targetCount;
   }
 
+  addTargetNPC(npcid) {
+    this.#targetNPCs.push(npcid);
+  }
+  getTargetNPCs() {
+    return this.#targetNPCs;
+  }
+
+
 
   // returns true if all elements in the requirements lists are in the appropriate completed lists;
   checkRequirements() {
@@ -144,7 +154,6 @@ class Quest {
       return false;
     }
   }
-
 
   update() {
   	let player = Game.getPlayer();
