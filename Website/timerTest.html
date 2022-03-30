@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Timer test</title>
+	<style type="text/css">
+		#timer {
+			position: absolute;
+			width: 50vmin;
+			height: 50vmin;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			border: 2px solid black;
+			border-radius: 50%;
+		}
+	</style>
+</head>
+<body>
+
+	<div id='timer'></div>
+
+	<script type="text/javascript">
+		let backgroundColour = 'white';
+		let timerColour = 'black';
+		let timer = document.getElementById('timer');
+
+		function updateTimer(theta) {
+			let circleColour;
+			let gradientColour;
+			let degModifier;
+			let gradientDeg;
+			if (theta < 180) {
+				circleColour = backgroundColour;
+				gradientColour = timerColour;
+				degModifier = "-";
+				gradientDeg = theta + 90;
+			}
+			else {
+				circleColour = timerColour;
+				gradientColour = backgroundColour;
+				degModifier = "";
+				gradientDeg = theta - 90;
+			}
+
+			timer.style.backgroundColor = circleColour;
+			timer.style.backgroundImage = 'linear-gradient(' + degModifier + '90deg, transparent 50%, ' + gradientColour + ' 50%), linear-gradient(' + gradientDeg + 'deg, transparent 50%, ' + gradientColour + ' 50%)';
+		}
+
+		let theta = 0;
+		let secs = 10; // duration of timer
+		let delay = secs / 360 * 1000;
+		let timerInterval = setInterval(function() {
+			updateTimer(theta);
+			theta++;
+			if (theta > 360) {
+				clearInterval(timerInterval);
+			}
+		}, delay);
+
+	</script>
+
+</body>
+</html>
