@@ -169,7 +169,6 @@ class Game {
       // only activate th input listeners (except resize) when the tutorial is closed
       this.startInputListeners();
       // only activate the pause button when the tutorial is closed
-      pauseButton.onmousedown = () => this.openPauseMenu();
     }
     startGameButton.onclick = startFunc;
     startGameButton.onmouseover = () => {startGameButton.style.backgroundColor = "#bb33ff"}
@@ -1202,6 +1201,9 @@ class Game {
     div.addEventListener('touchmove', function() {Game.touchMoveHandler(event)});
     div.addEventListener('touchend', function() {Game.touchEndHandler(event)});
     div.addEventListener('touchcancel', function() {Game.touchEndHandler(event)});
+    div.addEventListener('mousedown', function() {Game.mouseDownHandler(event)});
+    div.addEventListener('mouseup', function() {Game.mouseUpHandler(event)});
+    div.addEventListener('mousemove', function() {Game.mouseMoveHandler(event)});
     window.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
     //Game.savePlayer()});
   });
@@ -1290,6 +1292,88 @@ class Game {
     }
 
   }
+
+  static mouseDownHandler(event) {
+    let menuClosed = false
+    if (!(this.#isDialog || this.#isQuestLogOpen ||this.#isPauseMenu)) {
+      event.preventDefault();
+    }
+    if (event.button == 0) {
+      this.#touchStarts.push({"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"});
+      let element = document.elementFromPoint(event.clientX, event.clientY);
+      if (this.#isDialog && this.#currentMinigame == undefined) {
+        // Closes the dialog if tapped outside of the dialog box
+        if (element.id != "dialogBox") {
+          this.closeDialog();
+          menuClosed = true;
+        }
+      } else if (this.#isPauseMenu) {
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton") {
+          this.closePauseMenu();
+          menuClosed = true;
+
+        }
+      } else if (this.#isQuestLogOpen) {
+        if (element.id != "questLog" && element.id != "questLogButtons" && element.id != "questLogExpanded" && element.id != "questSelect") {
+          this.closeQuestLog();
+          menuClosed = true;
+        }
+      } else if (this.#isStatWindow) {
+        if (element.id != "statWindow")
+          this.closeStatWindow();
+          menuClosed = true;
+      }
+      if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
+        this.#joystickTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
+      } 
+      if (!menuClosed) {
+        if (element.id == "interactButton") {
+          this.#interactTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
+        } else if (element.id == "pauseButton") {
+          this.openPauseMenu();
+        } else if (element.id == "selectedquest") {
+          this.openQuestLog();
+        }  else if (element.id == "statdisplay") {
+          this.openStatWindow();
+        }
+
+      }
+    }
+
+  }
+
+  static mouseMoveHandler(event) {
+    if (!(this.#isDialog || this.#isPauseMenu || this.#isQuestLogOpen)) {
+      event.preventDefault();
+    } else if (this.#isQuestLogOpen && this.#isMobile) {
+      event.preventDefault();
+    }
+    // if the joystick touch has moved, update it
+    if (this.#joystickTouch != undefined) {
+      if ("mouseDown" == this.#joystickTouch.identifier) {
+        this.#joystickTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
+      }
+    }
+  }
+
+  static mouseUpHandler(event) {
+    if (!(this.#isDialog || this.#isPauseMenu || this.#isQuestLogOpen)) {
+      event.preventDefault();
+    }
+    // if the joystick touch has ended, remove it
+    if (this.#joystickTouch != undefined) {
+      if ("mouseDown" == this.#joystickTouch.identifier) {
+        this.#joystickTouch = undefined;
+      }
+    }
+    if (this.#interactTouch != undefined) {
+      if ("mouseDown" == this.#interactTouch.identifier) {
+        this.#interactTouch = undefined;
+      } 
+    }
+  }
+
+
 
   static touchStartHandler(event) {
     let menuClosed = false
@@ -1464,6 +1548,8 @@ class Game {
   }
 
   static openPauseMenu () {
+    document.getElementById("statdisplay").style.display="none";
+    document.getElementById("selectedquest").style.display="none";
     let pauseMenu = document.getElementById("pauseMenu");
     if (this.#canvas.width < this.#canvas.height) {
       pauseMenu.style.width = "80%";
@@ -1479,6 +1565,8 @@ class Game {
     }
   }
   static closePauseMenu() {
+    document.getElementById("statdisplay").style.display="block";
+    document.getElementById("selectedquest").style.display="block";
     let pauseMenu = document.getElementById("pauseMenu");
     pauseMenu.style.display = "none";
     Game.#isPaused = false; //called from button cannot access this
@@ -1490,6 +1578,8 @@ class Game {
   }
 
   static openQuestLog() {
+    document.getElementById("statdisplay").style.display="none";
+    document.getElementById("selectedquest").style.display="none";
     let questLog = document.getElementById("questLog");
     questLog.innerHTML = "<style>#questLogButtons {position: relative; z-index: 1; display: block; background-color: #660099; color: yellow; width : 100%; border: none; margin-top: 1.5em; font-size: 5vmin; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em;} #questLogButtons:hover {background-color: #bb33ff} #questLogExpanded {position: relative; display: none; background-color: #3a0057; color: yellow; width : 100%; border: none; font-size: 1em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.25em;} #questSelect {width: 40%; left: 80%; background-color: #660099; color: yellow; font-family: 'Press Start 2P', cursive; border: solid 0.1em;} #questSelect:hover {background-color: #bb33ff}</style>";
     let questLogTitle = document.createElement("h1")
@@ -1552,6 +1642,8 @@ class Game {
   }
 
   static closeQuestLog() {
+    document.getElementById("statdisplay").style.display="block";
+    document.getElementById("selectedquest").style.display="block";
     let questLog = document.getElementById("questLog");
     questLog.style.display = "none";
     this.#isQuestLogOpen = false;
@@ -1594,6 +1686,8 @@ class Game {
   }
 
   static openStatWindow() {
+    document.getElementById("statdisplay").style.display="none";
+    document.getElementById("selectedquest").style.display="none";
     this.saveScore();
     this.#isStatWindow = true;
     if (this.#currentMinigame != undefined) {
@@ -1611,6 +1705,8 @@ class Game {
   }
 
   static closeStatWindow() {
+    document.getElementById("statdisplay").style.display="block";
+    document.getElementById("selectedquest").style.display="block";
     this.#isStatWindow = false;
     statWindow.style.display = "none";
     if (this.#currentMinigame != undefined) {
@@ -1771,8 +1867,8 @@ class Game {
       let tox;
       let toy;
 
-      tox = (tempX > 0) ? Math.min(canvasWidth/2+scaledX*(canvasWidth/2),canvasWidth,canvasWidth/2+tempX) : Math.max(canvasWidth/2+scaledX*(canvasWidth/2),0,canvasWidth/2+tempX)
-      toy = (tempY > 0) ? Math.min(canvasHeight/2+scaledY*(canvasHeight/2),canvasHeight,canvasHeight/2+tempY) : Math.max(canvasHeight/2+scaledY*(canvasHeight/2),0,canvasHeight/2+tempY)
+      tox = (tempX > 0) ? Math.min(canvasWidth/2+scaledX*(canvasWidth/2),canvasWidth,canvasWidth/2+tempX) : Math.max(canvasWidth/2+scaledX*(canvasWidth/2),0,canvasWidth/2+tempX);
+      toy = (tempY > 0) ? Math.min(canvasHeight/2+scaledY*(canvasHeight/2),canvasHeight,canvasHeight/2+tempY) : Math.max(canvasHeight/2+scaledY*(canvasHeight/2),0,canvasHeight/2+tempY);
 
       let fromx = tox - scaledX*Math.min(canvasHeight,canvasWidth)*0.1;
       let fromy = toy - scaledY*Math.min(canvasHeight,canvasWidth)*0.1;
@@ -1810,7 +1906,7 @@ class Game {
       this.#canvasContext.stroke();
       this.#canvasContext.restore();
     }
-}
+  }
   
 
 }
