@@ -504,7 +504,7 @@ class FroggerGame {
 		// constructs the victory dialog
 		let victoryDialog = "Well done! You made it across safely.";
 		for (let stat in this.#victoryStats) {
-			victoryDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			victoryDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
 			if (this.#victoryStats[stat] >= 0) {
 				victoryDialog += ' +';
 			}
@@ -543,7 +543,7 @@ class FroggerGame {
 		// constructs the loss dialog
 		let lossDialog = "Oh no! You were hit by a car.";
 		for (let stat in this.#lossStats) {
-			lossDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			lossDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
 			if (this.#lossStats[stat] >= 0) {
 				lossDialog += ' +';
 			}

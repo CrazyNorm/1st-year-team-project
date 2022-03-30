@@ -311,7 +311,7 @@ class <MINIGAME>Game {
 		this.#backgroundMusic.pause();
 		let victoryDialog = "<VICTORY MESSAGE GOES HERE>";
 		for (let stat in this.#victoryStats) {
-			victoryDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			victoryDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
 			if (this.#victoryStats[stat] >= 0) {
 				victoryDialog += ' +';
 			}
@@ -343,7 +343,7 @@ class <MINIGAME>Game {
 		this.#backgroundMusic.pause();
 		let lossDialog = "<LOSS MESSAGE GOES HERE>";
 		for (let stat in this.#lossStats) {
-			lossDialog += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			lossDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
 			if (this.#lossStats[stat] >= 0) {
 				lossDialog += ' +';
 			}

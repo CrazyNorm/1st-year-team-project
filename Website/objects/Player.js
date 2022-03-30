@@ -200,16 +200,22 @@ class Player { //TEST THIS
 		this.#completedQuests.push(id)
 		let questComplete = document.getElementById("questcomplete");
 		let quest = Game.getQuest(id);
-		questComplete.innerHTML = "QUEST COMPLETE!!!<br>" + quest.getName();
-		for (let stat in quest.getRewardStatChanges) {
-			questComplete.innerHTML += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
-			if (this.#victoryStats[stat] >= 0) {
+		questComplete.innerHTML = "QUEST COMPLETE!!!<br>" + quest.getTitle();
+		for (let stat in quest.getRewardStatChanges()) {
+			questComplete.innerHTML += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (quest.getRewardStatChanges()[stat] >= 0) {
 				questComplete.innerHTML += ' +';
 			}
-			questComplete.innerHTML += this.#victoryStats[stat] + ".";
+			questComplete.innerHTML += quest.getRewardStatChanges()[stat] + ".";
 		}
 		questComplete.style.display = "block";
-
+		questComplete.style.opacity = 1;
+		setTimeout(function () {
+			setInterval(function() {
+			let questComplete = document.getElementById("questcomplete");
+			questComplete.style.opacity -= 0.01},25);
+		},2000);
+		
 	}
 
 	finishInteraction(id) {
