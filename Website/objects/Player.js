@@ -198,6 +198,18 @@ class Player { //TEST THIS
 		this.#currentQuests.splice(this.#currentQuests.indexOf(id),1);
 		delete this.#questCounts[id];
 		this.#completedQuests.push(id)
+		let questComplete = document.getElementById("questcomplete");
+		let quest = Game.getQuest(id);
+		questComplete.innerHTML = "QUEST COMPLETE!!!<br>" + quest.getName();
+		for (let stat in quest.getRewardStatChanges) {
+			questComplete.innerHTML += "\t" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (this.#victoryStats[stat] >= 0) {
+				questComplete.innerHTML += ' +';
+			}
+			questComplete.innerHTML += this.#victoryStats[stat] + ".";
+		}
+		questComplete.style.display = "block";
+
 	}
 
 	finishInteraction(id) {

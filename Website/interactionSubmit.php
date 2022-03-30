@@ -34,7 +34,27 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $actions = '{"actions": [' . $actions .']}';
     }
 
-    $statChanges = '{"hunger": '.$hunger.',"sleep": '.$sleep.',"money": '.$money.', "grades": '.$grades.',"socialLife": '.$socialLife.'}';
+    $rewardStatChanges = '{';
+    if ($hunger != 0) {
+        $rewardStatChanges .= '"hunger": '.$hunger.',';
+    }
+    if ($sleep != 0) {
+        $rewardStatChanges .= '"sleep": '.$sleep.',';
+    }
+    if ($money != 0) {
+        $rewardStatChanges .= '"money": '.$money.',';
+    }
+    if ($grades != 0) {
+        $rewardStatChanges .= '"grades": '.$grades.',';
+    }
+    if ($socialLife != 0) {
+        $rewardStatChanges .= ',"socialLife": '.$socialLife.',';
+    }
+
+    if (substr($rewardStatChanges,-1) == ',') {
+        $rewardStatChanges = substr($rewardStatChanges,0,-1);
+    }
+    $rewardStatChanges .= '}';
 
     $quest_requirements = $_POST['quest_requirements'];
     if ($quest_requirements == "") {

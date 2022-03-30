@@ -85,6 +85,9 @@ class Game {
 
   // set up the game attributes, html elements, loads resources, etc.
   static async startGame() {
+    let playButton = document.getElementById("playButton");
+    playButton.parentNode.removeChild(playButton);
+
     this.#divId = 'gameDiv';
     this.#player_id = "0";
     let gameDiv = document.getElementById(this.#divId);
@@ -157,8 +160,8 @@ class Game {
       this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
     }
     forwardButton.onclick = forwardFunc;
-    forwardButton.onmouseover = () => {forwardButton.style.backgroundColor = "#bb33ff"}
-    forwardButton.onmouseout = () => {forwardButton.style.backgroundColor = "#660099"}
+    forwardButton.onmouseover = () => {forwardButton.style.cursor = "pointer"; forwardButton.style.backgroundColor = "#bb33ff"}
+    forwardButton.onmouseout = () => {forwardButton.style.cursor = "default"; forwardButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(forwardButton);
     let startGameButton = document.createElement('button');
     startGameButton.innerHTML = "Start";
@@ -171,8 +174,8 @@ class Game {
       // only activate the pause button when the tutorial is closed
     }
     startGameButton.onclick = startFunc;
-    startGameButton.onmouseover = () => {startGameButton.style.backgroundColor = "#bb33ff"}
-    startGameButton.onmouseout = () => {startGameButton.style.backgroundColor = "#660099"}
+    startGameButton.onmouseover = () => {startGameButton.style.cursor = "pointer"; startGameButton.style.backgroundColor = "#bb33ff"}
+    startGameButton.onmouseout = () => {startGameButton.style.cursor = "default"; startGameButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(startGameButton);
     // tutorial pages
     let newPage = () => {
@@ -249,8 +252,8 @@ class Game {
     }
     fullscrButton.onmousedown = () => fullscreen(this.#divId);
     fullscrButton.ontouchstart = () => fullscreen(this.#divId);
-    fullscrButton.onmouseover = () => {fullscrButton.style.backgroundColor = "#bb33ff"}
-    fullscrButton.onmouseout = () => {fullscrButton.style.backgroundColor = "#660099"}
+    fullscrButton.onmouseover = () => {fullscrButton.style.cursor = "pointer";fullscrButton.style.backgroundColor = "#bb33ff"}
+    fullscrButton.onmouseout = () => {fullscrButton.style.cursor = "default"; fullscrButton.style.backgroundColor = "#660099"}
     gameDiv.appendChild(fullscrButton);
 
     let tint = document.createElement("div");
@@ -310,6 +313,12 @@ class Game {
     
     gameDiv.appendChild(questLog);
 
+    //quest complete window
+    let questComplete = document.createElement("div");
+    questComplete.setAttribute("id","questcomplete");
+    questComplete.setAttribute("style","z-index: 2; display:none; border-style: solid; border-radius: 2em; border-color: yellow; background-color: #660099; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); padding: 0.5em; font-size 2em; font-family: 'Press Start 2P', cursive; color: yellow; text-align: center;");
+    gameDiv.appendChild(questComplete);
+
     
 
     //stat window
@@ -327,13 +336,13 @@ class Game {
     //selected quest display
     let selectedQuestDisplay = document.createElement("div");
     selectedQuestDisplay.setAttribute("id","selectedquest");
-    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; width: 30%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left;");
+    selectedQuestDisplay.setAttribute("style","display:block; z-index: 0; width: 30%; font-family: 'Press Start 2P', cursive;  padding: 0.5em; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; cursor: pointer;");
     sideDiv.appendChild(selectedQuestDisplay);
 
     //stat display
     let statDisplay = document.createElement("div");
     statDisplay.setAttribute("id","statdisplay");
-    statDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; max-width: 8em; font-family: 'Press Start 2P', cursive; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; border: solid; border-color: black; border-width: 0.25em; margin-left: 0.25em; background-color: rgba(255,255,255,0.4); line-height: 1.3em;");
+    statDisplay.setAttribute("style","display:block; z-index: 0; position: absolute; max-width: 8em; font-family: 'Press Start 2P', cursive; color: yellow; text-shadow: 0.1em 0.1em #660099, -0.1em 0.1em #660099, 0.1em -0.1em #660099, -0.1em -0.1em #660099; text-align: left; border: solid; border-color: black; border-width: 0.25em; margin-left: 0.25em; background-color: rgba(255,255,255,0.4); line-height: 1.3em; cursor: pointer;");
     sideDiv.appendChild(statDisplay);
 
 
@@ -366,10 +375,10 @@ class Game {
 
     let pauseButton = document.createElement("div");
     pauseButton.setAttribute('style', "position:absolute; width:10vmin; height:10vmin; top:0; right:0; background:#660099;");
-    pauseButton.onmouseover = () => {pauseButton.style.backgroundColor = "#bb33ff"}
-    pauseButton.onmouseout = () => {pauseButton.style.backgroundColor = "#660099"}
+    pauseButton.onmouseover = () => {pauseButton.style.cursor = "pointer"; pauseButton.style.backgroundColor = "#bb33ff"}
+    pauseButton.onmouseout = () => {pauseButton.style.cursor = "default"; pauseButton.style.backgroundColor = "#660099"}
     pauseButton.setAttribute('id',"pauseButton");
-    gameDiv.appendChild(pauseButton)
+    gameDiv.appendChild(pauseButton);
 
     gameDiv.appendChild(dialogBox);
 
@@ -1768,7 +1777,6 @@ class Game {
       toggleMobileButton.style.backgroundColor = "red";
       this.#isMobile = false;
       document.getElementById("dialogBox").setAttribute("style", "display: none; background-color: #c9c5c9; position: absolute; z-index: 1; bottom: 3%; left: 50%; transform:translate(-50%,0); width: 80%; height: 30vh; border: solid 0.3em; border-radius: 0.3em; font-size: 3em; font-family: 'Press Start 2P', cursive; text-align: center; overflow-y: auto; padding: 0.5em;");
-      document.getElementById("pauseButton").style.display = "none"
       
       this.#tilesDesired = 20;
 
@@ -1802,6 +1810,9 @@ class Game {
     let headlen = 10;
     
     for (let npcid of selectedQuest.getTargetNPCs()) {
+      if (this.#npcList[npcid].getName().charAt(0) == "-") {
+        continue;
+      }
       let playerRoom;
       let roomIndex = 0;
       let roomBounds = this.#map.getRoomBounds();
