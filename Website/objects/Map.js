@@ -7,6 +7,7 @@ class Map {
 	#collisionBounds;
 	#warpPoints;
 	#overlapBounds;
+	#roomBounds;
 
 	constructor(backgroundElement, foregroundElement, width, height) {
 		this.#backgroundElement = backgroundElement;
@@ -16,6 +17,7 @@ class Map {
 		this.#collisionBounds = tempData["collisionBounds"];
 		this.#warpPoints = tempData["warpPoints"];
 		this.#overlapBounds = tempData["overlapBounds"];
+		this.#roomBounds = tempData["roomBounds"];
 	}
 
 
@@ -45,6 +47,9 @@ class Map {
 	getWarpPoints() {
 		return this.#warpPoints;
 	}
+	setWarpPoints(warpPoints) {
+		this.#warpPoints = warpPoints;
+	}
 
 	getOverlapPoints() {
 		return this.#overlapBounds;
@@ -55,6 +60,10 @@ class Map {
 	}
 	setPxPerTile(pxPerTile) {
 		this.#pxPerTile = pxPerTile;
+	}
+
+	getRoomBounds() {
+		return this.#roomBounds;
 	}
 
 
