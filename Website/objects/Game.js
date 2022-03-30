@@ -316,7 +316,7 @@ class Game {
     //quest complete window
     let questComplete = document.createElement("div");
     questComplete.setAttribute("id","questcomplete");
-    questComplete.setAttribute("style","z-index: 2; display:none; border-style: solid; border-radius: 2em; border-color: yellow; background-color: #660099; position: absolute; left: 50%; top: 5%; transform: translate(-50%,0%); padding: 0.5em; font-size: 2em; font-family: 'Press Start 2P', cursive; color: yellow; text-align: center;");
+    questComplete.setAttribute("style","z-index: 2; display:none; border-style: solid; border-radius: 2em; border-color: yellow; background-color: #660099; position: absolute; left: 50%; top: 5%; transform: translate(-50%,0%); padding: 0.5em; font-size: 1em; font-family: 'Press Start 2P', cursive; color: yellow; text-align: center;");
     gameDiv.appendChild(questComplete);
 
     
