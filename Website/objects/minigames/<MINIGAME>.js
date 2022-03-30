@@ -18,14 +18,14 @@ class <MINIGAME>Game {
 	#victoryStats;
 	#lossStats;
 	// Also must include this - explained in the startInputListners method
-	this.#eventListeners;
+	#eventListeners;
 	// This is probably a requirement unless the minigame is silent
-	this.#backgroundMusic;
+	#backgroundMusic;
 	// Canvas attributes will probably be needed (depending on the game) - remove if not
-	this.#canvas;
-	this.#canvasContext;
+	#canvas;
+	#canvasContext;
 	// Pausing is useful to pause anything time-based when the pause menu is open
-	this.#isPaused;	
+	#isPaused;	
 
 
 
@@ -127,7 +127,7 @@ class <MINIGAME>Game {
 		if (this.#isMobile) {
 			instructionLabel2.appendChild(document.createTextNode("<MOBILE INSTRUCTIONS GO HERE>"));
 		} else {
-			instructionLabel2.appendChild(document.createTextNode("<MBILE INSTRUCTIONS GO HERE>"));
+			instructionLabel2.appendChild(document.createTextNode("<INSTRUCTIONS GO HERE>"));
 		}
 		instructionDiv.appendChild(instructionLabel2);
 		// instructions on how to exit the tutorial - this text probably doesn't need changing
@@ -427,3 +427,8 @@ class <MINIGAME>Game {
 // No matter where they are, make sure there are no conflicts with the class names already used
 // in both the main game and other minigames
 // Probably a good idea to put <MINIGAME> before the name of each class
+
+
+
+// Slightly unrelated, but for any game with a timer / time limit,
+// take a look at Website/timerTest.html for an asynchronous analogue timer
