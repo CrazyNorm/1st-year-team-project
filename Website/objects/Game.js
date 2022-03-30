@@ -457,6 +457,7 @@ class Game {
             this.#allQuests[qPos].addTargetNPC(nPos);
           }
         }
+      }
       // if the quest has no requirements and is not active, activate it
       if (this.#allQuests[qPos].getInteractionRequirements().length == 0
           && this.#allQuests[qPos].getQuestRequirements().length == 0
