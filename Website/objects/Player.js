@@ -100,6 +100,11 @@ class Player { //TEST THIS
 	}
 	updateStat(statid, statChange) {
 		this.#stats[statid] += statChange;
+		if (statid == 'hunger' || statid == 'sleep') {
+			if (this.#stats[statid] > 100) {
+				this.#stats[statid] = 100;
+			}
+		}
 	}
 
 	getSpeed() {
@@ -265,10 +270,23 @@ class Player { //TEST THIS
 
 
 	startAnimationWalk(direction) {
+		let slow = false;
 		let delay = 1000 / (this.#speed * 2);
+		if (delay >= 250) {
+			delay /= 1.5;
+			slow = true;
+		}
 		Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
 		setTimeout(function() {
 			Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
+			if (slow) {
+				setTimeout(function() {
+					Game.getPlayer().setCurrentElement(direction + "_Walk_Right");
+					setTimeout(function() {
+						Game.getPlayer().setCurrentElement(direction + "_Walk_Left");
+					}, delay);
+				}, delay);
+			}
 		}, delay);
 	}
 
