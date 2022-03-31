@@ -12,7 +12,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 
     $email = $_POST['email'];
     $password = $_POST['password'];
-    $is_admin = 0;
 
     if(!empty($email) && !empty($password)){
         //read data from database
@@ -28,6 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
                     $_SESSION['userid'] = $user_data['id'];
 
                     if($user_data['is_admin'] == 1){
+                        $_SESSION['is_admin'] = $user_data['is_admin'];
                         header("Location: adminPage.php");
                     }
                     else{

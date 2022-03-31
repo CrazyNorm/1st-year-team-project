@@ -778,6 +778,7 @@ class Game {
                 this.#player.setSpeed(10);
                 break;
               case "KeyK":
+                this.#player.updateStat('sleep',10);
                 console.log(this.#player.getCoords());
                 break;
               case "KeyF":
@@ -785,6 +786,11 @@ class Game {
                 break;
             }
           }
+
+          if (this.checkSleepHunger()) {
+            direction = {'x':0, 'y':0};
+            spriteDir = 'S';
+          };
 
           // set standing sprite (may be overridden by animation)
           if (direction.y <= -1) {
@@ -1213,9 +1219,10 @@ class Game {
     div.addEventListener('mousedown', function() {Game.mouseDownHandler(event)});
     div.addEventListener('mouseup', function() {Game.mouseUpHandler(event)});
     div.addEventListener('mousemove', function() {Game.mouseMoveHandler(event)});
+    window.addEventListener('resize', function() {Game.resizeHandler()});
     window.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
     //Game.savePlayer()});
-  });
+    });
   }
 
   static keyDownHandler(event) {
@@ -1941,6 +1948,59 @@ class Game {
       //draws the paths created above
       this.#canvasContext.stroke();
       this.#canvasContext.restore();
+    }
+  }
+
+
+  static checkSleepHunger() {
+    // sets sleep/hunger speed penalty
+    if (this.#player.getStat('sleep') >= 100 || this.#player.getStat('hunger') >= 100) {
+      this.#player.setSpeed(1);
+    }
+
+    if (this.#player.getStat('sleep') >= 100 && this.#player.getStat('hunger') >= 100) {
+      this.#isPaused = true;
+      // turns the screen black
+      let blackOut = document.createElement('div');
+      blackOut.setAttribute('style','position:absolute; top:0; left:0; width:100%; height:100%; background-color:black; opacity:0;');
+      document.getElementById(this.#divId).appendChild(blackOut);
+
+      let consequences = () => {
+        // moves back to starting position
+        this.#player.setTimeOfDay(0);
+        this.#player.setCoords(37,69);
+        this.#player.setCoordsPx(this.#player.getCoords().x * this.#map.getPxPerTile(),
+                                 this.#player.getCoords().y * this.#map.getPxPerTile());
+        this.draw();
+
+        // display dialog and decrease stats
+        this.#currentInteraction = new Interaction(
+          NaN,1,"You passed out from fatigue and hunger. <br>Money -100.","",{'money':-100, 'hunger':-100, 'sleep':-100},[],[],[]);
+        this.displayDialog();
+      }
+
+      // fades out and back in
+      let opacity = 0;
+      let fade = setInterval(() => {
+        opacity ++;
+        blackOut.style.opacity = opacity / 100;
+        if (opacity >= 100) {
+          clearInterval(fade);
+          setTimeout(() => {
+            consequences();
+            fade = setInterval(() => {
+              opacity --;
+              blackOut.style.opacity = opacity / 100;
+              if (opacity <= 0) {
+                clearInterval(fade);
+                blackOut.parentNode.removeChild(blackOut);
+              }
+            }, 10);
+          }, 500);
+        }
+      }, 10);
+
+      return true; // used to stop the player moving when the black out ends
     }
   }
   
