@@ -202,9 +202,14 @@ class Player { //TEST THIS
 		let quest = Game.getQuest(id);
 		questComplete.innerHTML = "QUEST COMPLETE!!!<br>" + quest.getTitle();
 		for (let stat in quest.getRewardStatChanges()) {
-			questComplete.innerHTML += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (stat == 'socialLife') {
+				questComplete.innerHTML += '<br>' + 'Social Life ';
+			}
+			else {
+				questComplete.innerHTML += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1) + ' ';
+			}
 			if (quest.getRewardStatChanges()[stat] >= 0) {
-				questComplete.innerHTML += ' +';
+				questComplete.innerHTML += '+';
 			}
 			questComplete.innerHTML += quest.getRewardStatChanges()[stat] + ".";
 		}

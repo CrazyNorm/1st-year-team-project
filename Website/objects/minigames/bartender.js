@@ -368,9 +368,14 @@ class BartenderGame {
 		this.#backgroundMusic.pause();
 		let victoryDialog = "Your shift went well!";
 		for (let stat in this.#victoryStats) {
-			victoryDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (stat == 'socialLife') {
+				victoryDialog += '<br>' + 'Social Life ';
+			}
+			else {
+				victoryDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1) + ' ';
+			}
 			if (this.#victoryStats[stat] >= 0) {
-				victoryDialog += ' +';
+				victoryDialog += '+';
 			}
 			victoryDialog += this.#victoryStats[stat] + ".";
 		}
@@ -399,9 +404,14 @@ class BartenderGame {
 		this.#backgroundMusic.pause();
 		let lossDialog = "You got too many complaints!";
 		for (let stat in this.#lossStats) {
-			lossDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
+			if (stat == 'socialLife') {
+				lossDialog += '<br>' + 'Social Life ';
+			}
+			else {
+				lossDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1) + ' ';
+			}	
 			if (this.#lossStats[stat] >= 0) {
-				lossDialog += ' +';
+				lossDialog += '+';
 			}
 			lossDialog += this.#lossStats[stat] + ".";
 		}
