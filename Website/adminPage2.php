@@ -115,5 +115,6 @@ if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
         </form>
         <button onclick='location.href="adminPage.php"' class="text textTitle">EDIT Interactions page</button>
         <button onclick='location.href="adminPage3.php"' class="text textTitle">EDIT NPC page</button>
+        <button onclick='location.href="GamePage.php"' class="text textTitle">START GAME</button>
     </body>
 </html>

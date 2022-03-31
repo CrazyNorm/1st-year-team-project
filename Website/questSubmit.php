@@ -126,6 +126,5 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
          echo "Error: " . $SQL . "<br>" . mysqli_error($con);  
     }
 
-
 }
 ?>
