@@ -134,7 +134,7 @@ class TyperGame {
     // NOTE - in the minigame's img folder, there must be a tutorial.png and tutorialMobile.png
     // or edit the following code to remove the images
     let tutorialDiv = document.createElement('div');
-		tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:1; display:flex; justify-content:center; text-align:center; display:none;');
+		tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:5; display:flex; justify-content:center; text-align:center; display:none;');
 		minigameDiv.appendChild(tutorialDiv);
 		// label for the title of the minigame
 		let titleLabel = document.createElement('h1');
@@ -146,27 +146,21 @@ class TyperGame {
 		let tutorialImg = document.createElement('img');
 		tutorialImg.onload = load;
 		if (this.#isMobile) {
-			tutorialImg.setAttribute('src', '<PATH TO MOBILE TUTORIAL IMAGE>');
+			tutorialImg.setAttribute('src', 'resources/imgs/minigames/typer/tutorialMobile.png');
 		} else {
-			tutorialImg.setAttribute('src', '<PATH TO TUTORIAL IMAGE>');
+			tutorialImg.setAttribute('src', 'resources/imgs/minigames/typer/tutorial.png');
 		}
-		tutorialImg.setAttribute('style', 'position:absolute; left:25%; top:50%; transform:translate(-50%,-50%); max-width:50%; max-height:60%;');
+		tutorialImg.setAttribute('style', 'z-index: 4; position:absolute; left:25%; top:50%; transform:translate(-50%,-50%); max-width:50%; max-height:60%;');
 		tutorialDiv.appendChild(tutorialImg);
+
 		// text instructions to display next to the image
 		let instructionDiv = document.createElement('div');
 		instructionDiv.setAttribute('style', 'position:absolute; width:50%; height:60%; right:25%; top:50%; transform:translate(+50%,-50%); font-size:3vmin; color:#660099; font-family:"Press Start 2P", cursive; display:flex; justify-content:space-evenly; text-align:center; flex-direction:column;')
 		tutorialDiv.appendChild(instructionDiv);
 		let instructionLabel1 = document.createElement('p');
 		// any number of "instructionLabel"s can be created and added by copying this section
-		instructionLabel1.appendChild(document.createTextNode("<INSTRUCTIONS GO HERE>"));
+		instructionLabel1.appendChild(document.createTextNode("You get a time penalty when you mistype"));
 		instructionDiv.appendChild(instructionLabel1);
-		let instructionLabel2 = document.createElement('p');
-		if (this.#isMobile) {
-			instructionLabel2.appendChild(document.createTextNode("<MOBILE INSTRUCTIONS GO HERE>"));
-		} else {
-			instructionLabel2.appendChild(document.createTextNode("<INSTRUCTIONS GO HERE>"));
-		}
-		instructionDiv.appendChild(instructionLabel2);
 		// instructions on how to exit the tutorial - this text probably doesn't need changing
 		let startLabel = document.createElement('p');
 		if (this.#isMobile) {
