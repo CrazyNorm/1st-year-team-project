@@ -90,8 +90,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
         //save data to database
     $SQL = "INSERT INTO interactions (dialog, statChanges, actions, quest_requirements, interaction_requirements, audio, is_default) values ('$dialog', '$statChanges', '$actions', '$quest_requirements', '$interaction_requirements', '$audio', '$is_default')";
-}
-
     
     $result = mysqli_query($con, $SQL);
     if ($result) {

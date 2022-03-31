@@ -16,7 +16,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 
     if(!empty($email) && !empty($password)){
         //read data from database
-        $query = "select * from user where email = '$email' limit 1";
+        $query = "SELECT * FROM user WHERE email = '$email' LIMIT 1";
 
         $result = mysqli_query($con, $query);
 
@@ -50,7 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register page</title>
+    <title>UniLife Login</title>
     <link rel="shortcut icon" type="image/png" href="resources/imgs/icon.png"/>
     <link rel="stylesheet" type="text/css" href="resources/css/website_style.css">
 </head>
@@ -67,6 +67,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     }
 
 </script>
+<div style="position: absolute;min-width: 100vw; min-height: 100vh; display: flex; justify-content: center; align-items: center;">
 <div id="login_block">
     <form action="login.php" method="POST">
         <p><label for="Username"></label><input type="email" id="Email" placeholder="Email" class="text_block" name="email" required></p>
@@ -82,6 +83,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
             <button id="login_btn" name="login_btn">Sign in</button>
         </div>
     </form>
+</div>
 </div>
 </body>
 </html>

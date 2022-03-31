@@ -1,124 +1,56 @@
-@media only screen and (max-width: 480px) { /*for phone*/
-    body {
-        background: url(test-map.png);
-    }
+body {
+    background: url(test-map.png);
+    overflow-x: hidden;
+}
 
+.login-title {
+    color: #59c2c5;
+    font-size: 1em;
+    text-align: center;
+}
 
-    #login_block {
-        position: absolute;
-        top: 50%;
-        margin-top: -200px;
-        left: 50%;
-        margin-left: -135px;
-        background-color: whitesmoke;
-        width: 70%;
-        height: 50%;
-        border-radius: 25px;
-        text-align: center;
-        padding: 5px 10px;
-        box-sizing: border-box;
+.text_block {
+    background-color: whitesmoke;
+    width: 80%;
+    height: 2em;
+    margin-bottom: 10px;
+    border: none;
+    border-bottom: 2px solid silver;
+    outline: none;
+    font-size: 1.4em;
+}
 
-    }
+.login-title span {
+    margin-right: 0.5em;
+    display: inline-block;
+    color: rgba(0, 0, 0, 0.4);
+}
 
+#login_btn {
+    background-color: #59c2c5;
+    width: 38%;
+    border-radius: 8px;
+    margin-top: 5%;
+    font-size: 1.5em;
+    font-weight: 600;
+    color: white;
+}
 
-    .login-title {
-        color: #59c2c5;
-        font-size: 15px;
-        text-align: center;
-    }
-
-
-    .login-title span {
-        margin-right: 5px;
-        display: inline-block;
-        color: rgba(0, 0, 0, 0.4);
-
-    }
-
-    .text_block {
-        background-color: whitesmoke;
-        width: 100%;
-        height: 48px;
-        margin-bottom: 10px;
-        border: none;
-        border-bottom: 2px solid silver;
-        outline: none;
-        font-size: 22px;
-
-
-    }
-
-    #login_btn {
-        background-color: #59c2c5;
-        width: 38%;
-        height: 48px;
-        border-radius: 8px;
-        margin-top: 40px;
-        font-size: 14px;
-        font-weight: 600;
-        color: white;
-    }
+#login_btn:hover {
+    cursor: pointer;
 }
 
 
-@media only screen and (min-width: 480px){ /* for pc */
-    body {
-        background: url(test-map.png);
-    }
+#login_block {
+    background-color: whitesmoke;
+    border-radius: 25px;
+    text-align: center;
+    padding: 0.5em 4%;
+    box-sizing: border-box;
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
 
-
-    #login_block {
-        position: absolute;
-        top: 50%;
-        margin-top: -200px;
-        left: 50%;
-        margin-left: -200px;
-        background-color: whitesmoke;
-        width: 400px;
-        height: 450px;
-        border-radius: 25px;
-        text-align: center;
-        padding: 5px 40px;
-        box-sizing: border-box;
-
-    }
-
-
-    .login-title {
-        color: #59c2c5;
-        font-size: 15px;
-        text-align: center;
-    }
-
-
-    .login-title span {
-        margin-right: 5px;
-        display: inline-block;
-        color: rgba(0, 0, 0, 0.4);
-
-    }
-
-    .text_block {
-        background-color: whitesmoke;
-        width: 100%;
-        height: 48px;
-        margin-bottom: 10px;
-        border: none;
-        border-bottom: 2px solid silver;
-        outline: none;
-        font-size: 22px;
-
-
-    }
-
-    #login_btn {
-        background-color: #59c2c5;
-        width: 38%;
-        height: 48px;
-        border-radius: 8px;
-        margin-top: 40px;
-        font-size: 28px;
-        font-weight: 600;
-        color: white;
-    }
+@media only screen and (max-width: 480px) { /*for phone*/
+    
 }
