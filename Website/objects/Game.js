@@ -1278,7 +1278,6 @@ class Game {
     if (this.#currentMinigame != undefined) {
       switch (event.code) {
         case "Escape":
-        case "KeyP":
           if (this.#isQuestLogOpen) {
             this.closeQuestLog();
           }
@@ -1301,6 +1300,8 @@ class Game {
     }
 
   }
+
+
 
   static mouseDownHandler(event) {
     let menuClosed = false
