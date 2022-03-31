@@ -1,4 +1,8 @@
 <?php
+if(basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"])) {
+    header('Location: homepage.html');
+}
+
 session_start();
 
 include("connection.php");

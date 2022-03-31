@@ -1,4 +1,7 @@
-<?php 
+<?php
+if(basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"])) {
+    header('Location: ../../homepage.html');
+}
 
 $sql = "SELECT * FROM interactions";
 

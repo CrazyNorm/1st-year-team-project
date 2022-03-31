@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['userid'])) {
+	header('Location: homepage.html');
+}
+
+echo("<script type='text/javascript'>var userid = " . $_SESSION['userid'] . ";</script>");
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -214,7 +224,6 @@
 	</div>
 
 	<script type="text/javascript" src ="objects/Game.js"></script>
-	<script type="text/javascript"></script>
 
 
 

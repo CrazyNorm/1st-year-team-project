@@ -89,7 +89,7 @@ class Game {
     playButton.parentNode.removeChild(playButton);
 
     this.#divId = 'gameDiv';
-    this.#player_id = "0";
+    this.#player_id = userid;
     let gameDiv = document.getElementById(this.#divId);
 
     // sets up loading screen
