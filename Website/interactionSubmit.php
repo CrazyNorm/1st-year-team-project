@@ -28,33 +28,33 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     }
 
     $actions = $_POST['actions'];
-    if ($actions = "") {
+    if ($actions == "") {
         $actions = '{"actions":[]}';
     } else {
         $actions = '{"actions": [' . $actions .']}';
     }
 
-    $rewardStatChanges = '{';
+    $statChanges = '{';
     if ($hunger != 0) {
-        $rewardStatChanges .= '"hunger": '.$hunger.',';
+        $statChanges .= '"hunger": '.$hunger.',';
     }
     if ($sleep != 0) {
-        $rewardStatChanges .= '"sleep": '.$sleep.',';
+        $statChanges .= '"sleep": '.$sleep.',';
     }
     if ($money != 0) {
-        $rewardStatChanges .= '"money": '.$money.',';
+        $statChanges .= '"money": '.$money.',';
     }
     if ($grades != 0) {
-        $rewardStatChanges .= '"grades": '.$grades.',';
+        $statChanges .= '"grades": '.$grades.',';
     }
     if ($socialLife != 0) {
-        $rewardStatChanges .= ',"socialLife": '.$socialLife.',';
+        $statChanges .= ',"socialLife": '.$socialLife.',';
     }
 
-    if (substr($rewardStatChanges,-1) == ',') {
-        $rewardStatChanges = substr($rewardStatChanges,0,-1);
+    if (substr($statChanges,-1) == ',') {
+        $statChanges = substr($statChanges,0,-1);
     }
-    $rewardStatChanges .= '}';
+    $statChanges .= '}';
 
     $quest_requirements = $_POST['quest_requirements'];
     if ($quest_requirements == "") {

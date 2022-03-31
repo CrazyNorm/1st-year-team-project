@@ -211,9 +211,13 @@ class Player { //TEST THIS
 		questComplete.style.display = "block";
 		questComplete.style.opacity = 1;
 		setTimeout(function () {
-			setInterval(function() {
-			let questComplete = document.getElementById("questcomplete");
-			questComplete.style.opacity -= 0.01},25);
+			let timer = setInterval(function() {
+				let questComplete = document.getElementById("questcomplete");
+				questComplete.style.opacity -= 0.01
+				if (questComplete.style.opacity <= 0) {
+					questComplete.style.display = 'none';
+					clearInterval(timer);
+				}},25);
 		},2000);
 		
 	}
