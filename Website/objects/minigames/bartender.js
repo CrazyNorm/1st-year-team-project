@@ -102,7 +102,7 @@ class BartenderGame {
 		toLoad ++;
 		let tutorialImg = document.createElement('img');
 		tutorialImg.onload = load;
-		if (this.#isMobile) {
+		if (!this.#isMobile) {
 			tutorialImg.setAttribute('src', 'resources/imgs/minigames/bartender/tutorial.png');
 		} else {
 			tutorialImg.setAttribute('src', 'resources/imgs/minigames/bartender/tutorialMobile.png');
@@ -113,14 +113,14 @@ class BartenderGame {
 		instructionDiv.setAttribute('style', 'position:absolute; width:50%; height:60%; right:25%; top:50%; transform:translate(+50%,-50%); font-size:3vmin; color:#660099; font-family:"Press Start 2P", cursive; display:flex; justify-content:space-evenly; text-align:center; flex-direction:column;')
 		tutorialDiv.appendChild(instructionDiv);
 		let instructionLabel1 = document.createElement('p');
-		instructionLabel1.appendChild(document.createTextNode("<INSTRUCTIONS GO HERE>"));
+		if (this.#isMobile) {
+			instructionLabel1.appendChild(document.createTextNode("Drag the right drink to each customer before their timer runs out."));
+		} else {
+			instructionLabel1.appendChild(document.createTextNode("Click and drag the right drink to each customer before their timer runs out."));
+		}
 		instructionDiv.appendChild(instructionLabel1);
 		let instructionLabel2 = document.createElement('p');
-		if (this.#isMobile) {
-			instructionLabel2.appendChild(document.createTextNode("<MOBILE INSTRUCTIONS GO HERE>"));
-		} else {
-			instructionLabel2.appendChild(document.createTextNode("<INSTRUCTIONS GO HERE>"));
-		}
+		instructionLabel2.appendChild(document.createTextNode("Serve 15 customers to finish your shift, but don't get too many complaints!"));
 		instructionDiv.appendChild(instructionLabel2);
 		let startLabel = document.createElement('p');
 		if (this.#isMobile) {
