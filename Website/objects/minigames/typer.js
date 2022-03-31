@@ -65,15 +65,15 @@ class TyperGame {
 		this.#charsPerLine = 0;
 		this.#previousWidth = 0;
 		this.#currentChar = 0;
-		this.#randomSentences = [	"let fromx = tox - scaledX*Math.min(canvasHeight,canvasWidth)*0.1;",
-														 	"while (true) {makeGame()}",
-														 	"This isn't code!",
-														 	"print('Hello World!')",
-														 	"minigameDiv.style.overflow = 'hidden';",
-														 	"for (player of players) {print('Hello '+player.name)}",
-														 	"if pseudocode then hate",
-														 	"Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs"];
-		//this.#randomSentences = ["Hello"]
+		this.#randomSentences = [	{"sentence": "let fromx = tox - scaledX*Math.min(canvasHeight,canvasWidth)*0.1;","time": 29000, "punishment":2000},
+														 	{"sentence": "while (true) {makeGame()}", "time": 12000, "punishment":2000},
+														 	{"sentence": "This isn't code!", "time": 8000, "punishment": 500},
+														 	{"sentence": "print('Hello World!')", "time": 10000, "punishment": 1000},
+														 	{"sentence": "minigameDiv.style.overflow = 'hidden';", "time": 15000, "punishment": 1500},
+														 	{"sentence": "for (player of players) {print('Hello '+player.name)}", "time": 24000, "punishment": 1500},
+														 	{"sentence": "if pseudocode then hate", "time": 9000, "punishment": 1000},
+														 	{"sentence": "Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs", "time": 55000, "punishment": 2000}];
+		// this.#randomSentences = ["Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs"]
 
 		// Any default values for attributes go here
 	}
@@ -229,10 +229,12 @@ class TyperGame {
 		this.#beneathSentence = this.#randomSentences[Math.floor(Math.random()*this.#randomSentences.length)];
 		this.#topSentence = "";
 		if (this.#isMobile) {
-			this.#time = this.#beneathSentence.length * 60000/70; //Based upon characters per second
+			this.#time = this.#beneathSentence.time * 1.6; //Based upon characters per second
 		} else {
-			this.#time = this.#beneathSentence.length * 60000/150; //Based upon characters per second
+			this.#time = this.#beneathSentence.time; //Based upon characters per second
 		}
+
+		console.log(this.#time);
 		
 
 		// Create any other html elements needed by the minigame - as children of the minigame div#
@@ -244,7 +246,7 @@ class TyperGame {
 		this.#beneathElement = document.createElement("div");
 		this.#beneathElement.setAttribute("id","beneathelement");
 		this.#beneathElement.setAttribute("style","z-index: 4; opacity:0.6; color:gainsboro; float: left; top:50%; font-family: 'Press Start 2P'");
-		this.#beneathElement.innerHTML = this.#beneathSentence;
+		this.#beneathElement.innerHTML = this.#beneathSentence.sentence;
 		container.appendChild(this.#beneathElement);
 		this.#topElement = document.createElement("div");
 		this.#topElement.setAttribute("id","topelement");
@@ -396,7 +398,7 @@ class TyperGame {
 
       if (!this.#isPaused) {
       	this.updateParticles();
-				if (this.#topSentence.length == this.#beneathSentence.length) {
+				if (this.#topSentence.length == this.#beneathSentence.sentence.length) {
 					if (this.#isMobile) {
 						this.#pressEnterDisplay.innerHTML = "PRESS ANYWHERE!"
 					}
@@ -601,7 +603,7 @@ class TyperGame {
 				this.win()
 				return
 			}
-		if (event.key == this.#beneathSentence.charAt(this.#topSentence.length)) {
+		if (event.key == this.#beneathSentence.sentence.charAt(this.#topSentence.length)) {
 			this.#soundEffect.currentTime = 0.3;
       this.#soundEffect.play();
       this.#backgroundMusic.volume = 1;
@@ -620,8 +622,8 @@ class TyperGame {
 				clearInterval(this.#errorTimeout)
 			}
 		} else {
-			
 			this.#beneathElement.style.color = "red";
+			this.#time -= this.#beneathSentence.punishment;
 			if (!this.#error) {
 				this.#error = true;
 				this.#errorTimeout = setTimeout(function () {
@@ -659,11 +661,11 @@ class TyperGame {
   	let buttonList = [document.getElementById("button1"),document.getElementById("button2"),document.getElementById("button3"),document.getElementById("button4")];
 
   	let randomIndex = Math.floor(Math.random()*4)
-  	buttonList[randomIndex].innerHTML = (this.#beneathSentence.charAt(this.#topSentence.length)==" ") ? "_" : this.#beneathSentence.charAt(this.#topSentence.length);
+  	buttonList[randomIndex].innerHTML = (this.#beneathSentence.sentence.charAt(this.#topSentence.length)==" ") ? "_" : this.#beneathSentence.sentence.charAt(this.#topSentence.length);
   	buttonList.splice(randomIndex,1);
   	for (let button of buttonList) {
-  		randomIndex = Math.floor(this.#beneathSentence.length * Math.random());
-  		button.innerHTML = (this.#beneathSentence.slice(randomIndex-1,randomIndex)==" ") ? "_" : this.#beneathSentence.slice(randomIndex-1,randomIndex);
+  		randomIndex = Math.floor(this.#beneathSentence.sentence.length * Math.random());
+  		button.innerHTML = (this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex)==" ") ? "_" : this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex);
   	}
   }
 
