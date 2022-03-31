@@ -122,8 +122,9 @@ class Game {
     gameDiv.appendChild(tutorialDiv);
     // forward/backward + start game buttons
     let backwardButton = document.createElement('button');
+    backwardButton.setAttribute('id','backwardButton');
     backwardButton.innerHTML = "Prev.";
-    backwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    backwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow;');
     let backwardFunc = () => {
       if (this.#tutorialIndex == this.#tutorialPages.length - 1) {
         startGameButton.style.display = 'none';
@@ -165,13 +166,9 @@ class Game {
     tutorialDiv.appendChild(forwardButton);
     let startGameButton = document.createElement('button');
     startGameButton.innerHTML = "Start";
-    startGameButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    startGameButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow;');
     let startFunc = () => {
-      this.#isPaused = false;
-      tutorialDiv.style.display = 'none';
-      // only activate th input listeners (except resize) when the tutorial is closed
-      this.startInputListeners();
-      // only activate the pause button when the tutorial is closed
+      this.closeTutorial();
     }
     startGameButton.onclick = startFunc;
     startGameButton.onmouseover = () => {startGameButton.style.cursor = "pointer"; startGameButton.style.backgroundColor = "#bb33ff"}
@@ -185,7 +182,6 @@ class Game {
       this.#tutorialPages.push(tempPage);
     }
     newPage();
-    this.#tutorialPages[0].style.display = 'flex';
     let exampleText1 = document.createElement('p');
     exampleText1.innerHTML = "This is page 1";
     exampleText1.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
@@ -216,7 +212,6 @@ class Game {
       indicatorsDiv.appendChild(tempIndicator);
       this.#tutorialIndicators.push(tempIndicator);
     }
-    this.#tutorialIndicators[0].style.backgroundColor = '#bb33ff';
 
 
 
@@ -299,6 +294,7 @@ class Game {
     makeButton("Leaderboard",function(){
       //Game.savePlayer();
       window.open("leaderboard.php","name?").focus();});
+    makeButton("Tutorial", function() {Game.closePauseMenu(); Game.openTutorial();});
     makeButton("Save",function() {Game.savePlayer(); Game.closePauseMenu();});
     makeButton("Quit",function(){
       //Game.savePLayer();
@@ -580,8 +576,8 @@ class Game {
     interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
     gameDiv.appendChild(interactButton);
 
-    // applies the resize handler first
-    window.addEventListener('resize', function() {Game.resizeHandler()});
+    // sets the input listeners
+    this.startInputListeners();
 
     // wait for everything to load
     while (loaded < toLoad) {
@@ -631,11 +627,7 @@ class Game {
     loadingDiv.style.display = "none";
     // opens tutorial screen
     if (this.#player.getCompletedQuests().length == 0) {
-      this.#isPaused = true;
-      tutorialDiv.style.display = 'block';
-    }
-    else {
-      this.startInputListeners();
+      this.openTutorial();
     }
   }
 
@@ -1336,7 +1328,7 @@ class Game {
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
       } 
-      if (!menuClosed) {
+      if (!menuClosed && !this.#isTutorial) {
         if (element.id == "interactButton") {
           this.#interactTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
         } else if (element.id == "pauseButton") {
@@ -1421,7 +1413,7 @@ class Game {
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
       } 
-      if (!menuClosed) {
+      if (!menuClosed && !this.#isTutorial) {
         if (element.id == "interactButton") {
           this.#interactTouch = touch;
         } else if (element.id == "pauseButton") {
@@ -1555,6 +1547,26 @@ class Game {
       this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
       this.#currentNPC = undefined;
     }
+  }
+
+  static openTutorial() {
+    let div = document.getElementById('tutorial');
+    div.style.display = 'block';
+    this.#isPaused = true;
+    this.#isTutorial = true;
+    // resets to the first page
+    let button = document.getElementById('backwardButton');
+    this.#tutorialIndex = this.#tutorialPages.length-1;
+    while (this.#tutorialIndex > 0) {
+      button.click();
+    }
+  }
+
+  static closeTutorial() {
+    let div = document.getElementById('tutorial');
+    div.style.display = 'none';
+    this.#isPaused = false;
+    this.#isTutorial = false;
   }
 
   static openPauseMenu () {
