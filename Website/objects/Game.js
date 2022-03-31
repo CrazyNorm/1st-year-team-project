@@ -1041,6 +1041,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadInteractions.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1077,6 +1078,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadQuests.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1109,6 +1111,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadNPCs.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1140,7 +1143,8 @@ class Game {
       Game.setPlayer(tempPlayer);
       loaded = true;
     };
-    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id="+this.#player_id);// need to replace this with actual id
+    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id="+this.#player_id);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1175,6 +1179,7 @@ class Game {
     		 '}&completed_quests={"quests":'+JSON.stringify(Game.getPlayer().getCompletedQuests()) +
     		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
     		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
 
   }
@@ -1187,6 +1192,7 @@ class Game {
     xhr.open("GET","objects/database-scripts/saveScore.php?" +
          "user_id=" + Game.getPlayerId() + 
          "&score=" + Game.getScore());
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
   }
 
