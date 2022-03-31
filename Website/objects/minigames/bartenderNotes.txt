@@ -1,0 +1,20 @@
+ - background
+ - 3 drinks (folow pointer while held down)
+ - 3 customers (show/hide at random)
+ 	- 3 drink request things per customer
+ 	- timer/time indicator per customer
+ - complaints counter
+ - remaining customers counter
+
+
+ drink - 1 tile
+ customer - 3x3 tiles
+ coplaint marker - 1 tile
+ background - 9xN tiles (complaints, gap, customers, bar, gap, drinks, gap)
+
+ drinks follow pointer - activate on mousedown/touchstart, update coords on mousemove/touchmove, reset on mouseup/touchend
+
+ 3 complaints = loss (docked pay - lose money)
+ 15 served successfully = win (earn wage - gain money)
+
+ timer for each customer - show clock (analogue style - timerTest.html)
