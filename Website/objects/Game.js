@@ -140,6 +140,7 @@ class Game {
       this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
     }
     backwardButton.onclick = backwardFunc;
+    backwardButton.ontouchstart = backwardFunc;
     backwardButton.onmouseover = () => {backwardButton.style.backgroundColor = "#bb33ff"}
     backwardButton.onmouseout = () => {backwardButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(backwardButton);
@@ -161,6 +162,7 @@ class Game {
       this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
     }
     forwardButton.onclick = forwardFunc;
+    forwardButton.ontouchstart = forwardFunc;
     forwardButton.onmouseover = () => {forwardButton.style.cursor = "pointer"; forwardButton.style.backgroundColor = "#bb33ff"}
     forwardButton.onmouseout = () => {forwardButton.style.cursor = "default"; forwardButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(forwardButton);
@@ -171,6 +173,7 @@ class Game {
       this.closeTutorial();
     }
     startGameButton.onclick = startFunc;
+    startGameButton.ontouchstart = startFunc;
     startGameButton.onmouseover = () => {startGameButton.style.cursor = "pointer"; startGameButton.style.backgroundColor = "#bb33ff"}
     startGameButton.onmouseout = () => {startGameButton.style.cursor = "default"; startGameButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(startGameButton);
@@ -1562,9 +1565,13 @@ class Game {
     }
   }
 
-  static closeTutorial() {
+  static async closeTutorial() {
     let div = document.getElementById('tutorial');
     div.style.display = 'none';
+    let waitPromise = new Promise(function(resolve, reject) {
+      setTimeout(resolve,500);
+    });
+    await waitPromise;
     this.#isPaused = false;
     this.#isTutorial = false;
   }
