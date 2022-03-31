@@ -364,7 +364,14 @@ class BartenderGame {
 
 
 	// This should be called when the win conditions are met
-	win() {
+	async win() {
+		for (let customer of this.#customers) {
+			customer.deactivate();
+		}
+		let wait = new Promise(function(resolve, reject) {
+      setTimeout(resolve, 500);
+    });
+    await wait;
 		this.#backgroundMusic.pause();
 		let victoryDialog = "Your shift went well!";
 		for (let stat in this.#victoryStats) {
@@ -400,7 +407,14 @@ class BartenderGame {
 
 
 	// This should be called when the losing conditions are met
-	lose() {
+	async lose() {
+		for (let customer of this.#customers) {
+			customer.deactivate();
+		}
+		let wait = new Promise(function(resolve, reject) {
+      setTimeout(resolve, 500);
+    });
+    await wait;
 		this.#backgroundMusic.pause();
 		let lossDialog = "You got too many complaints!";
 		for (let stat in this.#lossStats) {
@@ -521,7 +535,6 @@ class BartenderGame {
 			event.preventDefault();
 			if (this.#onlyTouch == undefined) {
 				this.#onlyTouch = event.targetTouches[0];
-				console.log(this.#onlyTouch);
 				let elem = document.elementFromPoint(this.#onlyTouch.clientX, this.#onlyTouch.clientY);
 				// does nothing if the click wasn't on a drink
 				if (elem.className == 'drinks') {
