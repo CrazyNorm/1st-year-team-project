@@ -47,6 +47,8 @@ class TyperGame {
 	#previousWidth;
 	#currentChar;
 	#soundEffect;
+	#buttonCharList;
+	#started;
 
 
 
@@ -66,34 +68,21 @@ class TyperGame {
 		this.#previousWidth = 0;
 		this.#currentChar = 0;
 		this.#randomSentences = [	{"sentence": "let fromx = tox - scaledX*Math.min(canvasHeight,canvasWidth)*0.1;","time": 29000, "punishment":2000},
-														 	{"sentence": "while (true) {makeGame()}", "time": 12000, "punishment":2000},
+														 	{"sentence": "while (true) makeGame()", "time": 12000, "punishment":2000},
 														 	{"sentence": "This isn't code!", "time": 8000, "punishment": 500},
 														 	{"sentence": "print('Hello World!')", "time": 10000, "punishment": 1000},
 														 	{"sentence": "minigameDiv.style.overflow = 'hidden';", "time": 15000, "punishment": 1500},
-														 	{"sentence": "for (player of players) {print('Hello '+player.name)}", "time": 24000, "punishment": 1500},
+														 	{"sentence": "for (player of players) print('Hello '+player.name)", "time": 24000, "punishment": 1500},
 														 	{"sentence": "if pseudocode then hate", "time": 9000, "punishment": 1000},
 														 	{"sentence": "Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs", "time": 55000, "punishment": 2000}];
 		// this.#randomSentences = ["Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs"]
-
-		// Any default values for attributes go here
+		this.#buttonCharList = ["1","2","3","4"];
+		this.#started = false;
 	}
 
-
-
-	// There must be a setPaused method (called when pause menu opens)
-	// If there is nothing that needs pausing (i.e. nothing time based), just leave the method empty
-	// Alternatively, the setPaused method could be used to remove event listeners
-	// to disable input to the minigame while paused
 	setPaused(isPaused) {
 		this.#isPaused = isPaused;
 	}
-
-
-
-	// There must be a startGame method with no paramaters whic starts the minigame when called
-	// startGame should load any resources (scripts, images, audio),
-	// and create any html elements used by the minigame
-	// This method must be async for the waiting stuff to work
 	async startGame() {
 		let minigameDiv = document.getElementById(this.#divId);
     minigameDiv.style.margin = "0";
@@ -121,7 +110,7 @@ class TyperGame {
 
 
 		// This is the load script used to check resources have loaded. Also drives the loading bar
-		let maxLoad = 0; // This should be changed to the number of *things* being loaded
+		let maxLoad = 10; // This should be changed to the number of *things* being loaded
     let toLoad = 0;
     let loaded = 0;
     function load() {
@@ -129,10 +118,6 @@ class TyperGame {
       fillBar.style.width = String(loaded / maxLoad * 100) + "%";
     }
 
-
-    // Sample tutorial screen - shows as a pop up before the game starts
-    // NOTE - in the minigame's img folder, there must be a tutorial.png and tutorialMobile.png
-    // or edit the following code to remove the images
     let tutorialDiv = document.createElement('div');
 		tutorialDiv.setAttribute('style', 'position:absolute; height:90%; width:90%; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border: solid yellow 5px; z-index:5; display:flex; justify-content:center; text-align:center; display:none;');
 		minigameDiv.appendChild(tutorialDiv);
@@ -158,9 +143,12 @@ class TyperGame {
 		instructionDiv.setAttribute('style', 'position:absolute; width:50%; height:60%; right:25%; top:50%; transform:translate(+50%,-50%); font-size:3vmin; color:#660099; font-family:"Press Start 2P", cursive; display:flex; justify-content:space-evenly; text-align:center; flex-direction:column;')
 		tutorialDiv.appendChild(instructionDiv);
 		let instructionLabel1 = document.createElement('p');
+		let instructionLabel2 = document.createElement('p');
 		// any number of "instructionLabel"s can be created and added by copying this section
 		instructionLabel1.appendChild(document.createTextNode("You get a time penalty when you mistype"));
+		instructionLabel2.innerHTML = "<br>The timer starts when you start typing!!";
 		instructionDiv.appendChild(instructionLabel1);
+		instructionDiv.appendChild(instructionLabel2);
 		// instructions on how to exit the tutorial - this text probably doesn't need changing
 		let startLabel = document.createElement('p');
 		if (this.#isMobile) {
@@ -170,39 +158,6 @@ class TyperGame {
 		}
 		startLabel.setAttribute('style', 'position:absolute; bottom:0; width:100%; font-size:5vmin; color:#bb33ff; font-family:"Press Start 2P", cursive; text-align:center;')
 		tutorialDiv.appendChild(startLabel);
-
-
-		// Creates the canvas - remove this if creating a minigame that doesn't use a canvas
-    // let tempCanvas = document.createElement("canvas");
-    // tempCanvas.setAttribute('id', 'mCanvas');
-    // tempCanvas.setAttribute('style', "background: blue; padding: 0; margin: auto; position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: optimizeSpeed; image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: -o-crisp-edges; image-rendering: optimize-contrast; -ms-interpolation-mode: nearest-neighbor;")
-    // minigameDiv.appendChild(tempCanvas);
-    // this.#canvas = document.getElementById("mCanvas");
-    // this.#canvasContext = this.#canvas.getContext("2d");
-
-
-    // An example of loading scripts can be found in Game
-    // NOTE - you will need to wait for all the scripts to load before continuing
-
-
-		// Loads images to be used in the minigame
-		// background - assumes the image is in the minigame's img folder and called background.png
-		// this.#background = new Image();
-		// toLoad ++;
-		// this.#background.onload = load;
-		// this.#background.src = "resources/imgs/minigames/<MINIGAME>/background.png";
-		
-		// loading sprites from an array - assumes all sprites are in the minigame's img folder
-		// let spritesToLoad = ['<ARRAY>','<OF>','<SPRITE>','<NAMES>','</>','<PATHS>'];
-		// let tempDict = {};
-		// for (let type of spriteTypes) {
-		// 	tempDict[type] = new Image();
-  //     toLoad ++;
-  //     tempDict[type].onload = load;
-  //     tempDict[type].src = "resources/imgs/minigames/<MINIGAME>/" + type + ".png";
-		// }
-		// Could replace tempDict with an attribute or pass it to be stored in another object
-
 
 		// Loading audio - background music
 		// assumes the background music is in the minigame's audio folder and called background.mp3
@@ -219,23 +174,16 @@ class TyperGame {
     this.#soundEffect.src = "resources/audio/minigames/typer/buttonpress.mp3"; 
     this.#soundEffect.controls = false;
     // For other audio clips, omit loop=true and call .play() on them when you want them to trigger
-    // (probably call .pause() or set .volume on background music first)
-    // Example of non-background audio can be found in Game
-
 
 		minigameDiv.style.backgroundColor = "black"
-
 
 		this.#beneathSentence = this.#randomSentences[Math.floor(Math.random()*this.#randomSentences.length)];
 		this.#topSentence = "";
 		if (this.#isMobile) {
-			this.#time = this.#beneathSentence.time * 1.6; //Based upon characters per second
+			this.#time = this.#beneathSentence.time * 2; //Based upon characters per second
 		} else {
 			this.#time = this.#beneathSentence.time; //Based upon characters per second
 		}
-
-		console.log(this.#time);
-		
 
 		// Create any other html elements needed by the minigame - as children of the minigame div#
 		let containerBig = document.createElement("div");
@@ -245,12 +193,12 @@ class TyperGame {
 		container.setAttribute("style","display:flex;");
 		this.#beneathElement = document.createElement("div");
 		this.#beneathElement.setAttribute("id","beneathelement");
-		this.#beneathElement.setAttribute("style","z-index: 4; opacity:0.6; color:gainsboro; float: left; top:50%; font-family: 'Press Start 2P'");
+		this.#beneathElement.setAttribute("style","z-index: 4; opacity:0.6; color:gainsboro; float: left; top:50%; font-family: 'Press Start 2P'; word-break: break-all;");
 		this.#beneathElement.innerHTML = this.#beneathSentence.sentence;
 		container.appendChild(this.#beneathElement);
 		this.#topElement = document.createElement("div");
 		this.#topElement.setAttribute("id","topelement");
-		this.#topElement.setAttribute("style","z-index: 4; float: left; position:fixed; color:#2fdb75; font-family: 'Press Start 2P'");
+		this.#topElement.setAttribute("style","z-index: 4; float: left; position:fixed; color:#2fdb75; font-family: 'Press Start 2P'; word-break: break-all;");
 		container.appendChild(this.#topElement);
 
 		minigameDiv.appendChild(containerBig);
@@ -306,66 +254,24 @@ class TyperGame {
 			this.makeRandomButtons();
 		}
 
+		// wait for load
+		while (loaded < toLoad) {
+      let wait = new Promise(function(resolve, reject) {
+        setTimeout(resolve, 100);
+      });
+      await wait;
+    }
+
 		this.#particleInterval = setInterval(this.updateParticles(), 500);
 
-
-
-
-
-		// Waits for resources to load
-		// while (loaded < toLoad) {
-  //     let wait = new Promise(function(resolve, reject) {
-  //       setTimeout(resolve, 100);
-  //     });
-  //     await wait;
-  //   }
-
-
-    // Resizes before the game starts
-		// this.resizeHandler();
-
-
-		// Any other thing that need to be done before the game starts
-		// e.g. set starting position, random generation
-		// NOTE - example js randint (0-10):
-		// let startPos = 0;
-		// let endPos = 10;
-		// let randint = Math.floor(Math.random() * endPos) + startPos;
-
-
-		// Draws the first frame before mainloop starts (if the game uses mainloop)
-		// this.draw();
-
-
-		// A mainloop-based game probably needs a boolean to terminate the loop on game end
 		this.#gameOver = false;
 
-
-		// Starts the background music
-		// Move to before the waiting loop if you want music to play on the loading screen
-		// However, it is probably better here for consistency with other minigames/the main game
 		this.#backgroundMusic.play();
+
+
 
 		loadingDiv.style.display = 'none';
 		
-
-
-		// Optional artificial loading time
-		// Only needed if you need mainloop to run in the background for a bit before the game starts
-		// toLoad += 100;
-		// for (var i = 0; i < 100; i++) {
-		// 	let wait = new Promise(function(resolve, reject) {
-  //       setTimeout(resolve, 10);
-  //     });
-  //     await wait;
-  //     load();
-		// }
-
-
-		// Removes the loading screen
-		
-
-
 		// Opens the loading screen and sets up listeners to close the loading screen
 		// on any key press or a touch/click on the loading screen
 		this.#isPaused = true;
@@ -384,11 +290,6 @@ class TyperGame {
 		this.mainloop();
 	}
 
-
-
-	// Empty mainloop (if needed)
-	// Specific examples of a full mainloop in Game.js and frogger.js
-	// This method must be async for the waiting stuff to work
 	async mainloop() {
 		while (!this.#gameOver) {
       let loopPromise = new Promise(function(resolve, reject) {
@@ -396,7 +297,7 @@ class TyperGame {
       });
       let preTime = new Date().getTime();
 
-      if (!this.#isPaused) {
+      if (!this.#isPaused && this.#started) {
       	this.updateParticles();
 				if (this.#topSentence.length == this.#beneathSentence.sentence.length) {
 					if (this.#isMobile) {
@@ -406,7 +307,11 @@ class TyperGame {
 					this.#pressEnterDisplay.style.display = "block";
 				}
 				if (this.#time < 0) {
-					this.lose();
+					if (this.#lastChar) {
+						this.win();
+					} else {
+						this.lose();						
+					}
 				} else {
 					this.#timerElement.innerHTML = Math.floor(this.#time/1000);
 					this.#time -= this.#deltaTime;
@@ -432,11 +337,6 @@ class TyperGame {
 		this.#canvasContext.drawImage("<IMAGE>","<TOP LEFT X>","<TOP LEFT Y>","<WIDTH>","<HEIGHT>");
 	}
 
-
-
-	// Add to these 2 methods anything else you want to happen before the minigame closes
-	// e.g. frogger has a short loop to move the cars a bit further
-	// This should be called when the win conditions are met
 	win() {
 		// Only needed if there is a mainloop to terminate
 		this.#gameOver = true;
@@ -464,8 +364,6 @@ class TyperGame {
 		Game.displayDialog();
 		Game.endMinigame();
 	}
-
-
 
 	// Same as win, but for losing - duh
 	// This should be called when the losing conditions are met
@@ -516,7 +414,7 @@ class TyperGame {
 			this.#charsPerLine++;
 			this.#previousWidth = rect.width;
 		}
-		for (let i=0; i<10; i++) {
+		for (let i=0; i<4; i++) {
 			position = {"x": x, "y": rect.top + Math.floor(Math.random()*rect.height) - containerRect.y};
 			fontsize = String(1);
 
@@ -559,46 +457,28 @@ class TyperGame {
 
     let div = document.getElementById(this.#divId);
 
-    // All input listeners go here
-    // NOTE - if any listeners are assigned outside the minigame div (i.e. document or window),
-    // then they need to be added to this.#eventListeners so they can be removed when the minigame ends
-    // this.#eventListeners is a 2D array with the format [element, event, function]
-    // e.g.:
     this.#eventListeners[0] = [document, 'keydown', event => this.keyDownHandler(event)];
 		document.addEventListener('keydown', this.#eventListeners[0][2]);
-
-		// If the event listener is added to the minigame div or a child node of the div,
-		// then it doesn't need to be stored as the div is just discarded when the minigame ends
     div.addEventListener('touchstart', event => this.touchHandler(event));
-
-    // Event listeners you'll probably want:
-    // keydown, keyup, touchstart, touchmove, touchend, touchcancel (can use same handler as touch end)
-    // Event listeners you might want:
-    // mousedown, mousemove, mouseup
-    // Event listeners you'll probably NEED:
-    // resize (might not need it if not using a canvas)
-    // this.#eventListeners[1] = [window, 'resize', event => this.resizeHandler()];
-    // window.addEventListener('resize', this.#eventListeners[1][2]);
 	}
 
-
-
-	// This method must stay
-	// If no event listeners are used (or none on document/window), this method can just be left empty
 	removeInputListeners() {
 		for (let listener of this.#eventListeners) {
 			listener[0].removeEventListener(listener[1], listener[2]);
 		}
 	}
 
-
 	keyDownHandler (event) {
+		if (!this.#isPaused && !this.#started) {
+			this.#started = true;
+		}
 		if (event.key == "Shift" || event.key == "Alt" || event.key == "Control") {
 			return false;
 		}
 		if (event.code == "Space") {
 			event.preventDefault();
 		}
+
 		if (this.#lastChar && event.code=="Enter") {
 				this.win()
 				return
@@ -660,34 +540,33 @@ class TyperGame {
   makeRandomButtons() {
   	let buttonList = [document.getElementById("button1"),document.getElementById("button2"),document.getElementById("button3"),document.getElementById("button4")];
 
-  	let randomIndex = Math.floor(Math.random()*4)
-  	buttonList[randomIndex].innerHTML = (this.#beneathSentence.sentence.charAt(this.#topSentence.length)==" ") ? "_" : this.#beneathSentence.sentence.charAt(this.#topSentence.length);
-  	buttonList.splice(randomIndex,1);
-  	for (let button of buttonList) {
-  		randomIndex = Math.floor(this.#beneathSentence.sentence.length * Math.random());
-  		button.innerHTML = (this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex)==" ") ? "_" : this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex);
+  	let nextChar = this.#beneathSentence.sentence.charAt(this.#topSentence.length)
+  	if (this.#buttonCharList.includes(nextChar)) {
+  		for (let i in this.#buttonCharList) {
+  			if (this.#buttonCharList[i] != nextChar) {
+  				let randomIndex = Math.floor(this.#beneathSentence.sentence.length * Math.random());
+  				this.#buttonCharList[i] = this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex);
+  			}
+  		}
+
+  	} else {
+  		let randomPos = Math.floor(Math.random()*4)
+
+	  	for (let i in this.#buttonCharList) {
+	  		if (i == randomPos) {
+	  			this.#buttonCharList[i] = nextChar;
+	  		} else {
+		  		let randomIndex = Math.floor(this.#beneathSentence.sentence.length * Math.random());
+		  		this.#buttonCharList[i] = this.#beneathSentence.sentence.slice(randomIndex-1,randomIndex);
+		  	}
+	  	}
   	}
+  	for (let i in this.#buttonCharList) {
+  		buttonList[i].innerHTML = (this.#buttonCharList[i]==" ") ? "_" : this.#buttonCharList[i];
+  	}
+  	 
+  	
   }
 
-	
-
-	// Event handler functions
-	// E.g.:
-  resizeHandler() {
-  	// Examples of tile based resizing can be found in Game and frogger
-  }
 }
 
-
-
-
-// If the game needs any other classes, they can either go here or in seperate files
-// If they are in seperate files, they will need loading in startGame()
-// No matter where they are, make sure there are no conflicts with the class names already used
-// in both the main game and other minigames
-// Probably a good idea to put <MINIGAME> before the name of each class
-
-
-
-// Slightly unrelated, but for any game with a timer / time limit,
-// take a look at Website/timerTest.html for an asynchronous analogue timer

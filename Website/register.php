@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $score = 0;
 
     $userid;
-    $coords = '{"x":60,"y":90}';
+    $coords = '{"x":37,"y":69}';
     if (isset($_POST['character_type'])) {
         $character_type = $_POST['character_type'];
     } else {

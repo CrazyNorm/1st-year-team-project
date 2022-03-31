@@ -491,9 +491,9 @@ class Game {
 
 
    	// loading images
-    for (let characterType of characterTypes) {
+    for (let i in characterTypes) {
       // player
-      if (this.#player.getCharacterType() == characterType) {
+      if (this.#player.getCharacterType() == characterTypes[i]) {
         let tempDict = {};
         let spriteTypes = ['S_Standing','S_Walk_Left','S_Walk_Right',
                            'E_Standing','E_Walk_Left','E_Walk_Right',
@@ -503,22 +503,21 @@ class Game {
           tempDict[type] = new Image();
           toLoad ++;
           tempDict[type].onload = load;
-          tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
+          tempDict[type].src = "resources/imgs/characters/" + characterTypes[i] + "/" + type + ".png";
         }
         this.#player.setElements(tempDict);
-        continue;
       }
 
       // npcs
       for (let npc of this.#npcList) {
-        if (npc.getCharacterType() == characterType) {
+        if (npc.getCharacterType() == characterTypes[i]) {
           let tempDict = {};
           let spriteTypes = ['S_Standing','E_Standing','W_Standing','N_Standing'];
           for (let type of spriteTypes) {
             tempDict[type] = new Image();
             toLoad ++;
             tempDict[type].onload = load;
-            tempDict[type].src = "resources/imgs/characters/" + characterType + "/" + type + ".png";
+            tempDict[type].src = "resources/imgs/characters/" + characterTypes[i] + "/" + type + ".png";
           }
           npc.setElements(tempDict);
         }
