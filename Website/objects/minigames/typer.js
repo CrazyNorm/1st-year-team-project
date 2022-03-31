@@ -46,6 +46,7 @@ class TyperGame {
 	#charsPerLine;
 	#previousWidth;
 	#currentChar;
+	#soundEffect;
 
 
 
@@ -72,7 +73,7 @@ class TyperGame {
 														 	"for (player of players) {print('Hello '+player.name)}",
 														 	"if pseudocode then hate",
 														 	"Really stupidly long text that means it will eventually fall of the screen into the oblivion of hell and many many other places where long text belongs"];
-		this.#randomSentences = ["Hello"]
+		//this.#randomSentences = ["Hello"]
 
 		// Any default values for attributes go here
 	}
@@ -211,12 +212,18 @@ class TyperGame {
 
 		// Loading audio - background music
 		// assumes the background music is in the minigame's audio folder and called background.mp3
-		// this.#backgroundMusic = new Audio();
-  //   toLoad ++;
-  //   this.#backgroundMusic.oncanplaythrough = load;
-  //   this.#backgroundMusic.src = "resources/audio/minigames/typer/background.mp3"; 
-  //   this.#backgroundMusic.controls = false;
-  //   this.#backgroundMusic.loop = true;
+		this.#backgroundMusic = new Audio();
+    toLoad ++;
+    this.#backgroundMusic.oncanplaythrough = load;
+    this.#backgroundMusic.src = "resources/audio/minigames/typer/background.mp3"; 
+    this.#backgroundMusic.controls = false;
+    this.#backgroundMusic.loop = true;
+    this.#backgroundMusic.volume = 0.5;
+    this.#soundEffect = new Audio();
+    toLoad ++;
+    this.#soundEffect.oncanplaythrough = load;
+    this.#soundEffect.src = "resources/audio/minigames/typer/buttonpress.mp3"; 
+    this.#soundEffect.controls = false;
     // For other audio clips, omit loop=true and call .play() on them when you want them to trigger
     // (probably call .pause() or set .volume on background music first)
     // Example of non-background audio can be found in Game
@@ -258,7 +265,7 @@ class TyperGame {
 			if (topElement.innerHTML.charAt(topElement.innerHTML.length-1) == "_") {
 				topElement.innerHTML = topElement.innerHTML.slice(0,topElement.innerHTML.length-1)
 			} else {
-				topElement.innerHTML += "_"
+				topElement.innerHTML += "_";
 			}
 		},500)
 
@@ -341,7 +348,7 @@ class TyperGame {
 		// Starts the background music
 		// Move to before the waiting loop if you want music to play on the loading screen
 		// However, it is probably better here for consistency with other minigames/the main game
-		// this.#backgroundMusic.play();
+		this.#backgroundMusic.play();
 
 		loadingDiv.style.display = 'none';
 		
@@ -437,7 +444,7 @@ class TyperGame {
 	win() {
 		// Only needed if there is a mainloop to terminate
 		this.#gameOver = true;
-		// this.#backgroundMusic.pause();
+		this.#backgroundMusic.pause();
 		let victoryDialog = "WOW! You really can program!";
 		for (let stat in this.#victoryStats) {
 			victoryDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
@@ -469,7 +476,7 @@ class TyperGame {
 	lose(car) {
 		// Only needed if there is a mainloop to terminate
 		this.#gameOver = true;
-		// this.#backgroundMusic.pause();
+		this.#backgroundMusic.pause();
 		let lossDialog = "YOU LOSE!!<br> Timer Hit 0!";
 		for (let stat in this.#lossStats) {
 			lossDialog += "<br>" + stat.charAt(0).toUpperCase() + stat.slice(1);
@@ -601,6 +608,9 @@ class TyperGame {
 				return
 			}
 		if (event.key == this.#beneathSentence.charAt(this.#topSentence.length)) {
+			this.#soundEffect.currentTime = 0.3;
+      this.#soundEffect.play();
+      this.#backgroundMusic.volume = 1;
 			this.#topSentence += event.key;
 			this.#topElement.innerHTML = this.#topSentence + "_";
 			if (this.#isMobile) {
