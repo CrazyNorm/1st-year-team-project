@@ -25,13 +25,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
                 $user_data = mysqli_fetch_assoc($result);
 
                 if(password_verify($password, $user_data['password'])) {
-                    $_SESSION['email'] = $user_data['email'];
+                    $_SESSION['userid'] = $user_data['id'];
 
                     if($user_data['is_admin'] == 1){
                         header("Location: adminPage.php");
                     }
                     else{
-                        header("Location: GamePage.html");
+                        header("Location: GamePage.php");
                     }
                     die;
                 }

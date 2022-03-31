@@ -1,4 +1,7 @@
-<?php 
+<?php
+if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || $_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') {
+    header('Location: ../../homepage.html');
+}
 
 $sql = "SELECT * FROM NPC";
 

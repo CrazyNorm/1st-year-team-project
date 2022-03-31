@@ -89,7 +89,7 @@ class Game {
     playButton.parentNode.removeChild(playButton);
 
     this.#divId = 'gameDiv';
-    this.#player_id = "0";
+    this.#player_id = userid;
     let gameDiv = document.getElementById(this.#divId);
 
     // sets up loading screen
@@ -122,8 +122,9 @@ class Game {
     gameDiv.appendChild(tutorialDiv);
     // forward/backward + start game buttons
     let backwardButton = document.createElement('button');
+    backwardButton.setAttribute('id','backwardButton');
     backwardButton.innerHTML = "Prev.";
-    backwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    backwardButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow;');
     let backwardFunc = () => {
       if (this.#tutorialIndex == this.#tutorialPages.length - 1) {
         startGameButton.style.display = 'none';
@@ -139,6 +140,7 @@ class Game {
       this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
     }
     backwardButton.onclick = backwardFunc;
+    backwardButton.ontouchstart = backwardFunc;
     backwardButton.onmouseover = () => {backwardButton.style.backgroundColor = "#bb33ff"}
     backwardButton.onmouseout = () => {backwardButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(backwardButton);
@@ -160,20 +162,18 @@ class Game {
       this.#tutorialIndicators[this.#tutorialIndex].style.background = '#bb33ff';
     }
     forwardButton.onclick = forwardFunc;
+    forwardButton.ontouchstart = forwardFunc;
     forwardButton.onmouseover = () => {forwardButton.style.cursor = "pointer"; forwardButton.style.backgroundColor = "#bb33ff"}
     forwardButton.onmouseout = () => {forwardButton.style.cursor = "default"; forwardButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(forwardButton);
     let startGameButton = document.createElement('button');
     startGameButton.innerHTML = "Start";
-    startGameButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow; display:none;');
+    startGameButton.setAttribute('style','position:absolute; z-index:1; bottom:10%; right:1%; transform:translate(0,50%); width:20%; height:10%; background:#660099; font-size:3vw; font-family:"Press Start 2P", cursive; color:yellow;');
     let startFunc = () => {
-      this.#isPaused = false;
-      tutorialDiv.style.display = 'none';
-      // only activate th input listeners (except resize) when the tutorial is closed
-      this.startInputListeners();
-      // only activate the pause button when the tutorial is closed
+      this.closeTutorial();
     }
     startGameButton.onclick = startFunc;
+    startGameButton.ontouchstart = startFunc;
     startGameButton.onmouseover = () => {startGameButton.style.cursor = "pointer"; startGameButton.style.backgroundColor = "#bb33ff"}
     startGameButton.onmouseout = () => {startGameButton.style.cursor = "default"; startGameButton.style.backgroundColor = "#660099"}
     tutorialDiv.appendChild(startGameButton);
@@ -185,7 +185,6 @@ class Game {
       this.#tutorialPages.push(tempPage);
     }
     newPage();
-    this.#tutorialPages[0].style.display = 'flex';
     let exampleText1 = document.createElement('p');
     exampleText1.innerHTML = "This is page 1";
     exampleText1.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
@@ -216,7 +215,6 @@ class Game {
       indicatorsDiv.appendChild(tempIndicator);
       this.#tutorialIndicators.push(tempIndicator);
     }
-    this.#tutorialIndicators[0].style.backgroundColor = '#bb33ff';
 
 
 
@@ -299,6 +297,7 @@ class Game {
     makeButton("Leaderboard",function(){
       //Game.savePlayer();
       window.open("leaderboard.php","name?").focus();});
+    makeButton("Tutorial", function() {Game.closePauseMenu(); Game.openTutorial();});
     makeButton("Save",function() {Game.savePlayer(); Game.closePauseMenu();});
     makeButton("Quit",function(){
       //Game.savePLayer();
@@ -580,8 +579,8 @@ class Game {
     interactButton.setAttribute("style", "width: 3em; height: 3em; position: absolute; left: 1em; bottom: 1em; border-radius: 50%; background-color: #660099; opacity: 0.6;");
     gameDiv.appendChild(interactButton);
 
-    // applies the resize handler first
-    window.addEventListener('resize', function() {Game.resizeHandler()});
+    // sets the input listeners
+    this.startInputListeners();
 
     // wait for everything to load
     while (loaded < toLoad) {
@@ -631,11 +630,7 @@ class Game {
     loadingDiv.style.display = "none";
     // opens tutorial screen
     if (this.#player.getCompletedQuests().length == 0) {
-      this.#isPaused = true;
-      tutorialDiv.style.display = 'block';
-    }
-    else {
-      this.startInputListeners();
+      this.openTutorial();
     }
   }
 
@@ -1046,6 +1041,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadInteractions.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1082,6 +1078,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadQuests.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1114,6 +1111,7 @@ class Game {
       }
     };
     xhr.open("GET","objects/database-scripts/loadNPCs.php");
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1145,7 +1143,8 @@ class Game {
       Game.setPlayer(tempPlayer);
       loaded = true;
     };
-    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id="+this.#player_id);// need to replace this with actual id
+    xhr.open("GET","objects/database-scripts/loadPlayer.php?player_id="+this.#player_id);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
     // function doesn't return until the xhr has finished
     while (!loaded) {
@@ -1180,6 +1179,7 @@ class Game {
     		 '}&completed_quests={"quests":'+JSON.stringify(Game.getPlayer().getCompletedQuests()) +
     		 "}&quest_counts=" + JSON.stringify(Game.getPlayer().getQuestCounts()) +
     		 "&time_of_day=" + Game.getPlayer().getTimeOfDay().toString());
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
 
   }
@@ -1192,6 +1192,7 @@ class Game {
     xhr.open("GET","objects/database-scripts/saveScore.php?" +
          "user_id=" + Game.getPlayerId() + 
          "&score=" + Game.getScore());
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.send();
   }
 
@@ -1336,7 +1337,7 @@ class Game {
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
       } 
-      if (!menuClosed) {
+      if (!menuClosed && !this.#isTutorial) {
         if (element.id == "interactButton") {
           this.#interactTouch = {"clientX":event.clientX, "clientY": event.clientY, "identifier":"mouseDown"};
         } else if (element.id == "pauseButton") {
@@ -1421,7 +1422,7 @@ class Game {
       if ((element.id == "controls" || element.id == "joystick") && this.#joystickTouch == undefined) {
         this.#joystickTouch = touch;
       } 
-      if (!menuClosed) {
+      if (!menuClosed && !this.#isTutorial) {
         if (element.id == "interactButton") {
           this.#interactTouch = touch;
         } else if (element.id == "pauseButton") {
@@ -1555,6 +1556,30 @@ class Game {
       this.#currentNPC.setCurrentElement(this.#currentNPC.getDefaultDirection() + "_Standing");
       this.#currentNPC = undefined;
     }
+  }
+
+  static openTutorial() {
+    let div = document.getElementById('tutorial');
+    div.style.display = 'block';
+    this.#isPaused = true;
+    this.#isTutorial = true;
+    // resets to the first page
+    let button = document.getElementById('backwardButton');
+    this.#tutorialIndex = this.#tutorialPages.length-1;
+    while (this.#tutorialIndex > 0) {
+      button.click();
+    }
+  }
+
+  static async closeTutorial() {
+    let div = document.getElementById('tutorial');
+    div.style.display = 'none';
+    let waitPromise = new Promise(function(resolve, reject) {
+      setTimeout(resolve,500);
+    });
+    await waitPromise;
+    this.#isPaused = false;
+    this.#isTutorial = false;
   }
 
   static openPauseMenu () {

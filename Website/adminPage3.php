@@ -1,3 +1,8 @@
+<?php
+if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
+    header('Location: homepage.html');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

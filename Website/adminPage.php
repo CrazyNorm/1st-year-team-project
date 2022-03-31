@@ -1,3 +1,8 @@
+<?php
+if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
+    header('Location: homepage.html');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +100,7 @@
         </p>
         <div class="tooltip text textTitle">NPC's : <span class="tooltiptext">Select all NPC's to add this interaction to</span></span></div>
          <?php
-        session_start();
+        session_start();   
         include("connection.php");
         $sql = 'SELECT npc_id, name FROM NPC';
         $result = $con->query($sql);

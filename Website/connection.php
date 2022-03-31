@@ -1,5 +1,7 @@
 <?php
-
+if(basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"])) {
+    header('Location: homepage.html');
+}
 #$dbhost = "localhost";
 #$dbusername = "root";
 #$dbpassword = "876973145";
