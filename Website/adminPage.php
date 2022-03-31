@@ -1,6 +1,11 @@
 <?php
-if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
+session_start();
+
+if (!isset($_SESSION['userid'])) {
     header('Location: homepage.html');
+}
+else if ($_SESSION['is_admin'] != 1) {
+    header('Location: GamePage.html');
 }
 ?>
 <!DOCTYPE html>
@@ -99,8 +104,7 @@ if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
             This is the Interaction managment page
         </p>
         <div class="tooltip text textTitle">NPC's : <span class="tooltiptext">Select all NPC's to add this interaction to</span></span></div>
-         <?php
-        session_start();   
+         <?php   
         include("connection.php");
         $sql = 'SELECT npc_id, name FROM NPC';
         $result = $con->query($sql);
