@@ -296,12 +296,12 @@ class Game {
     makeButton("Stats",function(){Game.closePauseMenu(); Game.openStatWindow();});
     makeButton("Quest Log",function(){Game.closePauseMenu(); Game.openQuestLog();});
     makeButton("Leaderboard",function(){
-      //Game.savePlayer();
+      Game.savePlayer();
       window.open("leaderboard.php","name?").focus();});
     makeButton("Tutorial", function() {Game.closePauseMenu(); Game.openTutorial();});
     makeButton("Save",function() {Game.savePlayer(); Game.closePauseMenu();});
     makeButton("Quit",function(){
-      //Game.savePLayer();
+      Game.savePlayer();
       document.location.href = "homepage.html";
     });
     let credits = document.createElement("p");
@@ -483,7 +483,8 @@ class Game {
       // if the quest has no requirements and is not active, activate it
       if (this.#allQuests[qPos].getInteractionRequirements().length == 0
           && this.#allQuests[qPos].getQuestRequirements().length == 0
-          && !this.#player.getCurrentQuests().includes(this.#allQuests[qPos].getId())) {
+          && !this.#player.getCurrentQuests().includes(this.#allQuests[qPos].getId())
+          && !this.#player.getCompletedQuests().includes(this.#allQuests[qPos].getId())) {
         this.#player.addCurrentQuest(this.#allQuests[qPos].getId());
       }
     }
@@ -1236,9 +1237,8 @@ class Game {
     div.addEventListener('mouseup', function() {Game.mouseUpHandler(event)});
     div.addEventListener('mousemove', function() {Game.mouseMoveHandler(event)});
     window.addEventListener('resize', function() {Game.resizeHandler()});
-    window.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
-    //Game.savePlayer()});
-    });
+    document.addEventListener('close', function() {window.open("leaderboard.php","nma?").open()
+    Game.savePlayer()});
   }
 
   static keyDownHandler(event) {

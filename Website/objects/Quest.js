@@ -190,7 +190,7 @@ class Quest {
   	    }
         Game.updateStatDisplay();
 
-        // Game.savePlayer();
+        Game.savePlayer();
     	}
   	}
   }

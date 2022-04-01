@@ -14,6 +14,8 @@ else if ($_SESSION['is_admin'] != 1) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Page (NPC) </title>
+    
+    <link rel="shortcut icon" type="image/png" href="resources/imgs/icon.png"/>
     <link rel="stylesheet" type="text/css" href="resources/css/website_style.css">
     <style type="text/css">
         .text {
