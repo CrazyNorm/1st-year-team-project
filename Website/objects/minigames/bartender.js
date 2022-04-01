@@ -82,7 +82,7 @@ class BartenderGame {
     emptyBar.appendChild(fillBar);
 
 
-		let maxLoad = 100;
+		let maxLoad = 11;
     let toLoad = 0;
     let loaded = 0;
     function load() {
@@ -395,10 +395,6 @@ class BartenderGame {
 																					[],
 																					[]);
 
-		// Other stuff before the game closes
-
-		console.log("yay")
-
 		Game.setCurrentInteraction(tempInteraction);
 		Game.displayDialog();
 		Game.endMinigame();
@@ -437,10 +433,6 @@ class BartenderGame {
 																					[],
 																					[],
 																					[]);
-
-		// Other stuff before the game closes
-
-		console.log('oh no')
 
 		Game.setCurrentInteraction(tempInteraction);
 		Game.displayDialog();
