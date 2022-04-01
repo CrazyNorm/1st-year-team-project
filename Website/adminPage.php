@@ -5,7 +5,7 @@ if (!isset($_SESSION['userid'])) {
     header('Location: homepage.html');
 }
 else if ($_SESSION['is_admin'] != 1) {
-    header('Location: GamePage.html');
+    header('Location: GamePage.php');
 }
 ?>
 <!DOCTYPE html>

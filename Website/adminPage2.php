@@ -1,8 +1,11 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
+if (!isset($_SESSION['userid'])) {
     header('Location: homepage.html');
+}
+else if ($_SESSION['is_admin'] != 1) {
+    header('Location: GamePage.php');
 }
 ?>
 <!DOCTYPE html>
