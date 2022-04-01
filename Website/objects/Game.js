@@ -89,6 +89,16 @@ class Game {
     let playButton = document.getElementById("playButton");
     playButton.parentNode.removeChild(playButton);
 
+    // keeps count of when everything has finished loading
+    let maxLoad = 34; // doesn't need to be too accurate, just used for loading bar
+    let toLoad = 0;
+    let loaded = 0;
+    function load() {
+      loaded ++;
+      fillBar.style.width = String(loaded / maxLoad * 100) + "%";
+    }
+
+
     this.#divId = 'gameDiv';
     this.#player_id = userid;
     let gameDiv = document.getElementById(this.#divId);
@@ -187,24 +197,18 @@ class Game {
     }
     newPage();
     let exampleText1 = document.createElement('p');
-    exampleText1.innerHTML = "This is page 1";
-    exampleText1.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
-    this.#tutorialPages[0].appendChild(exampleText1);
+    let tutorialImg1 = document.createElement("img");
+    tutorialImg1.src = "resources/imgs/tutorial/tutorialpage1.png"
+    tutorialImg1.onload = load;
+    toLoad++;
+    this.#tutorialPages[0].appendChild(tutorialImg1);
     newPage();
     let exampleText2 = document.createElement('p');
-    exampleText2.innerHTML = "This is page 2";
-    exampleText2.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
-    this.#tutorialPages[1].appendChild(exampleText2);
-    newPage();
-    let exampleText3 = document.createElement('p');
-    exampleText3.innerHTML = "This is page 3";
-    exampleText3.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
-    this.#tutorialPages[2].appendChild(exampleText3);
-    newPage();
-    let exampleText4 = document.createElement('p');
-    exampleText4.innerHTML = "This is page 4";
-    exampleText4.setAttribute('style','font-size:3vmin; font-family:"Press Start 2P", cursive; color:#660099;');
-    this.#tutorialPages[3].appendChild(exampleText4);
+    let tutorialImg2 = document.createElement("img");
+    tutorialImg2.src = "resources/imgs/tutorial/tutorialpage2.png"
+    tutorialImg2.onload = load;
+    toLoad++;
+    this.#tutorialPages[1].appendChild(tutorialImg2);
     // page indicators
     let indicatorsDiv = document.createElement('div');
     indicatorsDiv.setAttribute('style','position:absolute; z-index:1; bottom:10%; left:50%; transform:translate(-50%,50%); width:50%; height:10%; display:flex; justify-content:space-evenly; align-items:center;');
@@ -422,15 +426,7 @@ class Game {
     let scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
     let characterTypes = ['Female_Gareth','Gareth','Stewart','Blank','Player_Brown_Hair'];
 
-    // keeps count of when everything has finished loading
-    let maxLoad = 34; // doesn't need to be too accurate, just used for loading bar
-    let toLoad = 0;
-    let loaded = 0;
-    function load() {
-      loaded ++;
-      fillBar.style.width = String(loaded / maxLoad * 100) + "%";
-    }
-
+    
   	// create scripts
   	for (let script of scripts) {
   	  let tempScript = document.createElement("script");
