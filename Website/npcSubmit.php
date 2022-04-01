@@ -54,11 +54,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $result = mysqli_query($con, $SQL);
 
     if ($result){
-            echo "New record created successfully";
+        header('Location: adminPage3.php');
+        echo "New record created successfully";
 
     } 
     else {
-         echo "Error: " . $SQL . "<br>" . mysqli_error($con);  
+        echo "Error: " . $SQL . "<br>" . mysqli_error($con);  
     }
 
 

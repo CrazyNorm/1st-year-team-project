@@ -203,8 +203,8 @@ class Player { //TEST THIS
 		this.#currentQuests.splice(this.#currentQuests.indexOf(id),1);
 		delete this.#questCounts[id];
 		this.#completedQuests.push(id)
-		let questComplete = document.getElementById("questcomplete");
 		let quest = Game.getQuest(id);
+		let questComplete = document.getElementById("questcomplete");
 		questComplete.innerHTML = "QUEST COMPLETE!!!<br>" + quest.getTitle();
 		for (let stat in quest.getRewardStatChanges()) {
 			if (stat == 'socialLife') {

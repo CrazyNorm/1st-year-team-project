@@ -21,17 +21,15 @@ if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
             text-align: center;
             background: white;
          }
+
        .submit {
+            display: inline-block;
             font-size: 2em;
             color: yellow;
             height: 2em;
             background: #660099;
             border-color: #ffffff;
             border-color: black;
-            position: absolute;
-            left:  50%;
-            display: block;
-
         }
         .submit:hover {
             background: #bb33ff;
@@ -106,7 +104,7 @@ if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
         <div class="tooltip text textTitle">Character Type : <span class="tooltiptext">Character Type Filename eg. Gareth</span></div> <input type="text" name = "character_type" placeholder="Character Type" class="textBlock">
         <div class="tooltip text textTitle">Interactions : <span class="tooltiptext">List of interaction ids of format 1,2,3,4 where 1 is most important and 4 is least important. Default interactions should be less important</span></div> <input type="text" class="textBlock" placeholder="Interactions" name= "interactions">
         <div class="tooltip text textTitle">Direction : <span class="tooltiptext">Direction for sprite to face</span></div> <div class="text textTitle smaller">N :</div> <input type="radio" class="checkbox" name="direction" value='N'> <div class="text textTitle smaller">E :</div> <input type="radio" class="checkbox" name="direction" value='E'> <div class="text textTitle smaller">S :</div> <input type="radio" class="checkbox" name="direction" value='S'> <div class="text textTitle smaller">W :</div> <input type="radio" class="checkbox" name="direction" value='W'>
-
+        <br>
         <button type="submit" class = "submit">Submit</button>
 
         </form>

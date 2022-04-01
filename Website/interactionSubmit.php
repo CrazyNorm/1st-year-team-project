@@ -104,19 +104,24 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                 $result = $con->query($sql);
                 if ($result) {
                     $interactions = mysqli_fetch_assoc($result);
-                    $interactions = substr($interactions['interactions'],0,18) . '"' . $interationid . '", ' . substr($interactions['interactions'], 18,-1) . '}';
+                    if (strlen($interactions['interactions']) > 20) {
+                        $interactions = substr($interactions['interactions'],0,18) . '"' . $interationid . '", ' . substr($interactions['interactions'], 18,-1) . '}';
+                    } else {
+                        $interactions = substr($interactions['interactions'],0,18) . '"' . $interationid . '"' . substr($interactions['interactions'], 18,-1) . '}';
+                    }
+                    
                     $sql = "UPDATE NPC SET interactions='$interactions' WHERE npc_id='$npcid'";
                     $result = mysqli_query($con, $sql);
                     if (!$result) {
-                        echo "Error: " . $SQL . "<br>" . mysqli_error($con);     
+                        echo "Error: " . $sql . "<br>" . mysqli_error($con);     
                     }
                 } else {
-                    echo "Error: " . $SQL . "<br>" . mysqli_error($con);  
+                    echo "Error: " . $sql . "<br>" . mysqli_error($con);  
                 }
                 
             }
         }
-
+        header('Location: adminPage.php');
         echo "New record created successfully";
 
     } 

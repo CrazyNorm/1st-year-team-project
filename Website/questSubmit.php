@@ -14,6 +14,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $title = $_POST['title'];
     $description = $_POST['description'];
     $targetCount = $_POST['targetCount'];
+    if ($targetCount == '') {
+        $targetCount = 0;
+    }
     $hunger = $_POST['hunger'];
     if ($hunger == '') {
         $hunger = 0;
@@ -119,7 +122,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     $result = mysqli_query($con, $SQL);
 
     if ($result){
-            echo "New record created successfully";
+        header('Location: adminPage2.php');
+        echo "New record created successfully";
 
     } 
     else {

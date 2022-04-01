@@ -22,16 +22,16 @@ if(!isset($_SESSION['userid']) && $_SESSION['is_admin'] != 1) {
             background: white;
          }
        .submit {
+            display: inline-block;
             font-size: 2em;
             color: yellow;
             height: 2em;
             background: #660099;
             border-color: #ffffff;
             border-color: black;
-            position: absolute;
-            left:  50%;
-            display: block;
-
+        }
+        .submit:hover {
+            background: #bb33ff;
         }
         .submit:hover {
             background: #bb33ff;
