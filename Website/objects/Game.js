@@ -308,11 +308,12 @@ class Game {
     credits.setAttribute("id","credits");
     credits.setAttribute("style","position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;");
     credits.innerHTML = "Credits:<br>"
-    credits.innerHTML += 'Main Game Music: <a class="credit" href="https://theirdogswereastronauts.bandcamp.com/album/neon-theatre">Get Up - Their Dogs Were Astronauts</a><br>';
-    credits.innerHTML += 'Frogger music: <a class="credit" href="https://cloudkicker.bandcamp.com/album/the-discovery">Dysphoria - Cloudkicker</a><br>';
+    credits.innerHTML += 'Main Game Music: Music by <a class="credit" href="/users/vic_b-6314823/?tab=audio&amp;utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=audio&amp;utm_content=7203">Vic_B</a> from <a class= "credit" href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=music&amp;utm_content=7203">Pixabay</a><br>';
+    credits.innerHTML += 'Frogger music: Music by <a class="credit"href="/users/lemonmusicstudio-14942887/?tab=audio&amp;utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=audio&amp;utm_content=15299">lemonmusicstudio</a> from <a class="credit"href="https://pixabay.com/music/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=music&amp;utm_content=15299">Pixabay</a><br>';
     credits.innerHTML += 'NPC voice: <a class="credit" href="https://freesound.org/people/TheSubber13/sounds/239901/">This</a><br>';
     credits.innerHTML += 'Typer Music: <a class="credit" href="https://pixabay.com/music/id-21275/">Rock It</a><br>';
     credits.innerHTML += 'Typer Sounds Effect: <a class="credit" href="https://freesound.org/s/264388/">Button</a><br>';
+    credits.innerHTML += 'Bartender Music: Music by <a class="credit" href="/users/lemonmusicstudio-14942887/?tab=audio&amp;utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=audio&amp;utm_content=15190">lemonmusicstudio</a> from <a class="credit" href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=music&amp;utm_content=15190">Pixabay</a>'
 
 
     //To add more copy and paste or ensure any html objects have a class of credit
