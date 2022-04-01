@@ -25,7 +25,7 @@ echo("<script type='text/javascript'>var userid = " . $_SESSION['userid'] . ";</
 
 				.background {
 				 	width: 100%;
-				 	height: 140%;
+				 	height: 100%;
 				 	top: 0;
 				 	left: 0;
 				 	position: absolute;
@@ -101,7 +101,7 @@ echo("<script type='text/javascript'>var userid = " . $_SESSION['userid'] . ";</
 			@media only screen and (max-width: 480px){
 				.background {
 				 	width: 100%;
-				 	height: 140%;
+				 	height: 100%;
 				 	top: 0;
 				 	left: 0;
 				 	position: absolute;
@@ -187,8 +187,7 @@ echo("<script type='text/javascript'>var userid = " . $_SESSION['userid'] . ";</
 		<button class="playButton" id="playButton" onclick="Game.startGame()">Play</button>
 
 	</div>
-
-	<div class="HowToPlay">
+<!-- 	<div class="HowToPlay">
 
 		UNI LIFE
 		<hr>
@@ -221,7 +220,7 @@ echo("<script type='text/javascript'>var userid = " . $_SESSION['userid'] . ";</
 		<p class="text">NPC voice:
 			<a href="https://freesound.org/people/TheSubber13/sounds/239901/">This</a>
 		</p>
-	</div>
+	</div> -->
 
 	<script type="text/javascript" src ="objects/Game.js"></script>
 

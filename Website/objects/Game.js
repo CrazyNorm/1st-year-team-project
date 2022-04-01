@@ -270,7 +270,7 @@ class Game {
     pauseMenu.setAttribute("id","pauseMenu");
     pauseMenu.setAttribute('style',"display: none; z-index: 2; position : relative; background-color : rgba(201,197,201,0.95); height: 80%; top:  50%; left:  50%; transform: translate(-50%,-50%); border-style: solid; border-width: 0.5em; border-color: #EEEEE; border-radius: 2em; overflow-y: auto;");
     gameDiv.appendChild(pauseMenu);
-    pauseMenu.innerHTML = "<style>.menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} .menubutton:hover {background-color: #bb33ff; cursor: pointer;}</style>";
+    pauseMenu.innerHTML = "<style>.menubutton {position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;} .menubutton:hover {background-color: #bb33ff; cursor: pointer;} a{color:orange}</style>";
     let pauseCentre = document.createElement("div");
     pauseCentre.setAttribute("style","display: flex; justify-content: center; align-items: center; flex-wrap: wrap; text-align: center; position: absolute; height:100%; width: 100%; top: 0; left: 0;");
     //align-items: center; justify-content: center; flex-direction: column
@@ -304,6 +304,19 @@ class Game {
       //Game.savePLayer();
       document.location.href = "homepage.html";
     });
+    let credits = document.createElement("p");
+    credits.setAttribute("id","credits");
+    credits.setAttribute("style","position: relative; display: block; background-color: #660099; color: yellow; width : 80%; border: solid; border-color: black; border-radius: 0.5em; margin-top: 2em; font-family: 'Press Start 2P', cursive; word-wrap: break-word; padding: 0.5em; text-align:center;");
+    credits.innerHTML = "Credits:<br>"
+    credits.innerHTML += 'Main Game Music: <a class="credit" href="https://theirdogswereastronauts.bandcamp.com/album/neon-theatre">Get Up - Their Dogs Were Astronauts</a><br>';
+    credits.innerHTML += 'Frogger music: <a class="credit" href="https://cloudkicker.bandcamp.com/album/the-discovery">Dysphoria - Cloudkicker</a><br>';
+    credits.innerHTML += 'NPC voice: <a class="credit" href="https://freesound.org/people/TheSubber13/sounds/239901/">This</a><br>';
+    credits.innerHTML += 'Typer Music: <a class="credit" href="https://pixabay.com/music/id-21275/">Rock It</a><br>';
+    credits.innerHTML += 'Typer Sounds Effect: <a class="credit" href="https://freesound.org/s/264388/">Button</a><br>';
+
+
+    //To add more copy and paste or ensure any html objects have a class of credit
+    pauseCentre.appendChild(credits)
 
     //quest log
     let questLog = document.createElement("div");
@@ -1246,6 +1259,12 @@ class Game {
         case "KeyP":
           this.closeDialog();
           break;
+        case "ArrowDown":
+          document.getElementById("dialogBox").scrollTop += 10;
+          break;
+        case "ArrowUp":
+          document.getElementById("dialogBox").scrollTop -= 10;
+          break;  
       }
     }
     if (this.#isStatWindow) {
@@ -1327,7 +1346,7 @@ class Game {
           menuClosed = true;
         }
       } else if (this.#isPauseMenu) {
-        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton") {
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton" && element.id != "credits" && element.className != "credit") {
           this.closePauseMenu();
           menuClosed = true;
 
@@ -1412,7 +1431,7 @@ class Game {
           menuClosed = true;
         }
       } else if (this.#isPauseMenu) {
-        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton") {
+        if (element.id != "pauseMenu" && element.id != "pauseCentre" && element.className != "menubutton" && element.id != "credits" && element.class != "credit") {
           this.closePauseMenu();
           menuClosed = true;
 
