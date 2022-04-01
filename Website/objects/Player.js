@@ -107,6 +107,7 @@ class Player { //TEST THIS
 				this.#stats[statid] = 0;
 			}
 		}
+		Game.updateStatDisplay();
 	}
 
 	getSpeed() {

@@ -147,9 +147,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
         <p style=" font-family: 'Roboto Medium', sans-serif; font-size: 1.5em; color:#59c2c5">Player character:</p>
         <div>
             <label class="container">
-                <input type="radio" class="imgButton" name="character_type" value="Gareth" required>
+                <input type="radio" class="imgButton" name="character_type" value="Player_Brown_Hair" required>
                 <div class="checkmark" style="">
-                <img src="resources/imgs/characters/Gareth/S_Standing.png" style="width:15vw; height:15vw;">    
+                <img src="resources/imgs/characters/Player_Brown_Hair/S_Standing.png" style="width:15vw; height:15vw;">    
                 </div>
             </label>
             <label class="container">

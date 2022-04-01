@@ -30,6 +30,7 @@ class Game {
   static #isPauseMenu;
   static #currentMinigame; // undefined if not in minigame
   static #loadedMinigames; // minigame scripts aren't loaded until needed, but should only be loaded once
+  static #flashingStats;
 
   // DOM-related attributes
   static #canvas;
@@ -778,7 +779,8 @@ class Game {
                 this.#player.setSpeed(10);
                 break;
               case "KeyK":
-                this.#player.updateStat('sleep',10);
+                this.#player.updateStat('hunger',-10);
+                this.updateStatDisplay();
                 console.log(this.#player.getCoords());
                 break;
               case "KeyF":
@@ -1956,6 +1958,23 @@ class Game {
     // sets sleep/hunger speed penalty
     if (this.#player.getStat('sleep') >= 100 || this.#player.getStat('hunger') >= 100) {
       this.#player.setSpeed(1);
+      if (this.#flashingStats == undefined) {
+        this.#flashingStats = setInterval(() => {
+          let statDisplay = document.getElementById("statdisplay");
+          if (this.#player.getStat('sleep') >= 100 || this.#player.getStat('hunger') >= 100) {
+            if (statDisplay.style.color == "yellow") {
+              statDisplay.style.color = "red";
+            } else {
+              statDisplay.style.color = "yellow";
+            }
+          } else {
+            statDisplay.style.color = "yellow";
+            clearTimeout(this.#flashingStats);
+            this.#flashingStats = undefined;
+          }
+        },500)
+      }
+      
     }
 
     if (this.#player.getStat('sleep') >= 100 && this.#player.getStat('hunger') >= 100) {
