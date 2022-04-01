@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
     } else {
         $character_type = '';
     }
-    $stats = '{"money":50,"sleep":0,"grades":0,"hunger":0,"socialLife":0}';
+    $stats = '{"money":50,"sleep":0,"grades":0,"hunger":15,"socialLife":0}';
     $current_quests = '{"quests":["0"]}';
     $selected_quest = 0;
     $completed_interactions = '{"interactions":[]}';

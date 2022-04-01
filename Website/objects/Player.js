@@ -103,6 +103,8 @@ class Player { //TEST THIS
 		if (statid == 'hunger' || statid == 'sleep') {
 			if (this.#stats[statid] > 100) {
 				this.#stats[statid] = 100;
+			} else if (this.#stats[statid] < 0) {
+				this.#stats[statid] = 0;
 			}
 		}
 	}
@@ -238,6 +240,8 @@ class Player { //TEST THIS
 
 	incrementTime() { // Morning, Afternoon, Evening, Night, Early Morning
 		this.#timeOfDay += 1;
+		this.updateStat("sleep",5);
+		this.updateStat("hunger",5);
 		if (this.#timeOfDay > 4) {
 			this.#timeOfDay = 0;
 		}
