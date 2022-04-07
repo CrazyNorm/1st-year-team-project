@@ -424,7 +424,7 @@ class Game {
     }
     // function scope lists used for loading
     let scripts = ['data.json','Interaction.js','Map.js','NPC.js','Player.js','Quest.js'];
-    let characterTypes = ['Female_Gareth','Gareth','Stewart','Blank','Player_Brown_Hair'];
+    let characterTypes = ['Female_Gareth','Gareth','Stewart','Blank','Player_Brown_Hair','Uli','KK','Angel_Gareth','Devil_Gareth'];
 
     
   	// create scripts
